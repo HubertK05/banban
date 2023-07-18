@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { invoke } from '@tauri-apps/api/tauri';
   import Greet from './lib/Greet.svelte'
 </script>
 
@@ -23,6 +24,8 @@
 
   <div class="row">
     <Greet />
+    <button on:click={() => invoke("create_activity", {title: "haha", body: "asdasda"})}>
+      Create Activity
   </div>
 
 
