@@ -19,10 +19,12 @@ serde_json = "1.0.103"
 dotenvy = "0.15.7"
 anyhow = "1.0.72"
 thiserror = "1.0.43"
-sqlx = { version = "0.7.1", features = ["sqlite", "runtime-tokio-rustls"] }
 time = "0.3.23"
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 log = "0.4.19"
+sea-orm = { version = "0.11.3", features = ["debug-print", "with-uuid", "with-time", "sqlx-sqlite", "runtime-tokio-rustls", "sqlx"] }
+entity = { path = "../entity" }
+migration = {path = "../migration" }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

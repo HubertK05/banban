@@ -2,6 +2,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use log::debug;
+use sea_orm::{Database, DatabaseConnection};
+use tauri::Manager;
 use tauri_plugin_log::LogTarget;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -11,12 +13,22 @@ fn greet(name: &str) -> String {
 }
 
 fn main() {
+    dotenvy::dotenv().ok();
+
     tauri::Builder::default()
-        .plugin(tauri_plugin_log::Builder::default().targets([
-            LogTarget::LogDir,
-            LogTarget::Stdout,
-            LogTarget::Webview,
-        ]).build())
+        .setup(|app| {
+            let db = tauri::async_runtime::block_on(async {
+                Database::connect("sqlite:../database.sqlite3?mode=rwc").await
+            })
+            .expect("Failed to connect to database");
+            app.manage(db);
+            Ok(())
+        })
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .targets([LogTarget::LogDir, LogTarget::Stdout, LogTarget::Webview])
+                .build(),
+        )
         .invoke_handler(tauri::generate_handler![greet])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
