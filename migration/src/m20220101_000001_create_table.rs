@@ -9,26 +9,37 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Task::Table)
+                    .table(Activity::Table)
                     .if_not_exists()
-                    .col(ColumnDef::new(Task::Id).uuid().not_null().primary_key())
-                    .col(ColumnDef::new(Task::Title).string().not_null())
-                    .col(ColumnDef::new(Task::Body).string().not_null())
+                    .col(
+                        ColumnDef::new(Activity::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(Activity::Title).string().not_null())
+                    .col(ColumnDef::new(Activity::Body).string().not_null())
                     .to_owned(),
             )
-            .await
+            .await?;
+
+        let db = manager.get_connection();
+        let insert = Query::insert().into_table(Activity::Table).columns([Activity::Title, Activity::Body]).values_panic(["Home chores".into(), "Clean the house".into()]).to_owned();
+        manager.exec_stmt(insert).await?;
+        Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Task::Table).to_owned())
+            .drop_table(Table::drop().table(Activity::Table).to_owned())
             .await
     }
 }
 
 /// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
-enum Task {
+enum Activity {
     Table,
     Id,
     Title,

@@ -22,7 +22,7 @@ thiserror = "1.0.43"
 time = "0.3.23"
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 log = "0.4.19"
-sea-orm = { version = "0.11.3", features = ["debug-print", "with-uuid", "with-time", "sqlx-sqlite", "runtime-tokio-rustls", "sqlx"] }
+sea-orm = { version = "0.11.3", features = ["debug-print", "with-time", "sqlx-sqlite", "runtime-tokio-rustls", "sqlx"] }
 entity = { path = "../entity" }
 migration = {path = "../migration" }
 

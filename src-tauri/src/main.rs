@@ -1,16 +1,13 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use log::debug;
-use sea_orm::{Database, DatabaseConnection};
+use sea_orm::Database;
 use tauri::Manager;
 use tauri_plugin_log::LogTarget;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+pub mod commands;
+use commands::*;
+
 
 fn main() {
     dotenvy::dotenv().ok();
@@ -29,7 +26,7 @@ fn main() {
                 .targets([LogTarget::LogDir, LogTarget::Stdout, LogTarget::Webview])
                 .build(),
         )
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![example::greet])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
