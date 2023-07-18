@@ -8,7 +8,6 @@ use tauri_plugin_log::LogTarget;
 pub mod commands;
 use commands::*;
 
-
 fn main() {
     dotenvy::dotenv().ok();
 

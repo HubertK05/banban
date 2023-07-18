@@ -9,9 +9,25 @@ pub struct Model {
     pub id: i32,
     pub title: String,
     pub body: String,
+    pub column_id: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::column::Entity",
+        from = "Column::ColumnId",
+        to = "super::column::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Column,
+}
+
+impl Related<super::column::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Column.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}
