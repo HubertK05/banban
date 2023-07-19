@@ -19,7 +19,6 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Column::Name).string().not_null())
-                    
                     .to_owned(),
             )
             .await?;
@@ -43,7 +42,47 @@ impl MigrationTrait for Migration {
                         ForeignKey::create()
                             .name("fk_activity_id")
                             .from(Activity::Table, Activity::ColumnId)
-                            .to(Column::Table, Column::Id)
+                            .to(Column::Table, Column::Id),
+                    )
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(Category::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(Category::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(Category::Name).string().not_null())
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(Tag::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(Tag::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(Tag::Name).string().not_null())
+                    .col(ColumnDef::new(Tag::CategoryID).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .from(Tag::Table, Tag::CategoryID)
+                            .to(Category::Table, Category::Id),
                     )
                     .to_owned(),
             )
@@ -60,11 +99,34 @@ impl MigrationTrait for Migration {
         let insert = Query::insert()
             .into_table(Activity::Table)
             .columns([Activity::Title, Activity::Body, Activity::ColumnId])
-            .values_panic(["Homework".into(), "Workbook page 31".into(), column_id.into()])
-            .values_panic(["Home chores".into(), "Clean the house".into(), column_id.into()])
+            .values_panic([
+                "Homework".into(),
+                "Workbook page 31".into(),
+                column_id.into(),
+            ])
+            .values_panic([
+                "Home chores".into(),
+                "Clean the house".into(),
+                column_id.into(),
+            ])
             .to_owned();
         manager.exec_stmt(insert).await?;
 
+        let insert = Query::insert()
+            .into_table(Category::Table)
+            .columns([Category::Id, Category::Name])
+            .values_panic([1.into(), "Size".into()])
+            .to_owned();
+        manager.exec_stmt(insert).await?;
+
+        let insert = Query::insert()
+            .into_table(Tag::Table)
+            .columns([Tag::Id, Tag::Name, Tag::CategoryID])
+            .values_panic([1.into(), "small".into(), 1.into()])
+            .values_panic([2.into(), "medium".into(), 1.into()])
+            .values_panic([3.into(), "big".into(), 1.into()])
+            .to_owned();
+        manager.exec_stmt(insert).await?;
         Ok(())
     }
 
@@ -74,6 +136,12 @@ impl MigrationTrait for Migration {
             .await?;
         manager
             .drop_table(Table::drop().table(Column::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(Tag::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(Category::Table).to_owned())
             .await?;
         Ok(())
     }
@@ -94,4 +162,19 @@ enum Column {
     Table,
     Id,
     Name,
+}
+
+#[derive(Iden)]
+enum Category {
+    Table,
+    Id,
+    Name,
+}
+
+#[derive(Iden)]
+enum Tag {
+    Table,
+    Id,
+    Name,
+    CategoryID,
 }
