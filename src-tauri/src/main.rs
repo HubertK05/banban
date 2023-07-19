@@ -6,6 +6,9 @@ pub mod commands;
 pub mod setup;
 use commands::*;
 
+pub mod database;
+pub mod errors;
+
 fn main() {
     dotenvy::dotenv().ok();
     setup::tracing();
@@ -14,7 +17,10 @@ fn main() {
             app.manage(setup::get_database_pool());
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![example::greet, activity::create_activity])
+        .invoke_handler(tauri::generate_handler![
+            example::greet,
+            activity::create_activity
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -1,13 +1,17 @@
 use entity::activity;
 
 use anyhow::Context;
+use sea_orm::{ActiveModelTrait, DbConn, Set};
 use tauri::State;
-use sea_orm::{DbConn, Set, ActiveModelTrait};
 
 use crate::{database::activity::Mutation, errors::AppError};
 
 #[tauri::command]
-pub async fn create_activity(db: State<'_, DbConn>, title: String, body: String) -> Result<(), AppError> {
+pub async fn create_activity(
+    db: State<'_, DbConn>,
+    title: String,
+    body: String,
+) -> Result<(), AppError> {
     let activity = activity::ActiveModel {
         title: Set(title),
         body: Set(body),
@@ -15,7 +19,8 @@ pub async fn create_activity(db: State<'_, DbConn>, title: String, body: String)
         ..Default::default()
     }
     .save(&*db)
-    .await.context("failed to create activity")?;
-    
+    .await
+    .context("failed to create activity")?;
+
     Ok(())
 }
