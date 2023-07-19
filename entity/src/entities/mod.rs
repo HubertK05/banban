@@ -2,7 +2,7 @@
 
 pub mod prelude;
 
-pub mod activity;
-pub mod category;
-pub mod column;
-pub mod tag;
+pub mod activities;
+pub mod categories;
+pub mod columns;
+pub mod tags;

@@ -4,7 +4,7 @@ use tracing::error;
 #[derive(Debug, Error)]
 pub enum AppError {
     #[error(transparent)]
-    Unexpected(anyhow::Error)
+    Unexpected(anyhow::Error),
 }
 
 impl From<anyhow::Error> for AppError {
