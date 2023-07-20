@@ -18,7 +18,7 @@ export interface Editable {
 }
 
 export enum ActiveField {
-    ActivityName,
-    ActivityBody,
-    ColumnName
+    ActivityName = "activity name",
+    ActivityBody = "activity body",
+    ColumnName = "column name"
 }

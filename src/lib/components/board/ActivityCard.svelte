@@ -78,7 +78,7 @@
             contenteditable="true"
             on:change={updateActivity}
             class="flex items-center h-6 px-3 text-lg font-semibold rounded-full outline-none variant-ghost-tertiary"
-            bind:innerHTML={activity.name}
+            bind:innerText={activity.name}
         />
     {:else}
         <!-- svelte-ignore a11y-click-events-have-key-events -->

@@ -7,4 +7,8 @@ const isMock = true;
 export const isDebug: Writable<boolean> = writable(false);
 export const columns: Writable<Columns> = isMock ? writable(mockColumns) : writable(await invoke("get_all_columns"))
 export const currentEditable: Writable<Editable | null> = writable(null)
-currentEditable.subscribe((a)=> console.log(a))
+currentEditable.subscribe((editable) => {
+    if (editable !== null) {
+        console.info(`Current editable - ${editable.field} ID: ${editable.id}`)
+    }
+})

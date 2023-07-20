@@ -1,4 +1,4 @@
-export const shortcut = (node, params: { alt?: boolean, shift?: boolean, control?: boolean, key: string, callback?: Function}) => {
+export const shortcut = (node: HTMLElement, params: { alt?: boolean, shift?: boolean, control?: boolean, key: string, callback?: Function}) => {
     let handler;
     const removeHandler = () => window.removeEventListener('keydown', handler), setHandler = () => {
         removeHandler();
@@ -10,7 +10,6 @@ export const shortcut = (node, params: { alt?: boolean, shift?: boolean, control
                 (!!params.control != (e.ctrlKey || e.metaKey)) ||
                 params.key != e.key)
                 return;
-            console.log("asddasd")
             e.preventDefault();
             params.callback ? params.callback() : node.click();
         };

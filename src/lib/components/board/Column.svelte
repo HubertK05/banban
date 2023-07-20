@@ -39,6 +39,8 @@
                 bind:innerText={column.name}
             />
         {:else}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
             <span
                 contenteditable="false"
                 on:click={handleNameClick}
