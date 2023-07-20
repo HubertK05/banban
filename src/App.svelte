@@ -1,6 +1,7 @@
 <script lang="ts">
-    import Greet from "./lib/Greet.svelte";
+    import Greet from "./lib/components/Greet.svelte";
     import { AppShell, Tab, TabGroup } from "@skeletonlabs/skeleton";
+    import Board from "./lib/components/board/Board.svelte";
     let tabSet: number = 0;
 </script>
 
@@ -12,7 +13,7 @@
             <Tab bind:group={tabSet} name="tab3" value={2}>Tab 3</Tab>
             <svelte:fragment slot="panel">
                 {#if tabSet === 0}
-                    <h1 class="h1">Tab 1</h1>
+                    <Board />
                 {:else if tabSet === 1}
                     <h1 class="h1">Tab 2</h1>
                 {:else if tabSet === 2}
