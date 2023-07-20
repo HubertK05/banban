@@ -26,8 +26,8 @@ pub async fn delete_activity<'a>(db: State<'a, DbConn>, id: i32) -> Result<(), A
 
 #[derive(Serialize, Debug)]
 pub struct CategoryTag {
-    category_name: String,
-    tag_name: String,
+    pub category_name: String,
+    pub tag_name: String,
 }
 
 #[derive(Serialize, Debug)]
@@ -36,14 +36,20 @@ pub struct QueryActivityOutput {
     pub body: Option<String>,
     pub category_tags: HashMap<i32, CategoryTag>,
     pub other_tags: HashSet<String>,
-    pub column_id: Option<i32>,
-    pub column_name: Option<String>,
 }
 
 pub type QueryActivitiesOutput = HashMap<i32, QueryActivityOutput>;
 
+#[derive(Serialize, Debug)]
+pub struct QueryColumnOutput {
+    pub name: Option<String>,
+    pub activities: QueryActivitiesOutput
+}
+
+pub type QueryActivitiesWithColumnsOutput = HashMap<Option<i32>, QueryColumnOutput>;
+
 #[tauri::command]
-pub async fn query_all_activities(db: State<'_, DbConn>) -> Result<QueryActivitiesOutput, AppError> {
+pub async fn query_all_activities(db: State<'_, DbConn>) -> Result<QueryActivitiesWithColumnsOutput, AppError> {
     let res = Query::query_all_activities(db.inner()).await.context("failed to select all activities")?;
     Ok(res)
 }

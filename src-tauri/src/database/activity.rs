@@ -3,11 +3,11 @@ use std::collections::{HashMap, HashSet};
 use anyhow::Context;
 use sea_orm::DbConn;
 
-use ::entity::{activities, activities::Entity as Activity, columns};
+use ::entity::{activities, activities::Entity as Activity, columns, activity_tags, category_tags};
 use sea_orm::*;
 use tracing::debug;
 
-use crate::{commands::activity::{QueryActivitiesOutput, QueryActivityOutput, UpdateActivityContentInput, UpdateActivityColumnInput}, errors::AppError};
+use crate::{commands::activity::{QueryActivitiesOutput, QueryActivityOutput, UpdateActivityContentInput, UpdateActivityColumnInput, QueryColumnOutput, CategoryTag, QueryActivitiesWithColumnsOutput}, errors::AppError};
 
 #[derive(FromQueryResult)]
 struct ActivityQueryResult {
@@ -16,6 +16,9 @@ struct ActivityQueryResult {
     body: Option<String>,
     column_id: Option<i32>,
     column_name: Option<String>,
+    category_id: Option<i32>,
+    category_name: Option<String>,
+    tag_name: Option<String>,
 }
 
 pub struct Query;
@@ -31,27 +34,38 @@ impl Query {
 
     pub async fn query_all_activities(
         db: &DbConn,
-    ) -> Result<QueryActivitiesOutput, DbErr> {
+    ) -> Result<QueryActivitiesWithColumnsOutput, DbErr> {
         let res: Vec<ActivityQueryResult> = Activity::find()
             .select_only()
             .columns([activities::Column::Id, activities::Column::Name, activities::Column::Body])
             .column_as(columns::Column::Id, "column_id")
             .column_as(columns::Column::Name, "column_name")
-            .join(JoinType::InnerJoin, activities::Relation::Columns.def()).into_model().all(db).await?;
+            .join(JoinType::InnerJoin, activities::Relation::Columns.def())
+            .join_rev(JoinType::LeftJoin, activity_tags::Relation::Activities.def())
+            .join_rev(JoinType::LeftJoin, activity_tags::Relation::CategoryTags.def())
+            .join(JoinType::LeftJoin, category_tags::Relation::Categories.def()).into_model().all(db).await?;
 
-        let res: HashMap<i32, QueryActivityOutput> = res.into_iter().map(|x| {
-            (
-                x.id,
-                QueryActivityOutput {
-                    title: x.name,
-                    body: x.body,
-                    category_tags: HashMap::new(),
-                    other_tags: HashSet::new(),
-                    column_id: x.column_id,
-                    column_name: x.column_name,
-                },
-            )
-        }).collect();
+        let res: QueryActivitiesWithColumnsOutput = res.into_iter().fold(HashMap::new(), |mut acc, x| {
+            let column_entry = acc.entry(x.column_id).or_insert(QueryColumnOutput {
+                name: x.column_name,
+                activities: HashMap::new(),
+            });
+
+            let activity_entry = column_entry.activities.entry(x.id).or_insert(QueryActivityOutput { title: x.name, body: x.body, category_tags: HashMap::new(), other_tags: HashSet::new() });
+
+            if let Some(tag_name) = x.tag_name {
+                if let (Some(category_id), Some(category_name)) = (x.category_id, x.category_name) {
+                    activity_entry.category_tags.insert(category_id, CategoryTag {
+                        category_name,
+                        tag_name,
+                    });
+                } else {
+                    activity_entry.other_tags.insert(tag_name);
+                };    
+            }
+            
+            acc
+        });
 
         debug!("Selected activities: {res:?}");
         
