@@ -1,8 +1,27 @@
 <script lang="ts">
     import Column from "./Column.svelte";
     import { columns } from "../../stores";
+    import { invoke } from "@tauri-apps/api/tauri";
 
     const boardName = "Kanban";
+    async function createColumn({
+        currentTarget,
+    }: MouseEvent & {
+        currentTarget: EventTarget & HTMLButtonElement;
+    }) {
+        const name = "test";
+        //const id = await invoke("create_column", { name })
+        const id = new Date().getMilliseconds();
+        $columns.set(id, { name, activities: new Map() });
+        $columns = $columns;
+        setTimeout(() => {
+            currentTarget.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "center",
+            });
+        }, 100);
+    }
 </script>
 
 <div
@@ -15,7 +34,10 @@
         {#each $columns as [id, column] (id)}
             <Column {column} {id} />
         {/each}
-
+        <button
+            on:click={createColumn}
+            class="btn variant-ghost-tertiary max-h-96">+</button
+        >
         <div class="flex-shrink-0 w-6" />
     </div>
 </div>

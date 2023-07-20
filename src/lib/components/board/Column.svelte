@@ -3,6 +3,7 @@
     import type { Activity, Column } from "../../interfaces/main";
     import ActivityCard from "./ActivityCard.svelte";
     import { columns } from "../../stores";
+    import { fly } from "svelte/transition";
 
     export let id: number;
     export let column: Column;
@@ -21,7 +22,7 @@
     }
 </script>
 
-<div class="flex flex-col flex-shrink-0 w-72">
+<div class="flex flex-col flex-shrink-0 w-72" transition:fly>
     <div class="flex items-center flex-shrink-0 h-10 px-2">
         <span class="block text-sm font-semibold">{column.name}</span>
         <span
