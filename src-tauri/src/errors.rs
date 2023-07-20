@@ -3,6 +3,8 @@ use tracing::error;
 
 #[derive(Debug, Error)]
 pub enum AppError {
+    #[error("The item with a specified id is not found")]
+    RowNotFound,
     #[error(transparent)]
     Unexpected(anyhow::Error),
 }
