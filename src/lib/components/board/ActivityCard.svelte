@@ -3,6 +3,7 @@
     import { ActiveField, type Activity } from "../../interfaces/main";
     import { columns, currentEditable, isDebug } from "../../stores";
     import { fly } from "svelte/transition";
+    import DebugMessage from "../debug/DebugLabel.svelte";
 
     export let id: number;
     export let columnId: number;
@@ -90,9 +91,7 @@
         >
     {/if}
 
-    {#if $isDebug}
-        <b class="variant-soft-warning rounded-md">ID {id}</b>
-    {/if}
+    <DebugMessage text={`ID ${id}`} />
 
     {#if activity.body}
         {#if $currentEditable !== null && $currentEditable.id === id && $currentEditable.field === ActiveField.ActivityBody}

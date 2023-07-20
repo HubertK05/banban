@@ -3,6 +3,7 @@
     import { columns, currentEditable, isDebug } from "../../stores";
     import { invoke } from "@tauri-apps/api/tauri";
     import { shortcut } from "../../actions/shortcut";
+    import DebugLabel from "../debug/DebugLabel.svelte";
 
     const boardName = "Kanban";
     async function createColumn({
@@ -33,9 +34,7 @@
     </div>
     <div class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto">
         {#each $columns as [id, column] (id)}
-            {#if $isDebug}
-                <b class="variant-soft-warning rounded-md">ID {id}</b>
-            {/if}
+            <DebugLabel text={`ID ${id}`} />
             <Column {column} {id} />
         {/each}
         <button
