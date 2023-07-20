@@ -1,15 +1,19 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
-    import type { Activity, Column } from "../../interfaces/main";
+    import {
+        ActiveField,
+        type Activity,
+        type Column,
+    } from "../../interfaces/main";
     import ActivityCard from "./ActivityCard.svelte";
-    import { columns } from "../../stores";
+    import { columns, currentEditable } from "../../stores";
     import { fly } from "svelte/transition";
 
     export let id: number;
     export let column: Column;
     async function createActivity() {
         const name = "<title>";
-        const body = "<body>";
+        const body = "";
         // const activityId: number = await invoke("create_activity", {
         //     name,
         //     body,
@@ -20,11 +24,28 @@
         $columns.set(id, column);
         $columns = $columns;
     }
+
+    function handleNameClick() {
+        $currentEditable = { id, field: ActiveField.ColumnName };
+    }
 </script>
 
 <div class="flex flex-col flex-shrink-0 w-72" transition:fly>
     <div class="flex items-center flex-shrink-0 h-10 px-2">
-        <span class="block text-sm font-semibold">{column.name}</span>
+        {#if $currentEditable !== null && $currentEditable.id === id && $currentEditable.field === ActiveField.ColumnName}
+            <span
+                contenteditable="true"
+                class="block text-sm font-semibold"
+                bind:innerText={column.name}
+            />
+        {:else}
+            <span
+                contenteditable="false"
+                on:click={handleNameClick}
+                class="block text-sm font-semibold">{column.name}</span
+            >
+        {/if}
+
         <span
             class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30"
             >{column.activities.size}</span
@@ -49,7 +70,7 @@
         </button>
     </div>
     <div class="flex flex-col pb-2 overflow-auto">
-        {#each column.activities as [activityId, activity] (activityId)}
+        {#each [...column.activities].reverse() as [activityId, activity] (activityId)}
             <ActivityCard {activity} id={activityId} columnId={id} />
         {/each}
     </div>

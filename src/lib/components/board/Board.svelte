@@ -1,7 +1,8 @@
 <script lang="ts">
     import Column from "./Column.svelte";
-    import { columns } from "../../stores";
+    import { columns, currentEditable, isDebug } from "../../stores";
     import { invoke } from "@tauri-apps/api/tauri";
+    import { shortcut } from "../../actions/shortcut";
 
     const boardName = "Kanban";
     async function createColumn({
@@ -9,7 +10,7 @@
     }: MouseEvent & {
         currentTarget: EventTarget & HTMLButtonElement;
     }) {
-        const name = "test";
+        const name = "New column";
         //const id = await invoke("create_column", { name })
         const id = new Date().getMilliseconds();
         $columns.set(id, { name, activities: new Map() });
@@ -32,11 +33,22 @@
     </div>
     <div class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto">
         {#each $columns as [id, column] (id)}
+            {#if $isDebug}
+                <b class="variant-soft-warning rounded-md">ID {id}</b>
+            {/if}
             <Column {column} {id} />
         {/each}
         <button
             on:click={createColumn}
             class="btn variant-ghost-tertiary max-h-96">+</button
+        >
+        <button
+            on:click={() => {
+                $isDebug = !$isDebug;
+            }}
+            use:shortcut={{ control: true, key: "d" }}
+            class="btn variant-ghost-warning max-h-10"
+            >Debug <br /><kbd class="kbd">⌘ + D</kbd></button
         >
         <div class="flex-shrink-0 w-6" />
     </div>

@@ -1,7 +1,10 @@
 import { writable, type Writable } from "svelte/store";
-import type { Activity, Columns } from "./interfaces/main";
+import type { Activity, Columns, Editable } from "./interfaces/main";
 import { mockColumns } from "./mock";
+import { invoke } from "@tauri-apps/api";
 
-export const columns: Writable<Columns> = writable(mockColumns)
-export const currentEditableActivity: Writable<number | null> = writable(null)
-currentEditableActivity.subscribe((a)=> console.log(a))
+const isMock = true;
+export const isDebug: Writable<boolean> = writable(false);
+export const columns: Writable<Columns> = isMock ? writable(mockColumns) : writable(await invoke("get_all_columns"))
+export const currentEditable: Writable<Editable | null> = writable(null)
+currentEditable.subscribe((a)=> console.log(a))

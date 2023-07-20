@@ -11,3 +11,14 @@ export interface Column {
 }
 
 export type Columns = Map<number, Column>
+
+export interface Editable {
+    id: number;
+    field: ActiveField
+}
+
+export enum ActiveField {
+    ActivityName,
+    ActivityBody,
+    ColumnName
+}
