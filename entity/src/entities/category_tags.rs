@@ -4,39 +4,38 @@ use sea_orm::entity::prelude::*;
 use serde::Serialize;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize)]
-#[sea_orm(table_name = "activities")]
+#[sea_orm(table_name = "category_tags")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    pub name: String,
-    pub body: Option<String>,
-    pub column_id: Option<i32>,
+    pub tag_name: String,
+    pub category_id: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::columns::Entity",
-        from = "Column::ColumnId",
-        to = "super::columns::Column::Id",
+        belongs_to = "super::categories::Entity",
+        from = "Column::CategoryId",
+        to = "super::categories::Column::Id",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Columns,
+    Categories,
 }
 
-impl Related<super::columns::Entity> for Entity {
+impl Related<super::categories::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Columns.def()
+        Relation::Categories.def()
     }
 }
 
-impl Related<super::category_tags::Entity> for Entity {
+impl Related<super::activities::Entity> for Entity {
     fn to() -> RelationDef {
-        super::activity_tags::Relation::CategoryTags.def()
+        super::activity_tags::Relation::Activities.def()
     }
     fn via() -> Option<RelationDef> {
-        Some(super::activity_tags::Relation::Activities.def().rev())
+        Some(super::activity_tags::Relation::CategoryTags.def().rev())
     }
 }
 

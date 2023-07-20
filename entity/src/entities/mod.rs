@@ -3,6 +3,7 @@
 pub mod prelude;
 
 pub mod activities;
+pub mod activity_tags;
 pub mod categories;
+pub mod category_tags;
 pub mod columns;
-pub mod tags;
