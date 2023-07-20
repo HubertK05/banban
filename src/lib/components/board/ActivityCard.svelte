@@ -8,7 +8,7 @@
         selectedActivity,
     } from "../../stores";
     import { fly } from "svelte/transition";
-    import DebugMessage from "../debug/DebugLabel.svelte";
+    import DebugLabel from "../debug/DebugLabel.svelte";
     import { stringToColour } from "../../mock";
     import TagBadge from "./TagBadge.svelte";
     import {
@@ -49,7 +49,7 @@
         column.activities.set(id, {
             name: activity.name,
             body: "new body",
-            tags: [],
+            tags: activity.tags,
         });
         $columns.set(columnId, column);
         $columns = $columns;
@@ -145,7 +145,7 @@
         >
     {/if}
 
-    <DebugMessage text={`ID ${id}`} />
+    <DebugLabel text={`ID ${id}`} />
 
     {#if activity.body}
         {#if $currentEditable !== null && $currentEditable.id === id && $currentEditable.field === ActiveField.ActivityBody}
