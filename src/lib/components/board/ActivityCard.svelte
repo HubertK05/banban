@@ -4,6 +4,8 @@
     import { columns, currentEditable, isDebug } from "../../stores";
     import { fly } from "svelte/transition";
     import DebugMessage from "../debug/DebugLabel.svelte";
+    import { stringToColour } from "../../mock";
+    import TagBadge from "./TagBadge.svelte";
 
     export let id: number;
     export let columnId: number;
@@ -36,6 +38,7 @@
         column.activities.set(id, {
             name: activity.name,
             body: "new body",
+            tags: [],
         });
         $columns.set(columnId, column);
         $columns = $columns;
@@ -46,6 +49,7 @@
         column.activities.set(id, {
             name: activity.name,
             body: activity.body,
+            tags: activity.tags,
         });
         $columns.set(columnId, column);
         $columns = $columns;
@@ -126,7 +130,11 @@
             ></button
         >
     {/if}
-
+    <div class="flex flex-row">
+        {#each activity.tags as { name }}
+            <TagBadge {name} />
+        {/each}
+    </div>
     <div
         class="flex items-center w-full mt-3 text-xs font-medium text-gray-400"
     />

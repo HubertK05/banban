@@ -14,13 +14,14 @@
     async function createActivity() {
         const name = "<title>";
         const body = "";
+        const tags = [];
         // const activityId: number = await invoke("create_activity", {
         //     name,
         //     body,
         // });
         const activityId = new Date().getMilliseconds();
         const column = $columns.get(id);
-        column.activities.set(activityId, { name, body });
+        column.activities.set(activityId, { name, body, tags });
         $columns.set(id, column);
         $columns = $columns;
     }

@@ -1,6 +1,7 @@
 export interface Activity {
     name: string,
     body?: string
+    tags: Array<Tag>
 }
 
 export type Activities = Map<number, Activity>
@@ -21,4 +22,10 @@ export enum ActiveField {
     ActivityName = "activity name",
     ActivityBody = "activity body",
     ColumnName = "column name"
+}
+
+
+export interface Tag {
+    name: string;
+    categoryId?: number
 }
