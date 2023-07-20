@@ -6,7 +6,7 @@ use commands::activity::{create_activity, delete_activity};
 // use crate::{setup, commands::{example, activity}};
 use tauri::Manager;
 
-use crate::commands::activity::{query_all_activities, update_activity_content};
+use crate::commands::{activity::{query_all_activities, update_activity_content}, category::*};
 
 pub mod setup;
 pub mod commands;
@@ -26,6 +26,10 @@ fn main() {
             delete_activity,
             query_all_activities,
             update_activity_content,
+            create_category,
+            delete_category,
+            select_all_categories,
+            update_category_name,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -9,6 +9,15 @@ use tracing::debug;
 
 use crate::{commands::activity::{QueryActivitiesOutput, QueryActivityOutput, UpdateActivityContentInput, UpdateActivityColumnInput}, errors::AppError};
 
+#[derive(FromQueryResult)]
+struct ActivityQueryResult {
+    id: i32,
+    name: String,
+    body: Option<String>,
+    column_id: Option<i32>,
+    column_name: Option<String>,
+}
+
 pub struct Query;
 
 impl Query {
@@ -23,10 +32,12 @@ impl Query {
     pub async fn query_all_activities(
         db: &DbConn,
     ) -> Result<QueryActivitiesOutput, DbErr> {
-        let res = Activity::find()
+        let res: Vec<ActivityQueryResult> = Activity::find()
+            .select_only()
             .columns([activities::Column::Id, activities::Column::Name, activities::Column::Body])
-            .columns([columns::Column::Id, columns::Column::Name])
-            .join(JoinType::InnerJoin, activities::Relation::Columns.def()).all(db).await?;
+            .column_as(columns::Column::Id, "column_id")
+            .column_as(columns::Column::Name, "column_name")
+            .join(JoinType::InnerJoin, activities::Relation::Columns.def()).into_model().all(db).await?;
 
         let res: HashMap<i32, QueryActivityOutput> = res.into_iter().map(|x| {
             (
@@ -37,6 +48,7 @@ impl Query {
                     category_tags: HashMap::new(),
                     other_tags: HashSet::new(),
                     column_id: x.column_id,
+                    column_name: x.column_name,
                 },
             )
         }).collect();

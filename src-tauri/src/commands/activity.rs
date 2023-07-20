@@ -37,6 +37,7 @@ pub struct QueryActivityOutput {
     pub category_tags: HashMap<i32, CategoryTag>,
     pub other_tags: HashSet<String>,
     pub column_id: Option<i32>,
+    pub column_name: Option<String>,
 }
 
 pub type QueryActivitiesOutput = HashMap<i32, QueryActivityOutput>;
