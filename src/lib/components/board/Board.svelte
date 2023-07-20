@@ -12,7 +12,7 @@
         <h1 class="text-2xl font-bold">{boardName}</h1>
     </div>
     <div class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto">
-        {#each $columns as [id, column]}
+        {#each $columns as [id, column] (id)}
             <Column {column} {id} />
         {/each}
 

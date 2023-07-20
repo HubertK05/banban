@@ -1,9 +1,24 @@
 <script lang="ts">
+    import { invoke } from "@tauri-apps/api/tauri";
     import type { Activity, Column } from "../../interfaces/main";
     import ActivityCard from "./ActivityCard.svelte";
+    import { columns } from "../../stores";
 
     export let id: number;
     export let column: Column;
+    async function createActivity() {
+        const name = "<title>";
+        const body = "<body>";
+        // const activityId: number = await invoke("create_activity", {
+        //     name,
+        //     body,
+        // });
+        const activityId = new Date().getMilliseconds();
+        const column = $columns.get(id);
+        column.activities.set(activityId, { name, body });
+        $columns.set(id, column);
+        $columns = $columns;
+    }
 </script>
 
 <div class="flex flex-col flex-shrink-0 w-72">
@@ -14,6 +29,7 @@
             >{column.activities.size}</span
         >
         <button
+            on:click={createActivity}
             class="flex items-center justify-center w-6 h-6 ml-auto text-indigo-500 rounded hover:bg-indigo-500 hover:text-indigo-100"
         >
             <svg
@@ -32,8 +48,8 @@
         </button>
     </div>
     <div class="flex flex-col pb-2 overflow-auto">
-        {#each column.activities as [id, activity]}
-            <ActivityCard {activity} {id} />
+        {#each column.activities as [activityId, activity] (activityId)}
+            <ActivityCard {activity} id={activityId} columnId={id} />
         {/each}
     </div>
 </div>
