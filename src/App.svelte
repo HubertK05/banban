@@ -1,5 +1,4 @@
 <script lang="ts">
-    import Greet from "./lib/components/Greet.svelte";
     import { AppShell, Tab, TabGroup } from "@skeletonlabs/skeleton";
     import Board from "./lib/components/board/Board.svelte";
     let tabSet: number = 0;
