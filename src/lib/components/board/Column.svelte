@@ -12,7 +12,7 @@
     export let id: number;
     export let column: Column;
     async function createActivity() {
-        const name = "<title>";
+        const name = "New activity";
         const body = "";
         const tags = [];
         // const activityId: number = await invoke("create_activity", {

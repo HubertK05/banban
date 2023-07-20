@@ -1,11 +1,22 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
     import { ActiveField, type Activity } from "../../interfaces/main";
-    import { columns, currentEditable, isDebug } from "../../stores";
+    import {
+        columns,
+        currentEditable,
+        isDebug,
+        selectedActivity,
+    } from "../../stores";
     import { fly } from "svelte/transition";
     import DebugMessage from "../debug/DebugLabel.svelte";
     import { stringToColour } from "../../mock";
     import TagBadge from "./TagBadge.svelte";
+    import {
+        modalStore,
+        type ModalSettings,
+        drawerStore,
+        type DrawerSettings,
+    } from "@skeletonlabs/skeleton";
 
     export let id: number;
     export let columnId: number;
@@ -54,6 +65,30 @@
         $columns.set(columnId, column);
         $columns = $columns;
     }
+
+    function showRemoveModal() {
+        const modal: ModalSettings = {
+            type: "confirm",
+            title: `Remove '${activity.name}'`,
+            body: "Are you sure?",
+
+            response: (r: boolean) => {
+                if (r) {
+                    removeActivity();
+                }
+            },
+        };
+        modalStore.trigger(modal);
+    }
+
+    function showDrawer() {
+        $selectedActivity = { ...activity, id };
+        const drawer: DrawerSettings = {
+            id: "activity",
+            width: "w-1/2",
+        };
+        drawerStore.open(drawer);
+    }
 </script>
 
 <div
@@ -62,7 +97,22 @@
     draggable="true"
 >
     <button
-        on:click={removeActivity}
+        on:click={showDrawer}
+        class="absolute top-0 right-5 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"
+    >
+        <svg
+            class="w-4 h-4 fill-current"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+        >
+            <path
+                d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+            />
+        </svg>
+    </button>
+    <button
+        on:click={showRemoveModal}
         class="absolute top-0 right-0 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"
     >
         <svg

@@ -1,10 +1,29 @@
 <script lang="ts">
-    import { AppShell, Tab, TabGroup } from "@skeletonlabs/skeleton";
+    import {
+        AppShell,
+        Drawer,
+        Modal,
+        Tab,
+        TabGroup,
+        drawerStore,
+    } from "@skeletonlabs/skeleton";
     import Board from "./lib/components/board/Board.svelte";
+    import { selectedActivity } from "./lib/stores";
     let tabSet: number = 0;
 </script>
 
 <div style="display: contents" class="h-full overflow-hidden">
+    <Drawer position="right">
+        {#if $drawerStore.id === "activity"}
+            <div class="text-center">
+                <h1 class="h1 variant-soft-surface p-2">
+                    {$selectedActivity.name}
+                </h1>
+                <p>Options comming soon</p>
+            </div>
+        {/if}
+    </Drawer>
+    <Modal />
     <AppShell>
         <TabGroup>
             <Tab bind:group={tabSet} name="tab1" value={0}>Tab 1</Tab>
