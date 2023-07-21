@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use anyhow::Context;
-use sea_orm::DbConn;
+use sea_orm::{DbConn, sea_query::SimpleExpr};
 
 use ::entity::{activities, activities::Entity as Activity, columns, activity_tags, category_tags};
 use sea_orm::*;
@@ -71,6 +71,29 @@ impl Query {
         
         Ok(res)
     }
+
+    async fn get_ordinal_from_id(db: &DbConn, activity_id: i32) -> Result<i32, AppError> {
+        let res = activities::Entity::find_by_id(activity_id)
+            .one(db).await.context("failed to get ordinal from id")?
+            .ok_or(AppError::RowNotFound)?;
+        Ok(res.ordinal)
+    }
+
+    async fn get_activity_count_by_column(db: &DbConn, column_id: Option<i32>) -> Result<i32, AppError> {
+        let res: Option<i32> = activities::Entity::find()
+            .select_only()
+            .filter(activities::Column::ColumnId.eq(column_id))
+            .column_as(activities::Column::Id.count(), "count").into_tuple().one(db).await.context("failed to determine count of activities")?;
+        Ok(res.expect("where is the count???"))
+    }
+
+    async fn get_column_id_from_activity_id(db: &DbConn, id: i32) -> Result<Option<i32>, AppError> {
+        let res = activities::Entity::find_by_id(id)
+            .one(db).await.context("failed to get column_id")?
+            .ok_or(AppError::RowNotFound)?;
+
+        Ok(res.column_id)
+    }
 }
 
 pub struct Mutation;
@@ -81,9 +104,12 @@ impl Mutation {
         name: String,
         body: Option<String>,
     ) -> Result<activities::Model, AppError> {
+        // todo: make create_activity specify which column_id to use or place at column with ordinal 0
+        let activity_count = Query::get_activity_count_by_column(db, None).await?;
         let activity: activities::ActiveModel = activities::ActiveModel {
             name: Set(name),
             body: Set(body),
+            ordinal: Set(activity_count),
             ..Default::default()
         };
     
@@ -95,7 +121,10 @@ impl Mutation {
         db: &DbConn,
         id: i32,
     ) -> Result<(), AppError> {
+        let deleted_ord = Query::get_ordinal_from_id(db, id).await?;
+        let column_id = Query::get_column_id_from_activity_id(db, id).await?;
         let _ = Activity::delete_by_id(id).exec(db).await.context("failed to delete activity")?;
+        Self::left_shift_ordinals(db, deleted_ord, column_id).await?;
         Ok(())
     }
 
@@ -121,6 +150,8 @@ impl Mutation {
         db: &DbConn,
         data: UpdateActivityColumnInput
     ) -> Result<(), AppError> {
+        let old_column_id = Query::get_column_id_from_activity_id(db, data.id).await?;
+        let old_ord = Query::get_ordinal_from_id(db, data.id).await?;
         let mut record = Activity::find_by_id(data.id)
             .one(db)
             .await
@@ -129,6 +160,9 @@ impl Mutation {
             .into_active_model();
 
         record.set(activities::Column::ColumnId, data.column_id.into());
+
+        Self::left_shift_ordinals(db, old_ord, old_column_id).await?;
+        Self::right_shift_ordinals(db, data.new_ord, data.column_id).await?;
 
         Activity::update(record).exec(db).await.context("failed to update record")?;
         Ok(())
@@ -162,7 +196,25 @@ impl Mutation {
         activity_tags::Entity::delete_many()
             .filter(activity_tags::Column::CategoryTagId.eq(category_tag_id))
             .exec(db).await.context("failed to delete activity_tag")?;
-        
+
+        Ok(())
+    }
+
+    async fn left_shift_ordinals(db: &DbConn, start_ord: i32, column_id: Option<i32>) -> Result<(), AppError> {
+        activities::Entity::update_many()
+            .filter(activities::Column::Ordinal.gt(start_ord))
+            .filter(activities::Column::ColumnId.eq(column_id))
+            .col_expr(activities::Column::Ordinal, SimpleExpr::from(activities::Column::Ordinal.into_expr()).sub(SimpleExpr::Value(Value::Int(Some(1)))))
+            .exec(db).await.context("failed to left shift ordinals")?;
+        Ok(())
+    }
+
+    async fn right_shift_ordinals(db: &DbConn, start_ord: i32, column_id: Option<i32>) -> Result<(), AppError> {
+        activities::Entity::update_many()
+            .filter(activities::Column::Ordinal.gte(start_ord))
+            .filter(activities::Column::ColumnId.eq(column_id))
+            .col_expr(activities::Column::Ordinal, SimpleExpr::from(activities::Column::Ordinal.into_expr()).add(SimpleExpr::Value(Value::Int(Some(1)))))
+            .exec(db).await.context("failed to right shift ordinals")?;
         Ok(())
     }
 }

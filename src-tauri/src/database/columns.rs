@@ -1,7 +1,7 @@
 use anyhow::Context;
 use entity::{category_tags, columns};
 use sea_orm::{DbConn, EntityTrait, ActiveModelTrait, Set, IntoActiveModel, QueryFilter, ColumnTrait, sea_query::SimpleExpr, Value, QuerySelect};
-use crate::{errors::AppError, commands::{tags::{CreateTagInput, AttachTagToCategoryInput, UpdateTagNameInput}, columns::RenameColumnInput}};
+use crate::{errors::AppError, commands::{tags::{CreateTagInput, AttachTagToCategoryInput, UpdateTagNameInput}, columns::{RenameColumnInput, UpdateColumnOrdinalInput}}};
 
 pub struct Query;
 
@@ -48,9 +48,9 @@ impl Mutation {
         Ok(())
     }
 
-    pub async fn update_column_ordinal(db: &DbConn, id: i32, new_ord: i32) -> Result<(), AppError> {
-        let old_ord = Query::get_ordinal_from_id(db, id).await?;
-        let mut model = columns::Entity::find_by_id(id)
+    pub async fn update_column_ordinal(db: &DbConn, data: UpdateColumnOrdinalInput) -> Result<(), AppError> {
+        let old_ord = Query::get_ordinal_from_id(db, data.column_id).await?;
+        let mut model = columns::Entity::find_by_id(data.column_id)
             .one(db)
             .await
             .context("failed to select column")?
@@ -58,9 +58,9 @@ impl Mutation {
             .into_active_model();
 
         Self::left_shift_ordinals(db, old_ord).await?;
-        Self::right_shift_ordinals(db, new_ord).await?;
+        Self::right_shift_ordinals(db, data.new_ord).await?;
 
-        model.ordinal = Set(new_ord);
+        model.ordinal = Set(data.new_ord);
         model.update(db).await.context("failed to update column")?;
         
         Ok(())
@@ -77,7 +77,7 @@ impl Mutation {
         // todo: figure out how to do update_many() with column values as expressions
         columns::Entity::update_many()
             .filter(columns::Column::Ordinal.gt(start_ord))
-            .col_expr(columns::Column::Ordinal, SimpleExpr::from(columns::Column::Ordinal.into_expr()).add(SimpleExpr::Value(Value::Int(Some(1)))))
+            .col_expr(columns::Column::Ordinal, SimpleExpr::from(columns::Column::Ordinal.into_expr()).sub(SimpleExpr::Value(Value::Int(Some(1)))))
             .exec(db).await.context("failed to left shift ordinals")?;
         Ok(())
     }
@@ -86,7 +86,7 @@ impl Mutation {
         columns::Entity::update_many()
             .filter(columns::Column::Ordinal.gte(start_ord))
             .col_expr(columns::Column::Ordinal, SimpleExpr::from(columns::Column::Ordinal.into_expr()).add(SimpleExpr::Value(Value::Int(Some(1)))))
-            .exec(db).await.context("failed to left shift ordinals")?;
+            .exec(db).await.context("failed to right shift ordinals")?;
         Ok(())
     }
 }
