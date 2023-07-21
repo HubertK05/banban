@@ -11,6 +11,7 @@ pub struct Model {
     pub name: String,
     pub body: Option<String>,
     pub column_id: Option<i32>,
+    pub ordinal: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

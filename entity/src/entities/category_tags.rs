@@ -10,6 +10,7 @@ pub struct Model {
     pub id: i32,
     pub tag_name: String,
     pub category_id: Option<i32>,
+    pub ordinal: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
