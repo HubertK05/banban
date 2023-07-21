@@ -1,18 +1,16 @@
-use sea_orm::{DatabaseBackend, MockDatabase, EntityTrait};
 use entity::activities;
+use sea_orm::{DatabaseBackend, EntityTrait, MockDatabase};
 
 #[tokio::test]
 async fn mock_interface_example() {
     // Create MockDatabase with mock query results
     let db = MockDatabase::new(DatabaseBackend::Sqlite)
-        .append_query_results([
-            vec![activities::Model {
-                id: 1,
-                name: "Test database".to_string(),
-                body: None,
-                column_id: None,
-            }]
-        ])
+        .append_query_results([vec![activities::Model {
+            id: 1,
+            name: "Test database".to_string(),
+            body: None,
+            column_id: None,
+        }]])
         .into_connection();
 
     assert_eq!(

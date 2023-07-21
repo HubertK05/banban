@@ -3,10 +3,13 @@ use sea_orm::DbConn;
 use serde::Deserialize;
 use tauri::State;
 
-use crate::{errors::AppError, database::columns::Mutation};
+use crate::{database::columns::Mutation, errors::AppError};
 
 #[tauri::command]
-pub async fn create_column(db: State<'_, DbConn>, name: String) -> Result<columns::Model, AppError> {
+pub async fn create_column(
+    db: State<'_, DbConn>,
+    name: String,
+) -> Result<columns::Model, AppError> {
     Mutation::insert_column(db.inner(), name).await
 }
 
@@ -27,6 +30,10 @@ pub async fn delete_column(db: State<'_, DbConn>, id: i32) -> Result<(), AppErro
 }
 
 #[tauri::command]
-pub async fn update_column_ordinal(db: State<'_, DbConn>, id: i32, new_ord: i32) -> Result<(), AppError> {
+pub async fn update_column_ordinal(
+    db: State<'_, DbConn>,
+    id: i32,
+    new_ord: i32,
+) -> Result<(), AppError> {
     Mutation::update_column_ordinal(db.inner(), id, new_ord).await
 }

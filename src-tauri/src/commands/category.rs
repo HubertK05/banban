@@ -2,13 +2,19 @@ use std::collections::HashMap;
 
 use entity::categories;
 use sea_orm::DbConn;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use tauri::State;
 
-use crate::{errors::AppError, database::category::{Mutation, Query}};
+use crate::{
+    database::category::{Mutation, Query},
+    errors::AppError,
+};
 
 #[tauri::command]
-pub async fn create_category(db: State<'_, DbConn>, name: String) -> Result<categories::Model, AppError> {
+pub async fn create_category(
+    db: State<'_, DbConn>,
+    name: String,
+) -> Result<categories::Model, AppError> {
     Mutation::insert_category(db.inner(), name).await
 }
 
@@ -21,7 +27,9 @@ pub struct SelectCategoryOutput {
 pub type SelectCategoriesOutput = HashMap<i32, SelectCategoryOutput>;
 
 #[tauri::command]
-pub async fn select_all_categories(db: State<'_, DbConn>) -> Result<SelectCategoriesOutput, AppError> {
+pub async fn select_all_categories(
+    db: State<'_, DbConn>,
+) -> Result<SelectCategoriesOutput, AppError> {
     Query::select_all_categories(db.inner()).await
 }
 
@@ -32,7 +40,10 @@ pub struct UpdateCategoryNameInput {
 }
 
 #[tauri::command]
-pub async fn update_category_name(db: State<'_, DbConn>, data: UpdateCategoryNameInput) -> Result<(), AppError> {
+pub async fn update_category_name(
+    db: State<'_, DbConn>,
+    data: UpdateCategoryNameInput,
+) -> Result<(), AppError> {
     Mutation::update_category_name(db.inner(), data).await
 }
 

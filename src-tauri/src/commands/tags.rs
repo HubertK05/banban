@@ -3,7 +3,7 @@ use sea_orm::DbConn;
 use serde::Deserialize;
 use tauri::State;
 
-use crate::{errors::AppError, database::tags::Mutation};
+use crate::{database::tags::Mutation, errors::AppError};
 
 #[derive(Deserialize)]
 pub struct CreateTagInput {
@@ -12,7 +12,10 @@ pub struct CreateTagInput {
 }
 
 #[tauri::command]
-pub async fn create_tag(db: State<'_, DbConn>, data: CreateTagInput) -> Result<category_tags::Model, AppError> {
+pub async fn create_tag(
+    db: State<'_, DbConn>,
+    data: CreateTagInput,
+) -> Result<category_tags::Model, AppError> {
     Mutation::create_tag(db.inner(), data).await
 }
 
@@ -23,7 +26,10 @@ pub struct AttachTagToCategoryInput {
 }
 
 #[tauri::command]
-pub async fn attach_tag_to_category(db: State<'_, DbConn>, data: AttachTagToCategoryInput) -> Result<(), AppError> {
+pub async fn attach_tag_to_category(
+    db: State<'_, DbConn>,
+    data: AttachTagToCategoryInput,
+) -> Result<(), AppError> {
     Mutation::update_category_tag(db.inner(), data).await
 }
 
@@ -34,7 +40,10 @@ pub struct UpdateTagNameInput {
 }
 
 #[tauri::command]
-pub async fn update_tag_name(db: State<'_, DbConn>, data: UpdateTagNameInput) -> Result<(), AppError> {
+pub async fn update_tag_name(
+    db: State<'_, DbConn>,
+    data: UpdateTagNameInput,
+) -> Result<(), AppError> {
     Mutation::update_tag_name(db.inner(), data).await
 }
 

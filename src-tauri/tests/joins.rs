@@ -1,6 +1,9 @@
-use sea_orm::{DatabaseBackend, MockDatabase, EntityTrait, JoinType, QuerySelect, RelationTrait, FromQueryResult, DbBackend, QueryTrait};
 use entity::{activities, columns};
 use sea_orm::sea_query::Expr;
+use sea_orm::{
+    DatabaseBackend, DbBackend, EntityTrait, FromQueryResult, JoinType, MockDatabase, QuerySelect,
+    QueryTrait, RelationTrait,
+};
 
 #[derive(FromQueryResult, Debug)]
 struct JoinQueryRes {
@@ -14,34 +17,30 @@ struct JoinQueryRes {
 #[tokio::test]
 async fn mock_interface_example() {
     let db = MockDatabase::new(DatabaseBackend::Sqlite)
-        .append_query_results([
-            vec![
-                activities::Model {
-                    id: 1,
-                    name: "test activity 1".to_string(),
-                    body: Some("body once told me".to_string()),
-                    column_id: Some(1),
-                },
-                activities::Model {
-                    id: 2,
-                    name: "test activity 2".to_string(),
-                    body: None,
-                    column_id: None,
-                }
-            ],
-        ])
-        .append_query_results([
-            vec![
-                columns::Model {
-                    id: 1,
-                    name: "to do".to_string(),
-                },
-                columns::Model {
-                    id: 2,
-                    name: "done".to_string(),
-                }
-            ]
-        ])
+        .append_query_results([vec![
+            activities::Model {
+                id: 1,
+                name: "test activity 1".to_string(),
+                body: Some("body once told me".to_string()),
+                column_id: Some(1),
+            },
+            activities::Model {
+                id: 2,
+                name: "test activity 2".to_string(),
+                body: None,
+                column_id: None,
+            },
+        ]])
+        .append_query_results([vec![
+            columns::Model {
+                id: 1,
+                name: "to do".to_string(),
+            },
+            columns::Model {
+                id: 2,
+                name: "done".to_string(),
+            },
+        ]])
         .into_connection();
 
     // this type of join forces us to use the current Model, but lets us choose:
@@ -58,12 +57,14 @@ async fn mock_interface_example() {
         .join(JoinType::InnerJoin, activities::Relation::Columns.def())
         // .build(DbBackend::Sqlite).to_string();
         .into_model::<JoinQueryRes>()
-        .all(&db).await;
+        .all(&db)
+        .await;
 
     let res2: Result<Option<activities::Model>, sea_orm::DbErr> = activities::Entity::find_by_id(1)
         .join_rev(JoinType::InnerJoin, columns::Relation::Activities.def())
         // .into_model::<JoinQueryRes>()
-        .one(&db).await;
+        .one(&db)
+        .await;
 
     println!("{res1:?}");
     println!("{res2:?}");
