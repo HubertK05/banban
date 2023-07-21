@@ -7,5 +7,5 @@
 
 <span
     style={`background-color: ${color ?? stringToColour(name)}`}
-    class="badge text-warning-50 mt-3">{name}</span
+    class="badge text-warning-50 mr-1">{name}</span
 >

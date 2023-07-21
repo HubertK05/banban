@@ -5,26 +5,27 @@
         columns,
         previousDrawerTab,
         selectedActivity,
+        tags,
     } from "../../stores";
     import { DrawerTab, type Tag } from "../../interfaces/main";
     import TagBadge from "../board/TagBadge.svelte";
     import BackButton from "./BackButton.svelte";
+    import { fly, slide } from "svelte/transition";
 
-    let optionCategory: number;
+    let selectedCategoryId: number = Array.from($categories).at(0)[0];
 
     function changeTagColor(
         e: Event & {
             currentTarget: EventTarget & HTMLInputElement;
         },
-        tag: Tag
+        tag: Tag,
+        tagId: number
     ) {
-        console.log(e.currentTarget.value, tag.id);
+        console.log(e.currentTarget.value, tagId);
         const color = e.currentTarget.value;
-        const category = $categories.get(optionCategory);
-        const inCategoryIndex = category.tags.findIndex((t) => t.id === tag.id);
-        category.tags[inCategoryIndex].color = color;
-        $categories.set(optionCategory, category);
-        $categories = $categories;
+        $tags.set(tagId, { ...tag, color });
+        $tags = $tags;
+        $columns = $columns;
     }
 
     function openSettingsDrawer() {
@@ -32,29 +33,23 @@
         $drawerStore.id = DrawerTab.Settings;
     }
 
-    function changeActivityTag(tag: Tag) {
-        console.log(tag);
-        const column = $columns.get($selectedActivity.columnId);
-        const tagIndex = $selectedActivity.tags.findIndex(
-            (t) => t.categoryId === tag.categoryId
-        );
-        if (tagIndex !== -1) {
-            console.log("changing tag in category");
-            $selectedActivity.tags[tagIndex] = tag;
-            column.activities.set($selectedActivity.id, {
-                name: $selectedActivity.name,
-                tags: $selectedActivity.tags,
-                body: $selectedActivity.body,
-            });
-
-            $columns.set($selectedActivity.columnId, column);
-            $columns = $columns;
-        } else {
-            console.log("adding tag");
-            $selectedActivity.tags.push(tag);
-            $columns.set($selectedActivity.columnId, column);
-            $columns = $columns;
+    function changeActivityTag(newTagId: number) {
+        const categoryTags = $categories.get(selectedCategoryId).tags;
+        for (let currentTagId of $selectedActivity.tags) {
+            if (categoryTags.includes(currentTagId)) {
+                for (let categoryTag of categoryTags) {
+                    console.log($selectedActivity.tags, categoryTag);
+                    const index = $selectedActivity.tags.indexOf(categoryTag);
+                    if (index !== -1) {
+                        $selectedActivity.tags[index] = newTagId;
+                        $columns = $columns;
+                        return;
+                    }
+                }
+            }
         }
+        $selectedActivity.tags.push(newTagId);
+        $columns = $columns;
     }
 </script>
 
@@ -71,34 +66,38 @@
 <ListBox>
     {#each $categories as [categoryId, category]}
         <ListBoxItem
-            bind:group={optionCategory}
+            bind:group={selectedCategoryId}
             name={category.name}
             value={categoryId}>{category.name}</ListBoxItem
         >
     {/each}
 </ListBox>
-<div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1" />
-{#if optionCategory}
+
+{#if selectedCategoryId}
     <div class="flex flex-col">
-        {#each $categories.get(optionCategory).tags as tag (tag.id)}
-            <div class="flex flex-row">
+        {#each $categories.get(selectedCategoryId).tags as tagId (tagId)}
+            {@const tag = $tags.get(tagId)}
+            <div
+                class="flex flex-row space-x-6 items-center place-content-between m-2"
+            >
                 <input
                     class="input"
                     type="color"
-                    bind:value={tag.color}
-                    on:change={(e) => changeTagColor(e, tag)}
+                    on:change={(e) => changeTagColor(e, tag, tagId)}
                 />
 
                 <TagBadge name={tag.name} color={tag.color} />
-                <button class="btn" on:click={() => changeActivityTag(tag)}
-                    >Choose</button
+                <button
+                    class={`btn btn-sm ${
+                        $selectedActivity.tags.find((id) => id === tagId)
+                            ? "variant-ghost-secondary"
+                            : "variant-ghost-primary"
+                    }`}
+                    on:click={() => changeActivityTag(tagId)}>Choose</button
                 >
-                <div>
-                    {$selectedActivity.tags.find((t) => t.id === tag.id)
-                        ? "selected"
-                        : ""}
-                </div>
             </div>
+        {:else}
+            <div class="self-center mt-2">Category is empty</div>
         {/each}
     </div>
 {/if}

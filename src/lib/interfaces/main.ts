@@ -1,7 +1,7 @@
 export interface Activity {
     name: string,
     body?: string
-    tags: Array<Tag>
+    tags: Array<number>
 }
 
 export type Activities = Map<number, Activity>
@@ -14,16 +14,16 @@ export interface Column {
 export type Columns = Map<number, Column>
 
 export interface Tag {
-    id: number
     name: string;
     color?: string
-    categoryId?: number
 }
+
+export type Tags = Map<number, Tag>
 
 
 export interface Category {
     name: string,
-    tags: Array<Tag>
+    tags: Array<number>
 }
 
 export type Categories = Map<number, Category>
