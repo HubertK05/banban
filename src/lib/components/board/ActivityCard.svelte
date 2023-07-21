@@ -87,7 +87,7 @@
 
     function showDrawer() {
         $previousDrawerTab = null;
-        $selectedActivity = { ...activity, id };
+        $selectedActivity = { ...activity, id, columnId };
         const drawer: DrawerSettings = {
             id: DrawerTab.Activity,
             width: "w-1/2",

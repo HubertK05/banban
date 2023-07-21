@@ -2,6 +2,7 @@
     import { ListBox, ListBoxItem, drawerStore } from "@skeletonlabs/skeleton";
     import {
         categories,
+        columns,
         previousDrawerTab,
         selectedActivity,
     } from "../../stores";
@@ -30,11 +31,33 @@
         $previousDrawerTab = $drawerStore.id as DrawerTab;
         $drawerStore.id = DrawerTab.Settings;
     }
+
+    function changeActivityTag(tag: Tag) {
+        console.log(tag);
+        const column = $columns.get($selectedActivity.columnId);
+        const tagIndex = $selectedActivity.tags.findIndex(
+            (t) => t.categoryId === tag.categoryId
+        );
+        if (tagIndex !== -1) {
+            console.log("changing tag in category");
+            $selectedActivity.tags[tagIndex] = tag;
+            column.activities.set($selectedActivity.id, {
+                name: $selectedActivity.name,
+                tags: $selectedActivity.tags,
+                body: $selectedActivity.body,
+            });
+
+            $columns.set($selectedActivity.columnId, column);
+            $columns = $columns;
+        } else {
+            console.log("adding tag");
+            $selectedActivity.tags.push(tag);
+            $columns.set($selectedActivity.columnId, column);
+            $columns = $columns;
+        }
+    }
 </script>
 
-<h1 class="h1 variant-soft-surface p-2">
-    {$selectedActivity.name}
-</h1>
 <BackButton />
 <button class="btn" on:click={openSettingsDrawer}
     ><svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"
@@ -65,7 +88,16 @@
                     bind:value={tag.color}
                     on:change={(e) => changeTagColor(e, tag)}
                 />
+
                 <TagBadge name={tag.name} color={tag.color} />
+                <button class="btn" on:click={() => changeActivityTag(tag)}
+                    >Choose</button
+                >
+                <div>
+                    {$selectedActivity.tags.find((t) => t.id === tag.id)
+                        ? "selected"
+                        : ""}
+                </div>
             </div>
         {/each}
     </div>

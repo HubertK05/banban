@@ -13,8 +13,8 @@ export const stringToColour = (str: string) => {
     return colour
 }
 
-const sizeTags: Array<Tag> = [{ name: "Small", id: 1 }, { name: "Medium", id: 2 }, { name: "Big", id: 3 }]
-const priorityTags: Array<Tag> = [{ name: "Low", id: 4 }, { name: "Medium", id: 5 }, { name: "High", id: 6 }, { name: "Urgent", id: 7 }]
+const sizeTags: Array<Tag> = [{ name: "Small", id: 1, categoryId: 1 }, { name: "Medium", id: 2, categoryId: 1 }, { name: "Big", id: 3, categoryId: 1 }]
+const priorityTags: Array<Tag> = [{ name: "Low", id: 4, categoryId: 2 }, { name: "Medium", id: 5, categoryId: 2 }, { name: "High", id: 6, categoryId: 2 }, { name: "Urgent", id: 7, categoryId: 2 }]
 
 export const baseCategories: Categories = new Map([
     [1, { name: "Size", tags: sizeTags }],
@@ -31,8 +31,8 @@ const inProgressActivities: Map<number, Activity> = new Map([
 ]);
 
 const doneActivities: Map<number, Activity> = new Map([
-    [4, { name: "gym trenning", body: "gazylion push ups", tags: [{ name: "Gym", id: 10 }] }],
-    [5, { name: "PE trenning", body: "gazylion push ups", tags: [{ name: "Gym", id: 10 }, { name: "Homework", id: 8 }] }]
+    [4, { name: "gym workout", body: "gazylion push ups", tags: [{ name: "Gym", id: 10 }] }],
+    [5, { name: "PE workout", body: "gazylion push ups", tags: [{ name: "Gym", id: 10 }, { name: "Homework", id: 8 }] }]
 ]);
 
 export const mockColumns: Map<number, Column> = new Map([
