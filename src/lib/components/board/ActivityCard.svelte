@@ -1,15 +1,19 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
-    import { ActiveField, type Activity } from "../../interfaces/main";
+    import {
+        ActiveField,
+        type Activity,
+        DrawerTab,
+    } from "../../interfaces/main";
     import {
         columns,
         currentEditable,
         isDebug,
+        previousDrawerTab,
         selectedActivity,
     } from "../../stores";
     import { fly } from "svelte/transition";
     import DebugLabel from "../debug/DebugLabel.svelte";
-    import { stringToColour } from "../../mock";
     import TagBadge from "./TagBadge.svelte";
     import {
         modalStore,
@@ -82,9 +86,10 @@
     }
 
     function showDrawer() {
+        $previousDrawerTab = null;
         $selectedActivity = { ...activity, id };
         const drawer: DrawerSettings = {
-            id: "activity",
+            id: DrawerTab.Activity,
             width: "w-1/2",
         };
         drawerStore.open(drawer);

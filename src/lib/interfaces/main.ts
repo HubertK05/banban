@@ -13,18 +13,6 @@ export interface Column {
 
 export type Columns = Map<number, Column>
 
-export interface Editable {
-    id: number;
-    field: ActiveField
-}
-
-export enum ActiveField {
-    ActivityName = "activity name",
-    ActivityBody = "activity body",
-    ColumnName = "column name"
-}
-
-
 export interface Tag {
     id: number
     name: string;
@@ -38,3 +26,20 @@ export interface Category {
 }
 
 export type Categories = Map<number, Category>
+
+
+export interface Editable {
+    id: number;
+    field: ActiveField
+}
+
+export enum ActiveField {
+    ActivityName = "activity name",
+    ActivityBody = "activity body",
+    ColumnName = "column name"
+}
+
+export enum DrawerTab {
+    Activity = "activity",
+    Settings = "settings"
+}
