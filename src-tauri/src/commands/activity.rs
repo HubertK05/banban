@@ -71,6 +71,7 @@ pub async fn update_activity_content(db: State<'_, DbConn>, data: UpdateActivity
 pub struct UpdateActivityColumnInput {
     pub id: i32,
     pub column_id: Option<i32>,
+    pub new_ord: i32,
 }
 
 #[tauri::command]
@@ -79,6 +80,7 @@ pub async fn update_activity_column(db: State<'_, DbConn>, data: UpdateActivityC
     Ok(())
 }
 
+#[derive(Deserialize)]
 pub struct AddTagToActivityInput {
     pub id: i32,
     pub category_id: Option<i32>,
@@ -90,6 +92,7 @@ pub async fn add_tag_to_activity(db: State<'_, DbConn>, data: AddTagToActivityIn
     Mutation::add_tag_to_activity(db.inner(), data).await
 }
 
+#[derive(Deserialize)]
 pub struct RemoveTagFromActivityInput {
     pub id: i32,
     pub category_id: Option<i32>,

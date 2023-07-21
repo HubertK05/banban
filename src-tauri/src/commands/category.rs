@@ -36,6 +36,17 @@ pub async fn update_category_name(db: State<'_, DbConn>, data: UpdateCategoryNam
     Mutation::update_category_name(db.inner(), data).await
 }
 
+#[derive(Deserialize)]
+pub struct UpdateCategoryOrdinalInput {
+    pub category_id: i32,
+    pub new_ord: i32,
+}
+
+#[tauri::command]
+pub async fn update_category_ordinal(db: State<'_, DbConn>, data: UpdateCategoryOrdinalInput) -> Result<(), AppError> {
+    Mutation::update_category_ordinal(db.inner(), data).await
+}
+
 #[tauri::command]
 pub async fn delete_category(db: State<'_, DbConn>, id: i32) -> Result<(), AppError> {
     Mutation::delete_category_by_id(db.inner(), id).await

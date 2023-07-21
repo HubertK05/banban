@@ -3,7 +3,7 @@
 
 use tauri::Manager;
 
-use crate::commands::{activity::*, category::*, tags::*};
+use crate::commands::{activity::*, category::*, tags::*, columns::*};
 
 pub mod setup;
 pub mod commands;
@@ -23,14 +23,23 @@ fn main() {
             delete_activity,
             query_all_activities,
             update_activity_content,
+            update_activity_column,
+            add_tag_to_activity,
+            remove_tag_from_activity,
             create_category,
             delete_category,
             select_all_categories,
             update_category_name,
+            update_category_ordinal,
             create_tag,
             attach_tag_to_category,
             update_tag_name,
+            update_tag_ordinal,
             delete_tag,
+            create_column,
+            rename_column,
+            delete_column,
+            update_column_ordinal,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
