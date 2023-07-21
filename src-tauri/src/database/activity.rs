@@ -7,7 +7,7 @@ use ::entity::{activities, activities::Entity as Activity, columns, activity_tag
 use sea_orm::*;
 use tracing::debug;
 
-use crate::{commands::activity::{QueryActivitiesOutput, QueryActivityOutput, UpdateActivityContentInput, UpdateActivityColumnInput, QueryColumnOutput, CategoryTag, QueryActivitiesWithColumnsOutput}, errors::AppError};
+use crate::{commands::activity::{QueryActivityOutput, UpdateActivityContentInput, UpdateActivityColumnInput, QueryColumnOutput, CategoryTag, QueryActivitiesWithColumnsOutput}, errors::AppError};
 
 #[derive(FromQueryResult)]
 struct ActivityQueryResult {
