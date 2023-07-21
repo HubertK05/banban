@@ -18,8 +18,9 @@ CREATE TABLE categories (
 
 CREATE TABLE category_tags (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    tag_name TEXT UNIQUE NOT NULL,
+    tag_name TEXT NOT NULL,
     category_id INTEGER,
+    UNIQUE (tag_name, category_id),
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
