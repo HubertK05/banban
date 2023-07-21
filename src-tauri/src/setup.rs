@@ -1,4 +1,9 @@
-use sea_orm::{ConnectOptions, Database, DatabaseConnection};
+use sea_orm::{DatabaseConnection, SqlxSqliteConnector};
+use sqlx::migrate::Migrator;
+use sqlx::SqlitePool;
+use tauri::api::path::app_data_dir;
+use tauri::Config;
+use tracing::error;
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::{fmt, EnvFilter};
 
@@ -19,10 +24,26 @@ pub fn tracing() {
         .init();
 }
 
-pub fn get_database_pool() -> DatabaseConnection {
+static MIGRATOR: Migrator = sqlx::migrate!("../migrations");
+
+pub fn get_database_pool(config: &Config) -> DatabaseConnection {
     tauri::async_runtime::block_on(async {
-        let mut opt = ConnectOptions::new("sqlite:../database.sqlite3?mode=rwc".to_owned());
-        opt.sqlx_logging(true);
-        Database::connect(opt).await.unwrap()
+        let pool = match SqlitePool::connect("sqlite:../database.sqlite3?mode=rwc").await {
+            Ok(o) => o,
+            Err(e) => {
+                error!("{e}");
+                let dir = app_data_dir(config)
+                    .unwrap()
+                    .join("database.sqlite3?mode=rwc");
+                let dir = format!("sqlite:{}", dir.to_string_lossy());
+                SqlitePool::connect(&dir).await.unwrap()
+            }
+        };
+        MIGRATOR
+            .run(&pool)
+            .await
+            .expect("Failed to run database migrations");
+        let conn = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool);
+        conn
     })
 }

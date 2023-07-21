@@ -15,7 +15,7 @@ fn main() {
     setup::tracing();
     tauri::Builder::default()
         .setup(|app| {
-            app.manage(setup::get_database_pool());
+            app.manage(setup::get_database_pool(&app.config()));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
