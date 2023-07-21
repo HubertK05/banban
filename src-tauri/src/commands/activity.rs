@@ -78,3 +78,25 @@ pub async fn update_activity_column(db: State<'_, DbConn>, data: UpdateActivityC
     Mutation::update_activity_column_by_id(&db, data).await.context("failed to update activity column")?;
     Ok(())
 }
+
+pub struct AddTagToActivityInput {
+    pub id: i32,
+    pub category_id: Option<i32>,
+    pub tag_name: String,
+}
+
+#[tauri::command]
+pub async fn add_tag_to_activity(db: State<'_, DbConn>, data: AddTagToActivityInput) -> Result<(), AppError> {
+    Mutation::add_tag_to_activity(db.inner(), data).await
+}
+
+pub struct RemoveTagFromActivityInput {
+    pub id: i32,
+    pub category_id: Option<i32>,
+    pub tag_name: String,
+}
+
+#[tauri::command]
+pub async fn remove_tag_from_activity(db: State<'_, DbConn>, data: RemoveTagFromActivityInput) -> Result<(), AppError> {
+    Mutation::remove_tag_from_activity(db.inner(), data).await
+}

@@ -7,7 +7,7 @@ use ::entity::{activities, activities::Entity as Activity, columns, activity_tag
 use sea_orm::*;
 use tracing::debug;
 
-use crate::{commands::activity::{QueryActivityOutput, UpdateActivityContentInput, UpdateActivityColumnInput, QueryColumnOutput, CategoryTag, QueryActivitiesWithColumnsOutput}, errors::AppError};
+use crate::{commands::activity::{QueryActivityOutput, UpdateActivityContentInput, UpdateActivityColumnInput, QueryColumnOutput, CategoryTag, QueryActivitiesWithColumnsOutput, AddTagToActivityInput, RemoveTagFromActivityInput}, errors::AppError};
 
 #[derive(FromQueryResult)]
 struct ActivityQueryResult {
@@ -131,6 +131,38 @@ impl Mutation {
         record.set(activities::Column::ColumnId, data.column_id.into());
 
         Activity::update(record).exec(db).await.context("failed to update record")?;
+        Ok(())
+    }
+
+    pub async fn add_tag_to_activity(db: &DbConn, data: AddTagToActivityInput) -> Result<(), AppError> {
+        let category_tag_id = category_tags::Entity::find()
+            .filter(category_tags::Column::CategoryId.eq(data.category_id))
+            .filter(category_tags::Column::TagName.eq(data.tag_name))
+            .one(db).await.context("failed to select category tag id")?
+            .ok_or(AppError::RowNotFound)?
+            .id;
+
+        let model = activity_tags::ActiveModel {
+            activity_id: Set(data.id),
+            category_tag_id: Set(category_tag_id),
+        };
+
+        model.insert(db).await.context("failed to insert activity_tag")?;
+        Ok(())
+    }
+
+    pub async fn remove_tag_from_activity(db: &DbConn, data: RemoveTagFromActivityInput) -> Result<(), AppError> {
+        let category_tag_id = category_tags::Entity::find()
+            .filter(category_tags::Column::CategoryId.eq(data.category_id))
+            .filter(category_tags::Column::TagName.eq(data.tag_name))
+            .one(db).await.context("failed to select category tag id")?
+            .ok_or(AppError::RowNotFound)?
+            .id;
+
+        activity_tags::Entity::delete_many()
+            .filter(activity_tags::Column::CategoryTagId.eq(category_tag_id))
+            .exec(db).await.context("failed to delete activity_tag")?;
+        
         Ok(())
     }
 }
