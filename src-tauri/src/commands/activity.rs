@@ -11,13 +11,19 @@ use crate::{
     errors::AppError,
 };
 
+#[derive(Deserialize)]
+pub struct CreateActivityInput {
+    pub name: String,
+    pub body: Option<String>,
+    pub column_id: i32,
+}
+
 #[tauri::command]
 pub async fn create_activity(
     db: State<'_, DbConn>,
-    name: String,
-    body: Option<String>,
+    data: CreateActivityInput
 ) -> Result<activities::Model, AppError> {
-    let model = Mutation::create_activity(db.inner(), name, body).await?;
+    let model = Mutation::create_activity(db.inner(), data).await?;
     Ok(model)
 }
 
@@ -85,6 +91,7 @@ pub async fn update_activity_content(
 pub struct UpdateActivityColumnInput {
     pub id: i32,
     pub column_id: Option<i32>,
+    pub new_ord: i32,
 }
 
 #[tauri::command]
@@ -98,6 +105,7 @@ pub async fn update_activity_column(
     Ok(())
 }
 
+#[derive(Deserialize)]
 pub struct AddTagToActivityInput {
     pub id: i32,
     pub category_id: Option<i32>,
@@ -112,6 +120,7 @@ pub async fn add_tag_to_activity(
     Mutation::add_tag_to_activity(db.inner(), data).await
 }
 
+#[derive(Deserialize)]
 pub struct RemoveTagFromActivityInput {
     pub id: i32,
     pub category_id: Option<i32>,

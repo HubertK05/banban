@@ -1,4 +1,4 @@
-use entity::{category_tags, columns};
+use entity::columns;
 use sea_orm::DbConn;
 use serde::Deserialize;
 use tauri::State;
@@ -29,11 +29,13 @@ pub async fn delete_column(db: State<'_, DbConn>, id: i32) -> Result<(), AppErro
     Mutation::delete_column_by_id(db.inner(), id).await
 }
 
+#[derive(Deserialize)]
+pub struct UpdateColumnOrdinalInput {
+    pub column_id: i32,
+    pub new_ord: i32,
+}
+
 #[tauri::command]
-pub async fn update_column_ordinal(
-    db: State<'_, DbConn>,
-    id: i32,
-    new_ord: i32,
-) -> Result<(), AppError> {
-    Mutation::update_column_ordinal(db.inner(), id, new_ord).await
+pub async fn update_column_ordinal(db: State<'_, DbConn>, data: UpdateColumnOrdinalInput) -> Result<(), AppError> {
+    Mutation::update_column_ordinal(db.inner(), data).await
 }
