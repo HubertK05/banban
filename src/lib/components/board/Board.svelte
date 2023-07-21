@@ -12,9 +12,11 @@
         currentTarget: EventTarget & HTMLButtonElement;
     }) {
         const name = "New column";
-        //const id = await invoke("create_column", { name })
-        const id = new Date().getMilliseconds();
-        $columns.set(id, { name, activities: new Map() });
+        const res: { id: number; name: string; ordinal: number } = await invoke(
+            "create_column",
+            { name }
+        );
+        $columns.set(res.id, { name, activities: new Map() });
         $columns = $columns;
         setTimeout(() => {
             currentTarget.scrollIntoView({
@@ -35,7 +37,7 @@
     <div class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto">
         {#each $columns as [id, column] (id)}
             <DebugLabel text={`ID ${id}`} />
-            <Column {column} {id} />
+            <Column {column} columnId={id} />
         {/each}
         <button
             on:click={createColumn}

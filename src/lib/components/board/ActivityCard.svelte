@@ -22,13 +22,14 @@
         drawerStore,
         type DrawerSettings,
     } from "@skeletonlabs/skeleton";
+    import { onMount } from "svelte";
 
     export let id: number;
     export let columnId: number;
     export let activity: Activity;
 
     async function removeActivity() {
-        //await invoke("remove_activity", { id });
+        await invoke("delete_activity", { id });
         const column = $columns.get(columnId);
         column.activities.delete(id);
         $columns.set(columnId, column);
@@ -60,7 +61,7 @@
         $columns = $columns;
     }
 
-    function updateActivity() {
+    async function updateActivity() {
         const column = $columns.get(columnId);
         column.activities.set(id, {
             name: activity.name,
@@ -69,6 +70,14 @@
         });
         $columns.set(columnId, column);
         $columns = $columns;
+    }
+
+    // WARNING! update on every keystroke, should use `updateActivity` in the future
+
+    $: {
+        invoke("update_activity_content", {
+            data: { id, name: activity.name, body: activity.body },
+        });
     }
 
     function showRemoveModal() {

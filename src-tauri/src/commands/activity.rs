@@ -3,10 +3,13 @@ use std::collections::{HashMap, HashSet};
 use anyhow::Context;
 use entity::activities;
 use sea_orm::DbConn;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use tauri::State;
 
-use crate::{database::activity::{Mutation, Query}, errors::AppError};
+use crate::{
+    database::activity::{Mutation, Query},
+    errors::AppError,
+};
 
 #[tauri::command]
 pub async fn create_activity(
@@ -20,7 +23,9 @@ pub async fn create_activity(
 
 #[tauri::command]
 pub async fn delete_activity<'a>(db: State<'a, DbConn>, id: i32) -> Result<(), AppError> {
-    Mutation::delete_activity_by_id(db.inner(), id).await.with_context(|| {"failed to delete activity"})?;
+    Mutation::delete_activity_by_id(db.inner(), id)
+        .await
+        .with_context(|| "failed to delete activity")?;
     Ok(())
 }
 
@@ -43,27 +48,36 @@ pub type QueryActivitiesOutput = HashMap<i32, QueryActivityOutput>;
 #[derive(Serialize, Debug)]
 pub struct QueryColumnOutput {
     pub name: Option<String>,
-    pub activities: QueryActivitiesOutput
+    pub activities: QueryActivitiesOutput,
 }
 
 pub type QueryActivitiesWithColumnsOutput = HashMap<Option<i32>, QueryColumnOutput>;
 
 #[tauri::command]
-pub async fn query_all_activities(db: State<'_, DbConn>) -> Result<QueryActivitiesWithColumnsOutput, AppError> {
-    let res = Query::query_all_activities(db.inner()).await.context("failed to select all activities")?;
+pub async fn query_all_activities(
+    db: State<'_, DbConn>,
+) -> Result<QueryActivitiesWithColumnsOutput, AppError> {
+    let res = Query::query_all_activities(db.inner())
+        .await
+        .context("failed to select all activities")?;
     Ok(res)
 }
 
 #[derive(Deserialize)]
 pub struct UpdateActivityContentInput {
     pub id: i32,
-    pub title: String,
+    pub name: String,
     pub body: Option<String>,
 }
 
 #[tauri::command]
-pub async fn update_activity_content(db: State<'_, DbConn>, data: UpdateActivityContentInput) -> Result<(), AppError> {
-    Mutation::update_activity_content_by_id(db.inner(), data).await.context("failed to update activity content")?;
+pub async fn update_activity_content(
+    db: State<'_, DbConn>,
+    data: UpdateActivityContentInput,
+) -> Result<(), AppError> {
+    Mutation::update_activity_content_by_id(db.inner(), data)
+        .await
+        .context("failed to update activity content")?;
     Ok(())
 }
 
@@ -74,8 +88,13 @@ pub struct UpdateActivityColumnInput {
 }
 
 #[tauri::command]
-pub async fn update_activity_column(db: State<'_, DbConn>, data: UpdateActivityColumnInput) -> Result<(), AppError> {
-    Mutation::update_activity_column_by_id(&db, data).await.context("failed to update activity column")?;
+pub async fn update_activity_column(
+    db: State<'_, DbConn>,
+    data: UpdateActivityColumnInput,
+) -> Result<(), AppError> {
+    Mutation::update_activity_column_by_id(&db, data)
+        .await
+        .context("failed to update activity column")?;
     Ok(())
 }
 
@@ -86,7 +105,10 @@ pub struct AddTagToActivityInput {
 }
 
 #[tauri::command]
-pub async fn add_tag_to_activity(db: State<'_, DbConn>, data: AddTagToActivityInput) -> Result<(), AppError> {
+pub async fn add_tag_to_activity(
+    db: State<'_, DbConn>,
+    data: AddTagToActivityInput,
+) -> Result<(), AppError> {
     Mutation::add_tag_to_activity(db.inner(), data).await
 }
 
@@ -97,6 +119,9 @@ pub struct RemoveTagFromActivityInput {
 }
 
 #[tauri::command]
-pub async fn remove_tag_from_activity(db: State<'_, DbConn>, data: RemoveTagFromActivityInput) -> Result<(), AppError> {
+pub async fn remove_tag_from_activity(
+    db: State<'_, DbConn>,
+    data: RemoveTagFromActivityInput,
+) -> Result<(), AppError> {
     Mutation::remove_tag_from_activity(db.inner(), data).await
 }

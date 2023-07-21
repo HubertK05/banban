@@ -9,31 +9,52 @@
     import { columns, currentEditable } from "../../stores";
     import { fly } from "svelte/transition";
 
-    export let id: number;
+    export let columnId: number;
     export let column: Column;
+
+    $: {
+        // WARNING! Updates every key stroke
+        invoke("rename_column", {
+            data: { id: columnId, new_name: column.name },
+        });
+    }
     async function createActivity() {
         const name = "New activity";
         const body = "";
         const tags = [];
-        // const activityId: number = await invoke("create_activity", {
-        //     name,
-        //     body,
-        // });
-        const activityId = new Date().getMilliseconds();
-        const column = $columns.get(id);
-        column.activities.set(activityId, { name, body, tags });
-        $columns.set(id, column);
+        const res: {
+            id: number;
+            name: string;
+            body?: string;
+            column_id?: number;
+            ordinal: number;
+        } = await invoke("create_activity", {
+            name,
+            body,
+        });
+        const column = $columns.get(columnId);
+        column.activities.set(res.id, { name, body, tags });
+        $columns.set(columnId, column);
         $columns = $columns;
     }
 
     function handleNameClick() {
-        $currentEditable = { id, field: ActiveField.ColumnName };
+        $currentEditable = { id: columnId, field: ActiveField.ColumnName };
+    }
+
+    async function removeColumn() {
+        await invoke("delete_column", { id: columnId });
+        $columns.delete(columnId);
+        $columns = $columns;
     }
 </script>
 
 <div class="flex flex-col flex-shrink-0 w-72" transition:fly>
+    <button class="btn btn-sm variant-ghost-error" on:click={removeColumn}
+        >Remove column</button
+    >
     <div class="flex items-center flex-shrink-0 h-10 px-2">
-        {#if $currentEditable !== null && $currentEditable.id === id && $currentEditable.field === ActiveField.ColumnName}
+        {#if $currentEditable !== null && $currentEditable.id === columnId && $currentEditable.field === ActiveField.ColumnName}
             <span
                 contenteditable="true"
                 class="block text-sm font-semibold"
@@ -74,7 +95,7 @@
     </div>
     <div class="flex flex-col pb-2 overflow-auto">
         {#each [...column.activities].reverse() as [activityId, activity] (activityId)}
-            <ActivityCard {activity} id={activityId} columnId={id} />
+            <ActivityCard {activity} id={activityId} {columnId} />
         {/each}
     </div>
 </div>
