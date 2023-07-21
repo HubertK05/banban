@@ -4,7 +4,8 @@
     import { invoke } from "@tauri-apps/api/tauri";
     import { shortcut } from "../../actions/shortcut";
     import DebugLabel from "../debug/DebugLabel.svelte";
-
+    import { dndzone, setDebugMode } from "svelte-dnd-action";
+    setDebugMode(true);
     const boardName = "Kanban";
     async function createColumn({
         currentTarget,
@@ -24,6 +25,36 @@
             });
         }, 100);
     }
+
+    $: idColumns = Array.from($columns).map(([id, col]) => {
+        return {
+            id,
+            col,
+        };
+    });
+
+    function handleDndConsiderColumns(
+        e: CustomEvent<
+            DndEvent<{
+                id: number;
+                col: Column;
+            }>
+        > & {
+            target: any;
+        }
+    ) {
+        e.detail.items;
+    }
+    function handleDndFinalizeColumns(
+        e: CustomEvent<
+            DndEvent<{
+                id: number;
+                col: Column;
+            }>
+        > & {
+            target: any;
+        }
+    ) {}
 </script>
 
 <div
@@ -35,8 +66,9 @@
     <div class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto">
         {#each $columns as [id, column] (id)}
             <DebugLabel text={`ID ${id}`} />
-            <Column {column} {id} />
+            <Column {column} columnId={id} />
         {/each}
+
         <button
             on:click={createColumn}
             class="btn variant-ghost-tertiary max-h-96">+</button

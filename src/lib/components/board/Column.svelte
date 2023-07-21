@@ -8,8 +8,10 @@
     import ActivityCard from "./ActivityCard.svelte";
     import { columns, currentEditable } from "../../stores";
     import { fly } from "svelte/transition";
+    import { dndzone } from "svelte-dnd-action";
+    import { RadioItem } from "@skeletonlabs/skeleton";
 
-    export let id: number;
+    export let columnId: number;
     export let column: Column;
     async function createActivity() {
         const name = "New activity";
@@ -20,20 +22,53 @@
         //     body,
         // });
         const activityId = new Date().getMilliseconds();
-        const column = $columns.get(id);
+        const column = $columns.get(columnId);
         column.activities.set(activityId, { name, body, tags });
-        $columns.set(id, column);
+        $columns.set(columnId, column);
         $columns = $columns;
     }
 
     function handleNameClick() {
-        $currentEditable = { id, field: ActiveField.ColumnName };
+        $currentEditable = { id: columnId, field: ActiveField.ColumnName };
+    }
+
+    $: idActivities = Array.from(column.activities).map(([id, activity]) => {
+        return { id, activity };
+    });
+
+    function handleConsider(
+        e: CustomEvent<
+            DndEvent<{
+                id: number;
+                activity: Activity;
+            }>
+        > & {
+            target: any;
+        }
+    ) {
+        console.info("consider");
+        idActivities = e.detail.items;
+        // idActivities = e.detail.items;
+    }
+    function handleFinalize(
+        e: CustomEvent<
+            DndEvent<{
+                id: number;
+                activity: Activity;
+            }>
+        > & {
+            target: any;
+        }
+    ) {
+        console.info("finalize");
+        // idActivities = e.detail.items;
+        idActivities = e.detail.items;
     }
 </script>
 
 <div class="flex flex-col flex-shrink-0 w-72" transition:fly>
     <div class="flex items-center flex-shrink-0 h-10 px-2">
-        {#if $currentEditable !== null && $currentEditable.id === id && $currentEditable.field === ActiveField.ColumnName}
+        {#if $currentEditable !== null && $currentEditable.id === columnId && $currentEditable.field === ActiveField.ColumnName}
             <span
                 contenteditable="true"
                 class="block text-sm font-semibold"
@@ -72,9 +107,19 @@
             </svg>
         </button>
     </div>
-    <div class="flex flex-col pb-2 overflow-auto">
-        {#each [...column.activities].reverse() as [activityId, activity] (activityId)}
-            <ActivityCard {activity} id={activityId} columnId={id} />
-        {/each}
+    <div class="h-96">
+        <section
+            class="flex flex-col pb-2 overflow-auto min-h-full"
+            use:dndzone={{
+                items: idActivities,
+                zoneTabIndex: -1,
+            }}
+            on:consider={handleConsider}
+            on:finalize={handleFinalize}
+        >
+            {#each idActivities as { id, activity } (id)}
+                <ActivityCard {activity} {id} {columnId} />
+            {/each}
+        </section>
     </div>
 </div>
