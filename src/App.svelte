@@ -9,20 +9,12 @@
     } from "@skeletonlabs/skeleton";
     import Board from "./lib/components/board/Board.svelte";
     import { selectedActivity } from "./lib/stores";
+    import BoardDrawer from "./lib/components/board/BoardDrawer.svelte";
     let tabSet: number = 0;
 </script>
 
 <div style="display: contents" class="h-full overflow-hidden">
-    <Drawer position="right">
-        {#if $drawerStore.id === "activity"}
-            <div class="text-center">
-                <h1 class="h1 variant-soft-surface p-2">
-                    {$selectedActivity.name}
-                </h1>
-                <p>Options comming soon</p>
-            </div>
-        {/if}
-    </Drawer>
+    <BoardDrawer />
     <Modal />
     <AppShell>
         <TabGroup>

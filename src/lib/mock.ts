@@ -1,4 +1,4 @@
-import type { Activities, Activity, Column, Columns } from "./interfaces/main";
+import type { Activities, Activity, Categories, Column, Columns, Tag } from "./interfaces/main";
 
 export const stringToColour = (str: string) => {
     let hash = 0;
@@ -13,19 +13,26 @@ export const stringToColour = (str: string) => {
     return colour
 }
 
+const sizeTags: Array<Tag> = [{ name: "Small", id: 1 }, { name: "Medium", id: 2 }, { name: "Big", id: 3 }]
+const priorityTags: Array<Tag> = [{ name: "Low", id: 4 }, { name: "Medium", id: 5 }, { name: "High", id: 6 }, { name: "Urgent", id: 7 }]
+
+export const baseCategories: Categories = new Map([
+    [1, { name: "Size", tags: sizeTags }],
+    [2, { name: "Priority", tags: priorityTags }]
+])
 
 const newActivities: Map<number, Activity> = new Map([
-    [1, { name: "homework", tags: [{name: "Homework", id: 1}] }],
-    [2, { name: "extra homework", body: "presentation", tags: [{name: "Homework", id: 1}]}]
+    [1, { name: "homework", tags: [{ name: "Homework", id: 8 }] }],
+    [2, { name: "extra homework", body: "presentation", tags: [{ name: "Homework", id: 8 }] }]
 ]);
 
 const inProgressActivities: Map<number, Activity> = new Map([
-    [3, {name: "household chores", tags: [{name: "Chore", id: 2}]}]
+    [3, { name: "household chores", tags: [{ name: "Chore", id: 9 }] }]
 ]);
 
 const doneActivities: Map<number, Activity> = new Map([
-    [4, { name: "gym trenning", body: "gazylion push ups", tags: [{ name: "Gym", id: 2 }] }],
-    [5, {name: "PE trenning", body: "gazylion push ups", tags: [{name: "Gym", id: 2}, {name: "Homework", id: 1}]}]
+    [4, { name: "gym trenning", body: "gazylion push ups", tags: [{ name: "Gym", id: 10 }] }],
+    [5, { name: "PE trenning", body: "gazylion push ups", tags: [{ name: "Gym", id: 10 }, { name: "Homework", id: 8 }] }]
 ]);
 
 export const mockColumns: Map<number, Column> = new Map([

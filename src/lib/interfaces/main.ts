@@ -26,6 +26,15 @@ export enum ActiveField {
 
 
 export interface Tag {
+    id: number
     name: string;
-    categoryId?: number
+    color?: string
 }
+
+
+export interface Category {
+    name: string,
+    tags: Array<Tag>
+}
+
+export type Categories = Map<number, Category>
