@@ -7,7 +7,7 @@ use ::entity::{activities, activities::Entity as Activity, columns, activity_tag
 use sea_orm::*;
 use tracing::debug;
 
-use crate::{commands::activity::{QueryActivityOutput, UpdateActivityContentInput, UpdateActivityColumnInput, QueryColumnOutput, CategoryTag, QueryActivitiesWithColumnsOutput, AddTagToActivityInput, RemoveTagFromActivityInput}, errors::AppError};
+use crate::{commands::activity::{QueryActivityOutput, UpdateActivityContentInput, UpdateActivityColumnInput, QueryColumnOutput, CategoryTag, QueryActivitiesWithColumnsOutput, AddTagToActivityInput, RemoveTagFromActivityInput, CreateActivityInput}, errors::AppError};
 
 #[derive(FromQueryResult)]
 struct ActivityQueryResult {
@@ -101,19 +101,21 @@ pub struct Mutation;
 impl Mutation {
     pub async fn create_activity(
         db: &DbConn,
-        name: String,
-        body: Option<String>,
+        data: CreateActivityInput
     ) -> Result<activities::Model, AppError> {
-        // todo: make create_activity specify which column_id to use or place at column with ordinal 0
-        let activity_count = Query::get_activity_count_by_column(db, None).await?;
         let activity: activities::ActiveModel = activities::ActiveModel {
-            name: Set(name),
-            body: Set(body),
-            ordinal: Set(activity_count),
+            name: Set(data.name),
+            body: Set(data.body),
+            ordinal: Set(0),
+            column_id: Set(Some(data.column_id)),
             ..Default::default()
         };
+
+        let tr = db.begin().await.context("failed to begin transaction")?;
+        Self::right_shift_ordinals(db, 0, Some(data.column_id)).await?;
+        let res = activity.insert(&tr).await.context("failed to insert activity")?;
+        tr.commit().await.context("failed to commit transaction")?;
     
-        let res = activity.insert(&*db).await.context("failed to insert activity")?;
         Ok(res)
     }
 
@@ -123,8 +125,10 @@ impl Mutation {
     ) -> Result<(), AppError> {
         let deleted_ord = Query::get_ordinal_from_id(db, id).await?;
         let column_id = Query::get_column_id_from_activity_id(db, id).await?;
-        let _ = Activity::delete_by_id(id).exec(db).await.context("failed to delete activity")?;
-        Self::left_shift_ordinals(db, deleted_ord, column_id).await?;
+        let tr = db.begin().await.context("failed to begin transaction")?;
+        let _ = Activity::delete_by_id(id).exec(&tr).await.context("failed to delete activity")?;
+        Self::left_shift_ordinals(&tr, deleted_ord, column_id).await?;
+        tr.commit().await.context("failed to commit transaction")?;
         Ok(())
     }
 
@@ -160,11 +164,12 @@ impl Mutation {
             .into_active_model();
 
         record.set(activities::Column::ColumnId, data.column_id.into());
-
-        Self::left_shift_ordinals(db, old_ord, old_column_id).await?;
-        Self::right_shift_ordinals(db, data.new_ord, data.column_id).await?;
-
-        Activity::update(record).exec(db).await.context("failed to update record")?;
+        let tr = db.begin().await.context("failed to begin transaction")?;
+        Self::left_shift_ordinals(&tr, old_ord, old_column_id).await?;
+        Self::right_shift_ordinals(&tr, data.new_ord, data.column_id).await?;
+        
+        Activity::update(record).exec(&tr).await.context("failed to update record")?;
+        tr.commit().await.context("failed to commit transaction")?;
         Ok(())
     }
 
@@ -200,7 +205,7 @@ impl Mutation {
         Ok(())
     }
 
-    async fn left_shift_ordinals(db: &DbConn, start_ord: i32, column_id: Option<i32>) -> Result<(), AppError> {
+    async fn left_shift_ordinals(db: &impl ConnectionTrait, start_ord: i32, column_id: Option<i32>) -> Result<(), AppError> {
         activities::Entity::update_many()
             .filter(activities::Column::Ordinal.gt(start_ord))
             .filter(activities::Column::ColumnId.eq(column_id))
@@ -209,7 +214,7 @@ impl Mutation {
         Ok(())
     }
 
-    async fn right_shift_ordinals(db: &DbConn, start_ord: i32, column_id: Option<i32>) -> Result<(), AppError> {
+    async fn right_shift_ordinals(db: &impl ConnectionTrait, start_ord: i32, column_id: Option<i32>) -> Result<(), AppError> {
         activities::Entity::update_many()
             .filter(activities::Column::Ordinal.gte(start_ord))
             .filter(activities::Column::ColumnId.eq(column_id))

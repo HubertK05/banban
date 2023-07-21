@@ -1,4 +1,4 @@
-use entity::{category_tags, columns};
+use entity::columns;
 use sea_orm::DbConn;
 use serde::Deserialize;
 use tauri::State;

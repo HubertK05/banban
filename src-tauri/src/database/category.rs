@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use anyhow::Context;
 use entity::{category_tags, categories};
-use sea_orm::{DbConn, EntityTrait, QuerySelect, RelationTrait, FromQueryResult, ActiveModelTrait, Set, IntoActiveModel, sea_query::SimpleExpr, QueryFilter, ColumnTrait, Value};
+use sea_orm::{DbConn, EntityTrait, QuerySelect, RelationTrait, FromQueryResult, ActiveModelTrait, Set, IntoActiveModel, sea_query::SimpleExpr, QueryFilter, ColumnTrait, Value, ConnectionTrait, TransactionTrait};
 use crate::{errors::AppError, commands::category::{SelectCategoriesOutput, UpdateCategoryNameInput, SelectCategoryOutput, UpdateCategoryOrdinalInput}};
 
 #[derive(FromQueryResult)]
@@ -89,24 +89,28 @@ impl Mutation {
             .context("failed to select category")?
             .ok_or(AppError::RowNotFound)?
             .into_active_model();
-
-        Self::left_shift_ordinals(db, old_ord).await?;
-        Self::right_shift_ordinals(db, data.new_ord).await?;
-
+        
+        let tr = db.begin().await.context("failed to begin transaction")?;
+        Self::left_shift_ordinals(&tr, old_ord).await?;
+        Self::right_shift_ordinals(&tr, data.new_ord).await?;
+        
         model.ordinal = Set(data.new_ord);
-        model.update(db).await.context("failed to update category")?;
+        model.update(&tr).await.context("failed to update category")?;
+        tr.commit().await.context("failed to commit transaction")?;
         
         Ok(())
     }
 
     pub async fn delete_category_by_id(db: &DbConn, id: i32) -> Result<(), AppError> {
         let deleted_ord = Query::get_ordinal_from_id(db, id).await?;
-        categories::Entity::delete_by_id(id).exec(db).await.context("failed to delete category")?;
-        Self::left_shift_ordinals(db, deleted_ord).await?;
+        let tr = db.begin().await.context("failed to begin transaction")?;
+        categories::Entity::delete_by_id(id).exec(&tr).await.context("failed to delete category")?;
+        Self::left_shift_ordinals(&tr, deleted_ord).await?;
+        tr.commit().await.context("failed to commit transaction")?;
         Ok(())
     }
 
-    async fn left_shift_ordinals(db: &DbConn, start_ord: i32) -> Result<(), AppError> {
+    async fn left_shift_ordinals(db: &impl ConnectionTrait, start_ord: i32) -> Result<(), AppError> {
         categories::Entity::update_many()
             .filter(categories::Column::Ordinal.gt(start_ord))
             .col_expr(categories::Column::Ordinal, SimpleExpr::from(categories::Column::Ordinal.into_expr()).sub(SimpleExpr::Value(Value::Int(Some(1)))))
@@ -114,7 +118,7 @@ impl Mutation {
         Ok(())
     }
 
-    async fn right_shift_ordinals(db: &DbConn, start_ord: i32) -> Result<(), AppError> {
+    async fn right_shift_ordinals(db: &impl ConnectionTrait, start_ord: i32) -> Result<(), AppError> {
         categories::Entity::update_many()
             .filter(categories::Column::Ordinal.gte(start_ord))
             .col_expr(categories::Column::Ordinal, SimpleExpr::from(categories::Column::Ordinal.into_expr()).add(SimpleExpr::Value(Value::Int(Some(1)))))

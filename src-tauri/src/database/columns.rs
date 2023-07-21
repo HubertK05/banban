@@ -1,7 +1,7 @@
 use anyhow::Context;
-use entity::{category_tags, columns};
-use sea_orm::{DbConn, EntityTrait, ActiveModelTrait, Set, IntoActiveModel, QueryFilter, ColumnTrait, sea_query::SimpleExpr, Value, QuerySelect};
-use crate::{errors::AppError, commands::{tags::{CreateTagInput, AttachTagToCategoryInput, UpdateTagNameInput}, columns::{RenameColumnInput, UpdateColumnOrdinalInput}}};
+use entity::columns;
+use sea_orm::{DbConn, EntityTrait, ActiveModelTrait, Set, IntoActiveModel, QueryFilter, ColumnTrait, sea_query::SimpleExpr, Value, QuerySelect, TransactionTrait, ConnectionTrait};
+use crate::{errors::AppError, commands::columns::{RenameColumnInput, UpdateColumnOrdinalInput}};
 
 pub struct Query;
 
@@ -51,29 +51,33 @@ impl Mutation {
     pub async fn update_column_ordinal(db: &DbConn, data: UpdateColumnOrdinalInput) -> Result<(), AppError> {
         let old_ord = Query::get_ordinal_from_id(db, data.column_id).await?;
         let mut model = columns::Entity::find_by_id(data.column_id)
-            .one(db)
-            .await
-            .context("failed to select column")?
-            .ok_or(AppError::RowNotFound)?
-            .into_active_model();
-
-        Self::left_shift_ordinals(db, old_ord).await?;
-        Self::right_shift_ordinals(db, data.new_ord).await?;
+        .one(db)
+        .await
+        .context("failed to select column")?
+        .ok_or(AppError::RowNotFound)?
+        .into_active_model();
+    
+        let tr = db.begin().await.context("failed to begin transaction")?;
+        Self::left_shift_ordinals(&tr, old_ord).await?;
+        Self::right_shift_ordinals(&tr, data.new_ord).await?;
 
         model.ordinal = Set(data.new_ord);
-        model.update(db).await.context("failed to update column")?;
+        model.update(&tr).await.context("failed to update column")?;
+        tr.commit().await.context("failed to commit transaction")?;
         
         Ok(())
     }
 
     pub async fn delete_column_by_id(db: &DbConn, id: i32) -> Result<(), AppError> {
         let deleted_ordinal = Query::get_ordinal_from_id(db, id).await?;
-        columns::Entity::delete_by_id(id).exec(db).await.context("failed to delete column")?;
-        Self::left_shift_ordinals(db, deleted_ordinal).await?;
+        let tr = db.begin().await.context("failed to begin transaction")?;
+        columns::Entity::delete_by_id(id).exec(&tr).await.context("failed to delete column")?;
+        Self::left_shift_ordinals(&tr, deleted_ordinal).await?;
+        tr.commit().await.context("failed to commit transaction")?;
         Ok(())
-    }    
+    }
 
-    async fn left_shift_ordinals(db: &DbConn, start_ord: i32) -> Result<(), AppError> {
+    async fn left_shift_ordinals(db: &impl ConnectionTrait, start_ord: i32) -> Result<(), AppError> {
         // todo: figure out how to do update_many() with column values as expressions
         columns::Entity::update_many()
             .filter(columns::Column::Ordinal.gt(start_ord))
@@ -82,7 +86,7 @@ impl Mutation {
         Ok(())
     }
 
-    async fn right_shift_ordinals(db: &DbConn, start_ord: i32) -> Result<(), AppError> {
+    async fn right_shift_ordinals(db: &impl ConnectionTrait, start_ord: i32) -> Result<(), AppError> {
         columns::Entity::update_many()
             .filter(columns::Column::Ordinal.gte(start_ord))
             .col_expr(columns::Column::Ordinal, SimpleExpr::from(columns::Column::Ordinal.into_expr()).add(SimpleExpr::Value(Value::Int(Some(1)))))

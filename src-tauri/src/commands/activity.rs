@@ -8,13 +8,19 @@ use tauri::State;
 
 use crate::{database::activity::{Mutation, Query}, errors::AppError};
 
+#[derive(Deserialize)]
+pub struct CreateActivityInput {
+    pub name: String,
+    pub body: Option<String>,
+    pub column_id: i32,
+}
+
 #[tauri::command]
 pub async fn create_activity(
     db: State<'_, DbConn>,
-    name: String,
-    body: Option<String>,
+    data: CreateActivityInput
 ) -> Result<activities::Model, AppError> {
-    let model = Mutation::create_activity(db.inner(), name, body).await?;
+    let model = Mutation::create_activity(db.inner(), data).await?;
     Ok(model)
 }
 

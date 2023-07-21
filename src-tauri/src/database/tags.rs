@@ -1,6 +1,6 @@
 use anyhow::Context;
 use entity::category_tags;
-use sea_orm::{DbConn, EntityTrait, ActiveModelTrait, Set, IntoActiveModel, ColumnTrait, QuerySelect, QueryFilter, sea_query::SimpleExpr, Value};
+use sea_orm::{DbConn, EntityTrait, ActiveModelTrait, Set, IntoActiveModel, ColumnTrait, QuerySelect, QueryFilter, sea_query::SimpleExpr, Value, ConnectionTrait, TransactionTrait};
 use crate::{errors::AppError, commands::tags::{CreateTagInput, AttachTagToCategoryInput, UpdateTagNameInput, UpdateTagOrdinalInput}};
 
 pub struct Query;
@@ -82,23 +82,27 @@ impl Mutation {
             .ok_or(AppError::RowNotFound)?
             .into_active_model();
 
-        Self::left_shift_ordinals(db, old_ord, category_id).await?;
-        Self::right_shift_ordinals(db, data.new_ord, category_id).await?;
-
+        let tr = db.begin().await.context("failed to begin transaction")?;
+        Self::left_shift_ordinals(&tr, old_ord, category_id).await?;
+        Self::right_shift_ordinals(&tr, data.new_ord, category_id).await?;
+        
         model.ordinal = Set(data.new_ord);
-        model.update(db).await.context("failed to update column")?;
+        model.update(&tr).await.context("failed to update column")?;
+        tr.commit().await.context("failed to commit transaction")?;
         Ok(())
     }
     
     pub async fn delete_tag_by_id(db: &DbConn, id: i32) -> Result<(), AppError> {
         let category_id = Query::get_category_id_from_record_id(db, id).await?;
         let deleted_ord = Query::get_ordinal_from_id(db, id).await?;
-        category_tags::Entity::delete_by_id(id).exec(db).await.context("failed to delete category_tag")?;
-        Self::left_shift_ordinals(db, deleted_ord, category_id).await?;
+        let tr = db.begin().await.context("failed to begin transaction")?;
+        category_tags::Entity::delete_by_id(id).exec(&tr).await.context("failed to delete category_tag")?;
+        Self::left_shift_ordinals(&tr, deleted_ord, category_id).await?;
+        tr.commit().await.context("failed to commit transaction")?;
         Ok(())
     }
 
-    async fn left_shift_ordinals(db: &DbConn, start_ord: i32, category_id: Option<i32>) -> Result<(), AppError> {
+    async fn left_shift_ordinals(db: &impl ConnectionTrait, start_ord: i32, category_id: Option<i32>) -> Result<(), AppError> {
         category_tags::Entity::update_many()
             .filter(category_tags::Column::Ordinal.gt(start_ord))
             .filter(category_tags::Column::CategoryId.eq(category_id))
@@ -107,7 +111,7 @@ impl Mutation {
         Ok(())
     }
 
-    async fn right_shift_ordinals(db: &DbConn, start_ord: i32, category_id: Option<i32>) -> Result<(), AppError> {
+    async fn right_shift_ordinals(db: &impl ConnectionTrait, start_ord: i32, category_id: Option<i32>) -> Result<(), AppError> {
         category_tags::Entity::update_many()
             .filter(category_tags::Column::Ordinal.gte(start_ord))
             .filter(category_tags::Column::CategoryId.eq(category_id))
