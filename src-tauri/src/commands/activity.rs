@@ -40,7 +40,9 @@ pub async fn delete_activity<'a>(db: State<'a, DbConn>, id: i32) -> Result<(), A
 #[serde(rename_all = "camelCase")]
 pub struct CategoryTag {
     pub category_name: String,
+    pub category_ordinal: i32,
     pub tag_name: String,
+    pub tag_ordinal: i32,
 }
 
 #[derive(Serialize, Debug)]
@@ -50,6 +52,7 @@ pub struct QueryActivityOutput {
     pub body: Option<String>,
     pub category_tags: HashMap<i32, CategoryTag>,
     pub other_tags: HashSet<String>,
+    pub activity_ordinal: i32,
 }
 
 pub type QueryActivitiesOutput = HashMap<i32, QueryActivityOutput>;
@@ -58,6 +61,7 @@ pub type QueryActivitiesOutput = HashMap<i32, QueryActivityOutput>;
 #[serde(rename_all = "camelCase")]
 pub struct QueryColumnOutput {
     pub name: Option<String>,
+    pub column_ordinal: Option<i32>,
     pub activities: QueryActivitiesOutput,
 }
 

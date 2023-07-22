@@ -1,18 +1,20 @@
 use std::collections::HashMap;
 
 use crate::{
-    commands::category::{SelectCategoriesOutput, SelectCategoryOutput, UpdateCategoryNameInput, UpdateCategoryOrdinalInput},
+    commands::category::{SelectCategoriesOutput, SelectCategoryOutput, UpdateCategoryNameInput, UpdateCategoryOrdinalInput, TagOrdinal},
     errors::AppError,
 };
 use anyhow::Context;
 use entity::{category_tags, categories};
-use sea_orm::{DbConn, EntityTrait, QuerySelect, RelationTrait, FromQueryResult, ActiveModelTrait, Set, IntoActiveModel, sea_query::SimpleExpr, QueryFilter, ColumnTrait, Value, ConnectionTrait, TransactionTrait};
+use sea_orm::{DbConn, EntityTrait, QuerySelect, RelationTrait, FromQueryResult, ActiveModelTrait, Set, IntoActiveModel, sea_query::SimpleExpr, QueryFilter, ColumnTrait, Value, ConnectionTrait, TransactionTrait, QueryOrder};
 
 #[derive(FromQueryResult)]
 struct CategoryQueryResult {
     tag_name: String,
+    tag_ordinal: i32,
     category_id: Option<i32>,
     category_name: Option<String>,
+    category_ordinal: Option<String>,
 }
 
 pub struct Query;
@@ -20,33 +22,36 @@ pub struct Query;
 impl Query {
     pub async fn select_all_categories(db: &DbConn) -> Result<SelectCategoriesOutput, AppError> {
         let category_tags: Vec<CategoryQueryResult> = category_tags::Entity::find()
-            .columns([
-                category_tags::Column::TagName,
-                category_tags::Column::CategoryId,
-            ])
-            .columns([categories::Column::Name])
+            .select_only()
+            .column_as(category_tags::Column::TagName, "tag_name")
+            .column_as(category_tags::Column::Ordinal, "tag_ordinal")
+            .column_as(categories::Column::Id, "category_id")
+            .column_as(categories::Column::Name, "category_name")
+            .column_as(categories::Column::Ordinal, "category_ordinal")
             .join(
                 sea_orm::JoinType::InnerJoin,
                 category_tags::Relation::Categories.def(),
             )
+            .order_by(categories::Column::Ordinal, sea_orm::Order::Asc)
+            .order_by(category_tags::Column::Ordinal, sea_orm::Order::Asc)
             .into_model()
             .all(db)
             .await
             .context("failed to select categories")?;
 
-        let res: HashMap<i32, SelectCategoryOutput> =
+        let res: HashMap<Option<i32>, SelectCategoryOutput> =
             category_tags
                 .into_iter()
                 .fold(HashMap::new(), |mut acc, record| {
-                    if let (Some(category_id), Some(category_name)) =
-                        (record.category_id, record.category_name)
-                    {
-                        let entry = acc.entry(category_id).or_insert(SelectCategoryOutput {
-                            name: category_name,
-                            tags: vec![],
-                        });
-                        entry.tags.push(record.tag_name);
-                    }
+                    let entry = acc.entry(record.category_id).or_insert(SelectCategoryOutput {
+                        name: record.category_name,
+                        tags: vec![],
+                        ordinal: record.category_ordinal,
+                    });
+                    entry.tags.push(TagOrdinal {
+                        tag: record.tag_name,
+                        ordinal: record.tag_ordinal,
+                    });
 
                     acc
                 });

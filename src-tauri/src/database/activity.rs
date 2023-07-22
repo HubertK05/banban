@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use anyhow::Context;
 use sea_orm::{DbConn, sea_query::SimpleExpr};
 
-use ::entity::{activities, activities::Entity as Activity, activity_tags, category_tags, columns};
+use ::entity::{activities, activities::Entity as Activity, activity_tags, category_tags, columns, categories};
 use sea_orm::*;
 use tracing::debug;
 
@@ -14,11 +14,15 @@ struct ActivityQueryResult {
     id: i32,
     name: String,
     body: Option<String>,
+    ordinal: i32,
     column_id: Option<i32>,
     column_name: Option<String>,
+    column_ordinal: Option<i32>,
     category_id: Option<i32>,
     category_name: Option<String>,
+    category_ordinal: Option<i32>,
     tag_name: Option<String>,
+    tag_ordinal: Option<i32>,
 }
 
 pub struct Query;
@@ -41,9 +45,15 @@ impl Query {
                 activities::Column::Id,
                 activities::Column::Name,
                 activities::Column::Body,
+                activities::Column::Ordinal,
             ])
             .column_as(columns::Column::Id, "column_id")
             .column_as(columns::Column::Name, "column_name")
+            .column_as(columns::Column::Ordinal, "column_ordinal")
+            .column_as(category_tags::Column::TagName, "tag_name")
+            .column_as(category_tags::Column::Ordinal, "tag_ordinal")
+            .column_as(categories::Column::Id, "category_id")
+            .column_as(categories::Column::Ordinal, "category_ordinal")
             .join(JoinType::InnerJoin, activities::Relation::Columns.def())
             .join_rev(
                 JoinType::LeftJoin,
@@ -57,6 +67,10 @@ impl Query {
                 JoinType::LeftJoin,
                 category_tags::Relation::Categories.def(),
             )
+            .order_by(columns::Column::Ordinal, sea_orm::Order::Asc)
+            .order_by(activities::Column::Ordinal, sea_orm::Order::Asc)
+            .order_by(categories::Column::Ordinal, sea_orm::Order::Asc)
+            .order_by(category_tags::Column::Ordinal, sea_orm::Order::Asc)
             .into_model()
             .all(db)
             .await?;
@@ -66,6 +80,7 @@ impl Query {
                 let column_entry = acc.entry(x.column_id).or_insert(QueryColumnOutput {
                     name: x.column_name,
                     activities: HashMap::new(),
+                    column_ordinal: x.column_ordinal,
                 });
 
                 let activity_entry =
@@ -77,17 +92,20 @@ impl Query {
                             body: x.body,
                             category_tags: HashMap::new(),
                             other_tags: HashSet::new(),
+                            activity_ordinal: x.ordinal,
                         });
 
-                if let Some(tag_name) = x.tag_name {
-                    if let (Some(category_id), Some(category_name)) =
-                        (x.category_id, x.category_name)
+                if let (Some(tag_name), Some(tag_ordinal)) = (x.tag_name, x.tag_ordinal) {
+                    if let (Some(category_id), Some(category_name), Some(category_ordinal)) =
+                        (x.category_id, x.category_name, x.category_ordinal)
                     {
                         activity_entry.category_tags.insert(
                             category_id,
                             CategoryTag {
                                 category_name,
                                 tag_name,
+                                category_ordinal,
+                                tag_ordinal,
                             },
                         );
                     } else {

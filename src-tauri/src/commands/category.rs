@@ -20,12 +20,20 @@ pub async fn create_category(
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SelectCategoryOutput {
-    pub name: String,
-    pub tags: Vec<String>,
+pub struct TagOrdinal {
+    pub tag: String,
+    pub ordinal: i32,
 }
 
-pub type SelectCategoriesOutput = HashMap<i32, SelectCategoryOutput>;
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SelectCategoryOutput {
+    pub name: Option<String>,
+    pub ordinal: Option<String>,
+    pub tags: Vec<TagOrdinal>,
+}
+
+pub type SelectCategoriesOutput = HashMap<Option<i32>, SelectCategoryOutput>;
 
 #[tauri::command]
 pub async fn select_all_categories(
