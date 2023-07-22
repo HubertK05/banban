@@ -19,6 +19,7 @@ pub async fn create_category(
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SelectCategoryOutput {
     pub name: String,
     pub tags: Vec<String>,
@@ -34,9 +35,10 @@ pub async fn select_all_categories(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateCategoryNameInput {
     pub id: i32,
-    pub name: i32,
+    pub name: String,
 }
 
 #[tauri::command]
@@ -48,13 +50,17 @@ pub async fn update_category_name(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateCategoryOrdinalInput {
     pub category_id: i32,
     pub new_ord: i32,
 }
 
 #[tauri::command]
-pub async fn update_category_ordinal(db: State<'_, DbConn>, data: UpdateCategoryOrdinalInput) -> Result<(), AppError> {
+pub async fn update_category_ordinal(
+    db: State<'_, DbConn>,
+    data: UpdateCategoryOrdinalInput,
+) -> Result<(), AppError> {
     Mutation::update_category_ordinal(db.inner(), data).await
 }
 

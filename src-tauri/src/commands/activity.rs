@@ -12,6 +12,7 @@ use crate::{
 };
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateActivityInput {
     pub name: String,
     pub body: Option<String>,
@@ -21,7 +22,7 @@ pub struct CreateActivityInput {
 #[tauri::command]
 pub async fn create_activity(
     db: State<'_, DbConn>,
-    data: CreateActivityInput
+    data: CreateActivityInput,
 ) -> Result<activities::Model, AppError> {
     let model = Mutation::create_activity(db.inner(), data).await?;
     Ok(model)
@@ -36,12 +37,14 @@ pub async fn delete_activity<'a>(db: State<'a, DbConn>, id: i32) -> Result<(), A
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CategoryTag {
     pub category_name: String,
     pub tag_name: String,
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryActivityOutput {
     pub title: String,
     pub body: Option<String>,
@@ -52,6 +55,7 @@ pub struct QueryActivityOutput {
 pub type QueryActivitiesOutput = HashMap<i32, QueryActivityOutput>;
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryColumnOutput {
     pub name: Option<String>,
     pub activities: QueryActivitiesOutput,
@@ -70,6 +74,7 @@ pub async fn query_all_activities(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateActivityContentInput {
     pub id: i32,
     pub name: String,
@@ -88,6 +93,7 @@ pub async fn update_activity_content(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateActivityColumnInput {
     pub id: i32,
     pub column_id: Option<i32>,
@@ -106,6 +112,7 @@ pub async fn update_activity_column(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AddTagToActivityInput {
     pub id: i32,
     pub category_id: Option<i32>,
@@ -121,6 +128,7 @@ pub async fn add_tag_to_activity(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RemoveTagFromActivityInput {
     pub id: i32,
     pub category_id: Option<i32>,

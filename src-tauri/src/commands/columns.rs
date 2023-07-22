@@ -14,6 +14,7 @@ pub async fn create_column(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RenameColumnInput {
     pub id: i32,
     pub new_name: String,
@@ -30,6 +31,7 @@ pub async fn delete_column(db: State<'_, DbConn>, id: i32) -> Result<(), AppErro
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateColumnOrdinalInput {
     pub column_id: i32,
     pub new_ord: i32,

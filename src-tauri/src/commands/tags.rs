@@ -6,6 +6,7 @@ use tauri::State;
 use crate::{database::tags::Mutation, errors::AppError};
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateTagInput {
     pub tag_name: String,
     pub category_id: Option<i32>,
@@ -20,6 +21,7 @@ pub async fn create_tag(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AttachTagToCategoryInput {
     pub category_tag_id: i32,
     pub category_id: Option<i32>,
@@ -34,6 +36,7 @@ pub async fn attach_tag_to_category(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateTagNameInput {
     pub category_tag_id: i32,
     pub tag_name: String,
@@ -48,13 +51,17 @@ pub async fn update_tag_name(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateTagOrdinalInput {
     pub category_tag_id: i32,
     pub new_ord: i32,
 }
 
 #[tauri::command]
-pub async fn update_tag_ordinal(db: State<'_, DbConn>, data: UpdateTagOrdinalInput) -> Result<(), AppError> {
+pub async fn update_tag_ordinal(
+    db: State<'_, DbConn>,
+    data: UpdateTagOrdinalInput,
+) -> Result<(), AppError> {
     Mutation::update_tag_ordinal(db.inner(), data).await
 }
 
