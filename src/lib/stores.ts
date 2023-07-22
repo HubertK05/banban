@@ -33,3 +33,6 @@ async function queryAllActivities() {
     console.log(res)
 }
 
+// setTimeout(async () => {
+//     await queryAllActivities()
+// }, 3000)

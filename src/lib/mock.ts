@@ -14,15 +14,15 @@ export const stringToColour = (str: string) => {
 }
 
 export const mockTags: Map<number, Tag> = new Map([
-    [1, { name: "🏝 Low" }],
-    [2, { name: "🏕 Medium" }],
-    [3, { name: "🏔 High" }],
-    [4, { name: "🌋 Urgent" }],
-    [5, { name: "🦔 Tiny" }],
-    [6, { name: "🐇 Small" }],
-    [7, { name: "🐂 Medium" }],
-    [8, { name: "🦑 Large" }],
-    [9, { name: "🐋 X-Large" }]
+    [1, { name: "🏝 Low", ord: 3 }],
+    [2, { name: "🏕 Medium", ord: 1 }],
+    [3, { name: "🏔 High", ord: 2 }],
+    [4, { name: "🌋 Urgent", ord: 4 }],
+    [5, { name: "🦔 Tiny", ord: 1 }],
+    [6, { name: "🐇 Small", ord: 2 }],
+    [7, { name: "🐂 Medium", ord: 3 }],
+    [8, { name: "🦑 Large", ord: 4 }],
+    [9, { name: "🐋 X-Large", ord: 5 }]
 
 ])
 const sizeCategory: Category = { name: "Size", tags: [1, 2, 3, 4] }

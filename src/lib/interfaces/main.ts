@@ -16,6 +16,7 @@ export type Columns = Map<number, Column>
 export interface Tag {
     name: string;
     color?: string
+    ord: number
 }
 
 export type Tags = Map<number, Tag>

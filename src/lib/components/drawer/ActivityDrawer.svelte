@@ -11,6 +11,7 @@
     import TagBadge from "../board/TagBadge.svelte";
     import BackButton from "./BackButton.svelte";
     import { fly, slide } from "svelte/transition";
+    import { invoke } from "@tauri-apps/api";
 
     let selectedCategoryId: number = Array.from($categories).at(0)[0];
 
@@ -33,7 +34,14 @@
         $drawerStore.id = DrawerTab.Settings;
     }
 
-    function changeActivityTag(newTagId: number) {
+    async function changeActivityTag(newTagId: number, tag: Tag) {
+        await invoke("add_tag_to_activity", {
+            data: {
+                id: newTagId,
+                category_id: selectedCategoryId,
+                tag_name: tag.name,
+            },
+        });
         const categoryTags = $categories.get(selectedCategoryId).tags;
         for (let currentTagId of $selectedActivity.tags) {
             if (categoryTags.includes(currentTagId)) {
@@ -93,7 +101,8 @@
                             ? "variant-ghost-secondary"
                             : "variant-ghost-primary"
                     }`}
-                    on:click={() => changeActivityTag(tagId)}>Choose</button
+                    on:click={() => changeActivityTag(tagId, tag)}
+                    >Choose</button
                 >
             </div>
         {:else}

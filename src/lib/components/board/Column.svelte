@@ -29,7 +29,7 @@
             column_id?: number;
             ordinal: number;
         } = await invoke("create_activity", {
-            data: { name, body, column_id: columnId },
+            data: { name, body, columnId },
         });
         const column = $columns.get(columnId);
         column.activities.set(res.id, { name, body, tags });
