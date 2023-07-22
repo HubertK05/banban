@@ -49,7 +49,7 @@ impl Query {
                 JoinType::LeftJoin,
                 activity_tags::Relation::Activities.def(),
             )
-            .join_rev(
+            .join(
                 JoinType::LeftJoin,
                 activity_tags::Relation::CategoryTags.def(),
             )
