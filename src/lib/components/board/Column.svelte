@@ -15,7 +15,7 @@
     $: {
         // WARNING! Updates every key stroke
         invoke("rename_column", {
-            data: { id: columnId, new_name: column.name },
+            data: { id: columnId, newName: column.name },
         });
     }
     async function createActivity() {

@@ -35,13 +35,13 @@
     }
 
     async function changeActivityTag(newTagId: number, tag: Tag) {
-        await invoke("add_tag_to_activity", {
-            data: {
-                id: newTagId,
-                category_id: selectedCategoryId,
-                tag_name: tag.name,
-            },
-        });
+        // await invoke("add_tag_to_activity", {
+        //     data: {
+        //         id: newTagId,
+        //         categoryId: selectedCategoryId,
+        //         tagName: tag.name,
+        //     },
+        // });
         const categoryTags = $categories.get(selectedCategoryId).tags;
         for (let currentTagId of $selectedActivity.tags) {
             if (categoryTags.includes(currentTagId)) {

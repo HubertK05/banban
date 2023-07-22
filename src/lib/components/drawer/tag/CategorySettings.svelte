@@ -1,9 +1,16 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
     import { categories, columns, tags } from "../../../stores";
-    import { ListBox, ListBoxItem } from "@skeletonlabs/skeleton";
+    import {
+        ListBox,
+        ListBoxItem,
+        type ModalComponent,
+    } from "@skeletonlabs/skeleton";
     import TagSettings from "./TagSettings.svelte";
 
+    async function showCreateTagForm() {
+        const availableCategories = Array.from($categories.entries());
+    }
     async function createTag(tagName: string, categoryId?: number) {
         // const res: {
         //     id: number;
@@ -11,12 +18,7 @@
         //     categoryId?: number;
         //     ordinal: number;
         // } = await invoke("create_tag", { data: { tagName, categoryId } });
-        const res: {
-            id: number;
-            tagName: string;
-            categoryId?: number;
-            ordinal: number;
-        } = { id: 123, tagName: "asdasd", categoryId: 1, ordinal: 6 };
+        const res = { id: 10000, tagName, ordinal: -1, categoryId };
         $tags.set(res.id, { name: res.tagName, ord: res.ordinal });
         $tags = $tags;
         if (res.categoryId !== undefined && categoryId !== undefined) {
@@ -25,6 +27,11 @@
             $categories = $categories;
         }
     }
+
+    let createTagForm = false;
+    let createCategoryId: number | undefined;
+    let createTagName: string = "";
+    let createTagNode: HTMLInputElement;
 </script>
 
 <h2 class="h2">Tag options</h2>
@@ -39,11 +46,46 @@
     {:else}
         <button
             class="btn variant-ghost-tertiary"
-            on:click={() => createTag("asdasd", categoryId)}
-            >Add new {category.name} tag</button
+            on:click={() => {
+                createCategoryId = categoryId;
+                createTagNode.focus();
+            }}>Add new tag</button
         >
     {/each}
 {:else}
     <p>There are no categories</p>
     <button class="btn varinat-fil">Create new</button>
 {/each}
+<hr />
+<div class="flex flex-row items-center p-5">
+    <div>
+        <input
+            type="text"
+            class="input p-2"
+            bind:this={createTagNode}
+            bind:value={createTagName}
+            placeholder="New tag name"
+        />
+        <ListBox>
+            {#each Array.from($categories.entries()) as [id, category]}
+                <ListBoxItem
+                    bind:group={createCategoryId}
+                    value={id}
+                    name="categoryId"
+                    >{category.name} - {category.tags.length}</ListBoxItem
+                >
+            {/each}
+        </ListBox>
+    </div>
+    <button
+        on:click={async () => {
+            createTagForm = false;
+            await createTag(createTagName, createCategoryId);
+            createTagName = "";
+            createCategoryId = undefined;
+        }}
+        class="btn variant-filled-primary"
+        disabled={createTagName.length === 0 || createCategoryId === undefined}
+        >Create</button
+    >
+</div>

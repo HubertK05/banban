@@ -61,7 +61,7 @@
     }
 </script>
 
-<div class="flex flex-col">
+<div class="flex flex-col p-2">
     <p>{tag.name}</p>
     <div>
         <button class="btn btn-sm variant-filled" on:click={removeTag}
