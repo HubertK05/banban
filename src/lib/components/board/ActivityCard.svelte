@@ -79,13 +79,13 @@
         $columns = $columns;
     }
 
-    // WARNING! update on every keystroke, should use `updateActivity` in the future
+    //WARNING! update on every keystroke, should use `updateActivity` in the future
 
-    // $: {
-    //     invoke("update_activity_content", {
-    //         data: { id, name: activity.name, body: activity.body },
-    //     });
-    // }
+    $: {
+        invoke("update_activity_content", {
+            data: { id, name: activity.name, body: activity.body },
+        });
+    }
 
     function showRemoveModal() {
         const modal: ModalSettings = {
@@ -206,6 +206,7 @@
     </div>
     <div class="flex flex-row">
         {#each activity.tags as tagId}
+            <DebugLabel text={"ID: "+tagId}></DebugLabel>
             {@const tag = $tags.get(tagId)}
             <TagBadge name={tag.name} color={tag.color} />
         {/each}

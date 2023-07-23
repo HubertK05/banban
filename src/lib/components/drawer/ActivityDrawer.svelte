@@ -72,8 +72,9 @@
 
 <h2 class="h2">Categories</h2>
 <ListBox>
-    {#each Array.from($categories).sort(([a], [b]) => {
-        return $categories.get(a).ord - $categories.get(b).ord;
+    {#each Array.from($categories.entries()).sort(([a,catA], [b,catB]) => {
+        console.log(a,b)
+        return catA.ord - catB.ord
     }) as [categoryId, category]}
         <ListBoxItem
             bind:group={selectedCategoryId}
@@ -82,7 +83,7 @@
         >
     {/each}
 </ListBox>
-
+{selectedCategoryId}
 {#if selectedCategoryId}
     <div class="flex flex-col">
         {#each $categories.get(selectedCategoryId).tags as tagId (tagId)}

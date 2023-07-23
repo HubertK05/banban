@@ -36,9 +36,8 @@
 
 <h2 class="h2">Tag options</h2>
 
-{#each Array.from($categories).sort(([a], [b]) => {
-    console.log($categories.get(a).ord, $categories.get(b).ord);
-    return $categories.get(a).ord - $categories.get(b).ord;
+{#each Array.from($categories).sort(([shit1, catA], [shit2, catB]) => {
+    return catA.ord - catB.ord;
 }) as [categoryId, category]}
     <p>{category.name}</p>
     {#each category.tags.sort((a, b) => {

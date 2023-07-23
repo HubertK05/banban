@@ -30,6 +30,7 @@ struct ActivityQueryResult {
     category_id: Option<i32>,
     category_name: Option<String>,
     category_ordinal: Option<i32>,
+    tag_id: Option<i32>,
     tag_name: Option<String>,
     tag_ordinal: Option<i32>,
 }
@@ -59,6 +60,7 @@ impl Query {
             .column_as(columns::Column::Id, "column_id")
             .column_as(columns::Column::Name, "column_name")
             .column_as(columns::Column::Ordinal, "column_ordinal")
+            .column_as(category_tags::Column::Id, "tag_id")
             .column_as(category_tags::Column::TagName, "tag_name")
             .column_as(category_tags::Column::Ordinal, "tag_ordinal")
             .column_as(categories::Column::Id, "category_id")
@@ -109,13 +111,14 @@ impl Query {
                                 activity_ordinal: x.ordinal,
                             });
 
-                    if let (Some(tag_name), Some(tag_ordinal)) = (x.tag_name, x.tag_ordinal) {
+                    if let (Some(tag_name), Some(tag_ordinal), Some(tag_id)) = (x.tag_name, x.tag_ordinal, x.tag_id) {
                         if let (Some(category_id), Some(category_name), Some(category_ordinal)) =
                             (x.category_id, x.category_name, x.category_ordinal)
                         {
                             activity_entry.category_tags.insert(
                                 category_id,
                                 CategoryTag {
+                                    tag_id,
                                     category_name,
                                     tag_name,
                                     category_ordinal,
@@ -142,13 +145,14 @@ impl Query {
                                 activity_ordinal: x.ordinal,
                             });
 
-                    if let (Some(tag_name), Some(tag_ordinal)) = (x.tag_name, x.tag_ordinal) {
+                    if let (Some(tag_name), Some(tag_ordinal), Some(tag_id)) = (x.tag_name, x.tag_ordinal, x.tag_id) {
                         if let (Some(category_id), Some(category_name), Some(category_ordinal)) =
                             (x.category_id, x.category_name, x.category_ordinal)
                         {
                             activity_entry.category_tags.insert(
                                 category_id,
                                 CategoryTag {
+                                    tag_id,
                                     category_name,
                                     tag_name,
                                     category_ordinal,
