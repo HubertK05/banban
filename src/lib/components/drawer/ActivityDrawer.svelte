@@ -12,6 +12,7 @@
     import BackButton from "./BackButton.svelte";
     import { fly, slide } from "svelte/transition";
     import { invoke } from "@tauri-apps/api";
+    import DebugLabel from "../debug/DebugLabel.svelte";
 
     let selectedCategoryId: number = Array.from($categories).at(0)[0];
 
@@ -73,9 +74,9 @@
 <h2 class="h2">Categories</h2>
 <ListBox>
     {#each Array.from($categories.entries()).sort(([a,catA], [b,catB]) => {
-        console.log(a,b)
         return catA.ord - catB.ord
     }) as [categoryId, category]}
+    <DebugLabel text={"ID: "+categoryId}></DebugLabel>
         <ListBoxItem
             bind:group={selectedCategoryId}
             name={category.name}
@@ -83,7 +84,6 @@
         >
     {/each}
 </ListBox>
-{selectedCategoryId}
 {#if selectedCategoryId}
     <div class="flex flex-col">
         {#each $categories.get(selectedCategoryId).tags as tagId (tagId)}

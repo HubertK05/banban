@@ -36,7 +36,7 @@ async function main() {
 
 }
 
-main()
+await main()
 
 async function getAllCategories() {
 

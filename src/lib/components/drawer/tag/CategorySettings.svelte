@@ -7,6 +7,7 @@
         type ModalComponent,
     } from "@skeletonlabs/skeleton";
     import TagSettings from "./TagSettings.svelte";
+    import DebugLabel from "../../debug/DebugLabel.svelte";
 
     async function showCreateTagForm() {
         const availableCategories = Array.from($categories.entries());
@@ -44,6 +45,7 @@
         return $tags.get(a).ord - $tags.get(b).ord;
     }) as tagId}
         {@const tag = $tags.get(tagId)}
+        <DebugLabel text={"ID: "+tagId}></DebugLabel>
         <TagSettings {tag} {tagId} {categoryId} />
     {:else}
         <button

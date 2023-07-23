@@ -35,8 +35,8 @@
         <h1 class="text-2xl font-bold">{boardName}</h1>
     </div>
     <div class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto">
-        {#each Array.from($columns).sort(([a], [b]) => {
-            return $columns.get(a).ord - $columns.get(b).ord;
+        {#each Array.from($columns.entries()).sort(([aId,colA], [bId, colB]) => {
+            return $columns.get(aId).ord - $columns.get(bId).ord;
         }) as [id, column] (id)}
             <DebugLabel text={`ID ${id}`} />
             <Column {column} columnId={id} />
