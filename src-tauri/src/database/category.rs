@@ -10,11 +10,12 @@ use sea_orm::{DbConn, EntityTrait, QuerySelect, RelationTrait, FromQueryResult, 
 
 #[derive(FromQueryResult)]
 struct CategoryQueryResult {
+    tag_id: i32,
     tag_name: String,
     tag_ordinal: i32,
     category_id: Option<i32>,
     category_name: Option<String>,
-    category_ordinal: Option<String>,
+    category_ordinal: Option<i32>,
 }
 
 pub struct Query;
@@ -25,6 +26,7 @@ impl Query {
             .select_only()
             .column_as(category_tags::Column::TagName, "tag_name")
             .column_as(category_tags::Column::Ordinal, "tag_ordinal")
+            .column_as(category_tags::Column::Id, "tag_id")
             .column_as(categories::Column::Id, "category_id")
             .column_as(categories::Column::Name, "category_name")
             .column_as(categories::Column::Ordinal, "category_ordinal")
@@ -50,11 +52,13 @@ impl Query {
                             ordinal: record.category_ordinal,
                         });
                         entry.tags.push(TagOrdinal {
+                            id: record.tag_id,
                             tag: record.tag_name,
                             ordinal: record.tag_ordinal,
                         });
                     } else {
                         acc.other_tags.tags.push(TagOrdinal {
+                            id: record.tag_id,
                             tag: record.tag_name,
                             ordinal: record.tag_ordinal,
                         });

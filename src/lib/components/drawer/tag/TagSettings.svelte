@@ -8,7 +8,7 @@
     export let categoryId: number;
 
     async function removeTag() {
-        // await invoke("delete_tag", { categoryTagId: tagId });
+        await invoke("delete_tag", { categoryTagId: tagId });
         $tags.delete(tagId);
         $columns.forEach((column, columnId) => {
             column.activities.forEach((activity, activityId) => {
@@ -25,9 +25,9 @@
     }
 
     async function renameTag(newTagName: string) {
-        // await invoke("update_tag_name", {
-        //     data: { categoryTagId: tagId, tagName: newTagName },
-        // });
+        await invoke("update_tag_name", {
+            data: { categoryTagId: tagId, tagName: newTagName },
+        });
         const tag = $tags.get(tagId);
         $tags.set(tagId, { ...tag, name: newTagName });
         $tags = $tags;
@@ -51,9 +51,9 @@
     }
 
     async function changeTagOrder(ord: number) {
-        // await invoke("update_tag_ordinal", {
-        //     data: { categoryTagId: tagId, newOrd: ord },
-        // });
+        await invoke("update_tag_ordinal", {
+            data: { categoryTagId: tagId, newOrd: ord },
+        });
         const tag = $tags.get(tagId);
         $tags.set(tagId, { ...tag, ord });
         $tags = $tags;
