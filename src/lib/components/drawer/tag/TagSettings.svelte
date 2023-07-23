@@ -34,11 +34,11 @@
     }
 
     async function changeTagCategory(newCategoryId?: number) {
-        // await invoke("attach_tag_to_category", {
-        //     data: { categoryTagId: tagId, categoryId: newCategoryId },
-        // });
+        await invoke("attach_tag_to_category", {
+            data: { categoryTagId: tagId, categoryId: newCategoryId },
+        });
         if (newCategoryId === undefined) {
-            // detatch category
+            // TODO: detatch category
             return;
         }
         const category = $categories.get(categoryId);

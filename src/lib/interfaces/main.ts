@@ -2,13 +2,15 @@ export interface Activity {
     name: string,
     body?: string
     tags: Array<number>
+    ord: number
 }
 
 export type Activities = Map<number, Activity>
 
 export interface Column {
     name: string,
-    activities: Map<number, Activity>
+    activities: Map<number, Activity>,
+    ord: number
 }
 
 export type Columns = Map<number, Column>
@@ -24,7 +26,8 @@ export type Tags = Map<number, Tag>
 
 export interface Category {
     name: string,
-    tags: Array<number>
+    tags: Array<number>,
+    ord: number
 }
 
 export type Categories = Map<number, Category>

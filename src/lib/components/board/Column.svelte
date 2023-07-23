@@ -12,12 +12,13 @@
     export let columnId: number;
     export let column: Column;
 
-    $: {
-        // WARNING! Updates every key stroke
-        invoke("rename_column", {
-            data: { id: columnId, newName: column.name },
-        });
-    }
+    // $: {
+    //     // WARNING! Updates every key stroke
+    //     invoke("rename_column", {
+    //         data: { id: columnId, newName: column.name },
+    //     });
+    // }
+
     async function createActivity() {
         const name = "New activity";
         const body = "";
@@ -32,7 +33,7 @@
             data: { name, body, columnId },
         });
         const column = $columns.get(columnId);
-        column.activities.set(res.id, { name, body, tags });
+        column.activities.set(res.id, { name, body, tags, ord: res.ordinal });
         $columns.set(columnId, column);
         $columns = $columns;
     }
@@ -93,7 +94,9 @@
         </button>
     </div>
     <div class="flex flex-col pb-2 overflow-auto">
-        {#each [...column.activities].reverse() as [activityId, activity] (activityId)}
+        {#each Array.from(column.activities).sort(([aId, a], [bId, b]) => {
+            return a.ord - b.ord;
+        }) as [activityId, activity] (activityId)}
             <ActivityCard {activity} id={activityId} {columnId} />
         {/each}
     </div>

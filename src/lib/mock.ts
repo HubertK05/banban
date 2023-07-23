@@ -25,9 +25,9 @@ export const mockTags: Map<number, Tag> = new Map([
     [9, { name: "🐋 X-Large", ord: 5 }]
 
 ])
-const sizeCategory: Category = { name: "Size", tags: [1, 2, 3, 4] }
-const priorityCategory: Category = { name: "Priority", tags: [5, 6, 7, 8, 9] }
-const emptyCategory: Category = { name: "Complexity", tags: [] }
+const sizeCategory: Category = { name: "Size", tags: [1, 2, 3, 4], ord: 3 }
+const priorityCategory: Category = { name: "Priority", tags: [5, 6, 7, 8, 9], ord: 2 }
+const emptyCategory: Category = { name: "Complexity", tags: [], ord: 1 }
 
 export const baseCategories: Categories = new Map([
     [1, sizeCategory],
@@ -36,21 +36,21 @@ export const baseCategories: Categories = new Map([
 ])
 
 const newActivities: Map<number, Activity> = new Map([
-    [1, { name: "homework", tags: [1, 7] }],
-    [2, { name: "extra homework", body: "presentation", tags: [3, 7] }]
+    [1, { name: "homework", tags: [1, 7], ord: 1 }],
+    [2, { name: "extra homework", body: "presentation", tags: [3, 7], ord: 2 }]
 ]);
 
 const inProgressActivities: Map<number, Activity> = new Map([
-    [3, { name: "household chores", tags: [1, 9] }]
+    [3, { name: "household chores", tags: [1, 9], ord: 1 }]
 ]);
 
 const doneActivities: Map<number, Activity> = new Map([
-    [4, { name: "gym workout", body: "gazylion push ups", tags: [9] }],
-    [5, { name: "PE workout", body: "gazylion push ups", tags: [4, 7] }]
+    [4, { name: "gym workout", body: "gazylion push ups", tags: [9], ord: 1 }],
+    [5, { name: "PE workout", body: "gazylion push ups", tags: [4, 7], ord: 2 }]
 ]);
 
 export const mockColumns: Map<number, Column> = new Map([
-    [1, { name: "New", activities: newActivities }],
-    [2, { name: "In progress", activities: inProgressActivities }],
-    [3, { name: "Done", activities: doneActivities }]
+    [1, { name: "New", activities: newActivities, ord: 1 }],
+    [2, { name: "In progress", activities: inProgressActivities, ord: 2 }],
+    [3, { name: "Done", activities: doneActivities, ord: 3 }]
 ]);

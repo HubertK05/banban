@@ -12,16 +12,16 @@
         const availableCategories = Array.from($categories.entries());
     }
     async function createTag(tagName: string, categoryId?: number) {
-        // const res: {
-        //     id: number;
-        //     tagName: string;
-        //     categoryId?: number;
-        //     ordinal: number;
-        // } = await invoke("create_tag", { data: { tagName, categoryId } });
-        const res = { id: 10000, tagName, ordinal: -1, categoryId };
+        const res: {
+            id: number;
+            tagName: string;
+            categoryId?: number;
+            ordinal: number;
+        } = await invoke("create_tag", { data: { tagName, categoryId } });
+        console.debug(res);
         $tags.set(res.id, { name: res.tagName, ord: res.ordinal });
         $tags = $tags;
-        if (res.categoryId !== undefined && categoryId !== undefined) {
+        if (categoryId !== undefined) {
             const category = $categories.get(categoryId);
             category.tags.push(res.id);
             $categories = $categories;
@@ -36,7 +36,10 @@
 
 <h2 class="h2">Tag options</h2>
 
-{#each $categories as [categoryId, category]}
+{#each Array.from($categories).sort(([a], [b]) => {
+    console.log($categories.get(a).ord, $categories.get(b).ord);
+    return $categories.get(a).ord - $categories.get(b).ord;
+}) as [categoryId, category]}
     <p>{category.name}</p>
     {#each category.tags.sort((a, b) => {
         return $tags.get(a).ord - $tags.get(b).ord;

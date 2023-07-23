@@ -72,7 +72,9 @@
 
 <h2 class="h2">Categories</h2>
 <ListBox>
-    {#each $categories as [categoryId, category]}
+    {#each Array.from($categories).sort(([a], [b]) => {
+        return $categories.get(a).ord - $categories.get(b).ord;
+    }) as [categoryId, category]}
         <ListBoxItem
             bind:group={selectedCategoryId}
             name={category.name}

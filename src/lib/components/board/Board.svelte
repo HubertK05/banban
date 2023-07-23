@@ -16,7 +16,7 @@
             "create_column",
             { name }
         );
-        $columns.set(res.id, { name, activities: new Map() });
+        $columns.set(res.id, { name, activities: new Map(), ord: res.ordinal });
         $columns = $columns;
         setTimeout(() => {
             currentTarget.scrollIntoView({
@@ -35,7 +35,9 @@
         <h1 class="text-2xl font-bold">{boardName}</h1>
     </div>
     <div class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto">
-        {#each $columns as [id, column] (id)}
+        {#each Array.from($columns).sort(([a], [b]) => {
+            return $columns.get(a).ord - $columns.get(b).ord;
+        }) as [id, column] (id)}
             <DebugLabel text={`ID ${id}`} />
             <Column {column} columnId={id} />
         {/each}

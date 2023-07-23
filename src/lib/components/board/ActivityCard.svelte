@@ -22,7 +22,6 @@
         drawerStore,
         type DrawerSettings,
     } from "@skeletonlabs/skeleton";
-    import { onMount } from "svelte";
 
     export let id: number;
     export let columnId: number;
@@ -56,17 +55,25 @@
             name: activity.name,
             body: "new body",
             tags: activity.tags,
+            ord: activity.ord,
         });
         $columns.set(columnId, column);
         $columns = $columns;
     }
 
     async function updateActivity() {
+        console.debug(
+            "Called updateActivity function and this wasn't expected, call 911!"
+        );
+        invoke("update_activity_content", {
+            data: { id, name: activity.name, body: activity.body },
+        });
         const column = $columns.get(columnId);
         column.activities.set(id, {
             name: activity.name,
             body: activity.body,
             tags: activity.tags,
+            ord: activity.ord,
         });
         $columns.set(columnId, column);
         $columns = $columns;
@@ -74,11 +81,11 @@
 
     // WARNING! update on every keystroke, should use `updateActivity` in the future
 
-    $: {
-        invoke("update_activity_content", {
-            data: { id, name: activity.name, body: activity.body },
-        });
-    }
+    // $: {
+    //     invoke("update_activity_content", {
+    //         data: { id, name: activity.name, body: activity.body },
+    //     });
+    // }
 
     function showRemoveModal() {
         const modal: ModalSettings = {
