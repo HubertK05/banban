@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    commands::category::{SelectCategoriesOutput, SelectCategoryOutput, UpdateCategoryNameInput, UpdateCategoryOrdinalInput, TagOrdinal},
+    commands::category::{SelectCategoryTagsOutput, SelectCategoryOutput, UpdateCategoryNameInput, UpdateCategoryOrdinalInput, TagOrdinal},
     errors::AppError,
 };
 use anyhow::Context;
@@ -20,7 +20,7 @@ struct CategoryQueryResult {
 pub struct Query;
 
 impl Query {
-    pub async fn select_all_categories(db: &DbConn) -> Result<SelectCategoriesOutput, AppError> {
+    pub async fn select_all_categories(db: &DbConn) -> Result<SelectCategoryTagsOutput, AppError> {
         let category_tags: Vec<CategoryQueryResult> = category_tags::Entity::find()
             .select_only()
             .column_as(category_tags::Column::TagName, "tag_name")
@@ -39,19 +39,26 @@ impl Query {
             .await
             .context("failed to select categories")?;
 
-        let res: HashMap<Option<i32>, SelectCategoryOutput> =
+        let res: SelectCategoryTagsOutput =
             category_tags
                 .into_iter()
-                .fold(HashMap::new(), |mut acc, record| {
-                    let entry = acc.entry(record.category_id).or_insert(SelectCategoryOutput {
-                        name: record.category_name,
-                        tags: vec![],
-                        ordinal: record.category_ordinal,
-                    });
-                    entry.tags.push(TagOrdinal {
-                        tag: record.tag_name,
-                        ordinal: record.tag_ordinal,
-                    });
+                .fold(SelectCategoryTagsOutput { category_tags: HashMap::new(), other_tags: SelectCategoryOutput { name: None, ordinal: None, tags: Vec::new() } }, |mut acc, record| {
+                    if let Some(category_id) = record.category_id {
+                        let entry = acc.category_tags.entry(category_id).or_insert(SelectCategoryOutput {
+                            name: record.category_name,
+                            tags: vec![],
+                            ordinal: record.category_ordinal,
+                        });
+                        entry.tags.push(TagOrdinal {
+                            tag: record.tag_name,
+                            ordinal: record.tag_ordinal,
+                        });
+                    } else {
+                        acc.other_tags.tags.push(TagOrdinal {
+                            tag: record.tag_name,
+                            ordinal: record.tag_ordinal,
+                        });
+                    }
 
                     acc
                 });

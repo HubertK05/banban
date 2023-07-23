@@ -33,12 +33,16 @@ pub struct SelectCategoryOutput {
     pub tags: Vec<TagOrdinal>,
 }
 
-pub type SelectCategoriesOutput = HashMap<Option<i32>, SelectCategoryOutput>;
+#[derive(Serialize)]
+pub struct SelectCategoryTagsOutput {
+    pub category_tags: HashMap<i32, SelectCategoryOutput>,
+    pub other_tags: SelectCategoryOutput,
+}
 
 #[tauri::command]
 pub async fn select_all_categories(
     db: State<'_, DbConn>,
-) -> Result<SelectCategoriesOutput, AppError> {
+) -> Result<SelectCategoryTagsOutput, AppError> {
     Query::select_all_categories(db.inner()).await
 }
 

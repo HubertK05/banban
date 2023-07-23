@@ -51,7 +51,7 @@ pub struct QueryActivityOutput {
     pub title: String,
     pub body: Option<String>,
     pub category_tags: HashMap<i32, CategoryTag>,
-    pub other_tags: HashSet<String>,
+    pub other_tags: Vec<String>,
     pub activity_ordinal: i32,
 }
 
@@ -65,7 +65,11 @@ pub struct QueryColumnOutput {
     pub activities: QueryActivitiesOutput,
 }
 
-pub type QueryActivitiesWithColumnsOutput = HashMap<Option<i32>, QueryColumnOutput>;
+#[derive(Serialize, Debug)]
+pub struct QueryActivitiesWithColumnsOutput {
+    pub columns: HashMap<i32, QueryColumnOutput>,
+    pub other_activities: QueryColumnOutput,
+}
 
 #[tauri::command]
 pub async fn query_all_activities(

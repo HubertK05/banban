@@ -86,44 +86,81 @@ impl Query {
             .await?;
 
         let res: QueryActivitiesWithColumnsOutput =
-            res.into_iter().fold(HashMap::new(), |mut acc, x| {
-                let column_entry = acc.entry(x.column_id).or_insert(QueryColumnOutput {
-                    name: x.column_name,
-                    activities: HashMap::new(),
-                    column_ordinal: x.column_ordinal,
-                });
+            res.into_iter().fold(QueryActivitiesWithColumnsOutput {
+                columns: HashMap::new(),
+                other_activities: QueryColumnOutput { name: None, column_ordinal: None, activities: HashMap::new() },
+            }, |mut acc, x| {
+                if let Some(column_id) = x.column_id {
+                    let column_entry = acc.columns.entry(column_id).or_insert(QueryColumnOutput {
+                        name: x.column_name,
+                        activities: HashMap::new(),
+                        column_ordinal: x.column_ordinal,
+                    });
 
-                let activity_entry =
-                    column_entry
-                        .activities
-                        .entry(x.id)
-                        .or_insert(QueryActivityOutput {
-                            title: x.name,
-                            body: x.body,
-                            category_tags: HashMap::new(),
-                            other_tags: HashSet::new(),
-                            activity_ordinal: x.ordinal,
-                        });
+                    let activity_entry =
+                        column_entry
+                            .activities
+                            .entry(x.id)
+                            .or_insert(QueryActivityOutput {
+                                title: x.name,
+                                body: x.body,
+                                category_tags: HashMap::new(),
+                                other_tags: Vec::new(),
+                                activity_ordinal: x.ordinal,
+                            });
 
-                if let (Some(tag_name), Some(tag_ordinal)) = (x.tag_name, x.tag_ordinal) {
-                    if let (Some(category_id), Some(category_name), Some(category_ordinal)) =
-                        (x.category_id, x.category_name, x.category_ordinal)
-                    {
-                        activity_entry.category_tags.insert(
-                            category_id,
-                            CategoryTag {
-                                category_name,
-                                tag_name,
-                                category_ordinal,
-                                tag_ordinal,
-                            },
-                        );
-                    } else {
-                        activity_entry.other_tags.insert(tag_name);
-                    };
+                    if let (Some(tag_name), Some(tag_ordinal)) = (x.tag_name, x.tag_ordinal) {
+                        if let (Some(category_id), Some(category_name), Some(category_ordinal)) =
+                            (x.category_id, x.category_name, x.category_ordinal)
+                        {
+                            activity_entry.category_tags.insert(
+                                category_id,
+                                CategoryTag {
+                                    category_name,
+                                    tag_name,
+                                    category_ordinal,
+                                    tag_ordinal,
+                                },
+                            );
+                        } else {
+                            activity_entry.other_tags.push(tag_name);
+                        };
+                    }
+
+                    acc
+                } else {
+                    let activity_entry =
+                        acc
+                            .other_activities
+                            .activities
+                            .entry(x.id)
+                            .or_insert(QueryActivityOutput {
+                                title: x.name,
+                                body: x.body,
+                                category_tags: HashMap::new(),
+                                other_tags: Vec::new(),
+                                activity_ordinal: x.ordinal,
+                            });
+
+                    if let (Some(tag_name), Some(tag_ordinal)) = (x.tag_name, x.tag_ordinal) {
+                        if let (Some(category_id), Some(category_name), Some(category_ordinal)) =
+                            (x.category_id, x.category_name, x.category_ordinal)
+                        {
+                            activity_entry.category_tags.insert(
+                                category_id,
+                                CategoryTag {
+                                    category_name,
+                                    tag_name,
+                                    category_ordinal,
+                                    tag_ordinal,
+                                },
+                            );
+                        } else {
+                            activity_entry.other_tags.push(tag_name);
+                        };
+                    }
+                    acc
                 }
-
-                acc
             });
 
         debug!("Selected activities: {res:?}");
