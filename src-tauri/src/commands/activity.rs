@@ -44,6 +44,7 @@ pub struct CategoryTag {
     pub tag_id: i32,
     pub tag_name: String,
     pub tag_ordinal: i32,
+    pub tag_color: String,
 }
 
 #[derive(Serialize, Debug)]

@@ -65,6 +65,20 @@ pub async fn update_tag_ordinal(
     Mutation::update_tag_ordinal(db.inner(), data).await
 }
 
+#[derive(Deserialize)]
+pub struct UpdateTagColorInput {
+    pub category_tag_id: i32,
+    pub color: String,
+}
+
+#[tauri::command]
+pub async fn update_tag_color(
+    db: State<'_, DbConn>,
+    data: UpdateTagColorInput,
+) -> Result<(), AppError> {
+    Mutation::update_tag_color(db.inner(), data).await
+}
+
 #[tauri::command]
 pub async fn delete_tag(db: State<'_, DbConn>, category_tag_id: i32) -> Result<(), AppError> {
     Mutation::delete_tag_by_id(db.inner(), category_tag_id).await

@@ -3,12 +3,13 @@
 
 use tauri::Manager;
 
-use crate::commands::{activity::*, category::*, tags::*, columns::*};
+use crate::commands::{activity::*, category::*, columns::*, tags::*};
 
 pub mod commands;
 pub mod database;
 pub mod errors;
 pub mod setup;
+pub mod utils;
 
 fn main() {
     dotenvy::dotenv().ok();
@@ -39,6 +40,7 @@ fn main() {
             attach_tag_to_category,
             update_tag_name,
             update_tag_ordinal,
+            update_tag_color,
             delete_tag,
             create_column,
             rename_column,

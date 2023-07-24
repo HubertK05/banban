@@ -1,9 +1,10 @@
 use crate::{
     commands::category::{
-        SelectCategoryOutput, SelectCategoryTagsOutput, TagOrdinal, UpdateCategoryNameInput,
+        SelectCategoryOutput, SelectCategoryTagsOutput, TagData, UpdateCategoryNameInput,
         UpdateCategoryOrdinalInput,
     },
     errors::AppError,
+    utils::coloring::{int_to_rgb, rgb_int_to_string},
 };
 use anyhow::Context;
 use entity::{categories, category_tags};
@@ -18,6 +19,7 @@ struct CategoryQueryResult {
     tag_id: i32,
     tag_name: String,
     tag_ordinal: i32,
+    tag_color: i32,
     category_id: Option<i32>,
     category_name: Option<String>,
     category_ordinal: Option<i32>,
@@ -32,6 +34,7 @@ impl Query {
             .column_as(category_tags::Column::TagName, "tag_name")
             .column_as(category_tags::Column::Ordinal, "tag_ordinal")
             .column_as(category_tags::Column::Id, "tag_id")
+            .column_as(category_tags::Column::Color, "tag_color")
             .column_as(categories::Column::Id, "category_id")
             .column_as(categories::Column::Name, "category_name")
             .column_as(categories::Column::Ordinal, "category_ordinal")
@@ -62,10 +65,11 @@ impl Query {
                     &mut acc.other_tags.tags
                 };
 
-                tags.push(TagOrdinal {
+                tags.push(TagData {
                     id: record.tag_id,
                     tag: record.tag_name,
                     ordinal: record.tag_ordinal,
+                    color: rgb_int_to_string(record.tag_color),
                 });
 
                 acc

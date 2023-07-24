@@ -3,6 +3,8 @@ use tracing::error;
 
 #[derive(Debug, Error)]
 pub enum AppError {
+    #[error("The rgb string is invalid")]
+    InvalidColor,
     #[error("The item with a specified id is not found")]
     RowNotFound,
     #[error(transparent)]

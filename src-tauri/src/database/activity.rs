@@ -16,6 +16,7 @@ use crate::{
         UpdateActivityColumnInput, UpdateActivityContentInput,
     },
     errors::AppError,
+    utils::coloring::{int_to_rgb, rgb_int_to_string},
 };
 
 #[derive(FromQueryResult)]
@@ -33,6 +34,7 @@ struct ActivityQueryResult {
     tag_id: Option<i32>,
     tag_name: Option<String>,
     tag_ordinal: Option<i32>,
+    tag_color: Option<i32>,
 }
 
 pub struct Query;
@@ -128,6 +130,9 @@ impl Query {
                                 tag_ordinal: record
                                     .tag_ordinal
                                     .expect("No tag ordinal found for category"),
+                                tag_color: rgb_int_to_string(
+                                    record.tag_color.expect("No tag color found for the tag"),
+                                ),
                             },
                         );
                     } else {

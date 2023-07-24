@@ -20,10 +20,11 @@ pub async fn create_category(
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct TagOrdinal {
+pub struct TagData {
     pub id: i32,
     pub tag: String,
     pub ordinal: i32,
+    pub color: String,
 }
 
 #[derive(Serialize, Default)]
@@ -31,7 +32,7 @@ pub struct TagOrdinal {
 pub struct SelectCategoryOutput {
     pub name: Option<String>,
     pub ordinal: Option<i32>,
-    pub tags: Vec<TagOrdinal>,
+    pub tags: Vec<TagData>,
 }
 
 impl SelectCategoryOutput {

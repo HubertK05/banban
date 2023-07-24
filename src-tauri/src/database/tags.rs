@@ -1,4 +1,5 @@
-use crate::commands::tags::UpdateTagOrdinalInput;
+use crate::commands::tags::{UpdateTagColorInput, UpdateTagOrdinalInput};
+use crate::utils::coloring::{rgb_string_to_int, string_to_color};
 use crate::{
     commands::tags::{AttachTagToCategoryInput, CreateTagInput, UpdateTagNameInput},
     errors::AppError,
@@ -54,6 +55,7 @@ impl Mutation {
     ) -> Result<category_tags::Model, AppError> {
         let tag_count = Query::get_tag_count_from_category(db, data.category_id).await?;
         let tag_model = category_tags::ActiveModel {
+            color: Set(string_to_color(&data.tag_name)),
             tag_name: Set(data.tag_name),
             category_id: Set(data.category_id),
             ordinal: Set(tag_count),
@@ -119,6 +121,22 @@ impl Mutation {
         model.ordinal = Set(data.new_ord);
         model.update(&tr).await.context("failed to update column")?;
         tr.commit().await.context("failed to commit transaction")?;
+        Ok(())
+    }
+
+    pub async fn update_tag_color(db: &DbConn, data: UpdateTagColorInput) -> Result<(), AppError> {
+        let mut tag_model = category_tags::Entity::find_by_id(data.category_tag_id)
+            .one(db)
+            .await
+            .context("failed to get category_tags model")?
+            .ok_or(AppError::RowNotFound)?
+            .into_active_model();
+
+        tag_model.color = Set(rgb_string_to_int(&data.color)?);
+        category_tags::Entity::update(tag_model)
+            .exec(db)
+            .await
+            .context("failed to update category_tags row")?;
         Ok(())
     }
 
