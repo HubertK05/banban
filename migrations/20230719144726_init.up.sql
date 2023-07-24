@@ -23,6 +23,7 @@ CREATE TABLE category_tags (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     tag_name TEXT NOT NULL,
     category_id INTEGER,
+    color INTEGER NOT NULL,
     ordinal INT NOT NULL,
     UNIQUE (tag_name, category_id),
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
@@ -55,17 +56,17 @@ VALUES
     (1, 'Size', 0),
     (2, 'Priority', 1);
 
-INSERT INTO "category_tags" ("id", "tag_name", "category_id", "ordinal")
+INSERT INTO "category_tags" ("id", "tag_name", "category_id", "color", "ordinal")
 VALUES
-    (1, 'Tiny', 1, 0),
-    (2, 'Small', 1, 1),
-    (3, 'Medium', 1, 2),
-    (4, 'Large', 1, 3),
-    (5, 'X-Large', 1, 4),
-    (6, 'Low', 2, 0),
-    (7, 'Medium', 2, 1),
-    (8, 'High', 2, 2),
-    (9, 'Urgent', 2, 3);
+    (1, 'Tiny', 1, 46079, 0),
+    (2, 'Small', 1, 510208, 1),
+    (3, 'Medium', 1, 14275072, 2),
+    (4, 'Large', 1, 16746248, 3),
+    (5, 'X-Large', 1, 16711680, 4),
+    (6, 'Low', 2, 207, 0),
+    (7, 'Medium', 2, 1429248, 1),
+    (8, 'High', 2, 13600512, 2),
+    (9, 'Urgent', 2, 16716820, 3);
 
 INSERT INTO "activity_tags" ("activity_id", "category_tag_id")
 VALUES
@@ -78,4 +79,3 @@ VALUES
     (4, 2),
     (5, 8),
     (5, 1);
-    
