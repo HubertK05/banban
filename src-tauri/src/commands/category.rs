@@ -26,7 +26,7 @@ pub struct TagOrdinal {
     pub ordinal: i32,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SelectCategoryOutput {
     pub name: Option<String>,
@@ -34,7 +34,17 @@ pub struct SelectCategoryOutput {
     pub tags: Vec<TagOrdinal>,
 }
 
-#[derive(Serialize)]
+impl SelectCategoryOutput {
+    pub fn new_empty(name: Option<String>, ordinal: Option<i32>) -> Self {
+        SelectCategoryOutput {
+            name,
+            ordinal,
+            tags: vec![],
+        }
+    }
+}
+
+#[derive(Serialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SelectCategoryTagsOutput {
     pub category_tags: HashMap<i32, SelectCategoryOutput>,

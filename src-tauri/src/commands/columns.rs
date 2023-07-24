@@ -38,6 +38,9 @@ pub struct UpdateColumnOrdinalInput {
 }
 
 #[tauri::command]
-pub async fn update_column_ordinal(db: State<'_, DbConn>, data: UpdateColumnOrdinalInput) -> Result<(), AppError> {
+pub async fn update_column_ordinal(
+    db: State<'_, DbConn>,
+    data: UpdateColumnOrdinalInput,
+) -> Result<(), AppError> {
     Mutation::update_column_ordinal(db.inner(), data).await
 }

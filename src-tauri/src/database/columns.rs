@@ -7,7 +7,10 @@ use crate::{
 };
 use anyhow::Context;
 use entity::columns;
-use sea_orm::{DbConn, EntityTrait, ActiveModelTrait, Set, IntoActiveModel, QueryFilter, ColumnTrait, sea_query::SimpleExpr, Value, QuerySelect, TransactionTrait, ConnectionTrait};
+use sea_orm::{
+    sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, EntityTrait,
+    IntoActiveModel, PaginatorTrait, QueryFilter, QuerySelect, Set, TransactionTrait, Value,
+};
 
 pub struct Query;
 
@@ -22,14 +25,11 @@ impl Query {
     }
 
     async fn get_column_count(db: &DbConn) -> Result<i32, AppError> {
-        let res: Option<i32> = columns::Entity::find()
-            .select_only()
-            .column_as(columns::Column::Id.count(), "count")
-            .into_tuple()
-            .one(db)
+        let res = columns::Entity::find()
+            .count(db)
             .await
             .context("failed to determine count of columns")?;
-        Ok(res.expect("where is the count???"))
+        Ok(res as i32)
     }
 }
 
@@ -60,15 +60,18 @@ impl Mutation {
         Ok(())
     }
 
-    pub async fn update_column_ordinal(db: &DbConn, data: UpdateColumnOrdinalInput) -> Result<(), AppError> {
+    pub async fn update_column_ordinal(
+        db: &DbConn,
+        data: UpdateColumnOrdinalInput,
+    ) -> Result<(), AppError> {
         let old_ord = Query::get_ordinal_from_id(db, data.column_id).await?;
         let mut model = columns::Entity::find_by_id(data.column_id)
-        .one(db)
-        .await
-        .context("failed to select column")?
-        .ok_or(AppError::RowNotFound)?
-        .into_active_model();
-    
+            .one(db)
+            .await
+            .context("failed to select column")?
+            .ok_or(AppError::RowNotFound)?
+            .into_active_model();
+
         let tr = db.begin().await.context("failed to begin transaction")?;
         Self::left_shift_ordinals(&tr, old_ord).await?;
         Self::right_shift_ordinals(&tr, data.new_ord).await?;
@@ -76,33 +79,51 @@ impl Mutation {
         model.ordinal = Set(data.new_ord);
         model.update(&tr).await.context("failed to update column")?;
         tr.commit().await.context("failed to commit transaction")?;
-        
+
         Ok(())
     }
 
     pub async fn delete_column_by_id(db: &DbConn, id: i32) -> Result<(), AppError> {
         let deleted_ordinal = Query::get_ordinal_from_id(db, id).await?;
         let tr = db.begin().await.context("failed to begin transaction")?;
-        columns::Entity::delete_by_id(id).exec(&tr).await.context("failed to delete column")?;
+        columns::Entity::delete_by_id(id)
+            .exec(&tr)
+            .await
+            .context("failed to delete column")?;
         Self::left_shift_ordinals(&tr, deleted_ordinal).await?;
         tr.commit().await.context("failed to commit transaction")?;
         Ok(())
     }
 
-    async fn left_shift_ordinals(db: &impl ConnectionTrait, start_ord: i32) -> Result<(), AppError> {
-        // todo: figure out how to do update_many() with column values as expressions
+    async fn left_shift_ordinals(
+        db: &impl ConnectionTrait,
+        start_ord: i32,
+    ) -> Result<(), AppError> {
         columns::Entity::update_many()
             .filter(columns::Column::Ordinal.gt(start_ord))
-            .col_expr(columns::Column::Ordinal, SimpleExpr::from(columns::Column::Ordinal.into_expr()).sub(SimpleExpr::Value(Value::Int(Some(1)))))
-            .exec(db).await.context("failed to left shift ordinals")?;
+            .col_expr(
+                columns::Column::Ordinal,
+                columns::Column::Ordinal.into_expr().sub(1),
+            )
+            .exec(db)
+            .await
+            .context("failed to left shift ordinals")?;
         Ok(())
     }
 
-    async fn right_shift_ordinals(db: &impl ConnectionTrait, start_ord: i32) -> Result<(), AppError> {
+    async fn right_shift_ordinals(
+        db: &impl ConnectionTrait,
+        start_ord: i32,
+    ) -> Result<(), AppError> {
         columns::Entity::update_many()
             .filter(columns::Column::Ordinal.gte(start_ord))
-            .col_expr(columns::Column::Ordinal, SimpleExpr::from(columns::Column::Ordinal.into_expr()).add(SimpleExpr::Value(Value::Int(Some(1)))))
-            .exec(db).await.context("failed to right shift ordinals")?;
+            .col_expr(
+                columns::Column::Ordinal,
+                columns::Column::Ordinal.into_expr().add(1),
+            )
+            .exec(db)
+            .await
+            .context("failed to right shift ordinals")?;
         Ok(())
     }
 }

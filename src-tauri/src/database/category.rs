@@ -1,12 +1,17 @@
-use std::collections::HashMap;
-
 use crate::{
-    commands::category::{SelectCategoryTagsOutput, SelectCategoryOutput, UpdateCategoryNameInput, UpdateCategoryOrdinalInput, TagOrdinal},
+    commands::category::{
+        SelectCategoryOutput, SelectCategoryTagsOutput, TagOrdinal, UpdateCategoryNameInput,
+        UpdateCategoryOrdinalInput,
+    },
     errors::AppError,
 };
 use anyhow::Context;
-use entity::{category_tags, categories};
-use sea_orm::{DbConn, EntityTrait, QuerySelect, RelationTrait, FromQueryResult, ActiveModelTrait, Set, IntoActiveModel, sea_query::SimpleExpr, QueryFilter, ColumnTrait, Value, ConnectionTrait, TransactionTrait, QueryOrder};
+use entity::{categories, category_tags};
+use sea_orm::{
+    sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, EntityTrait,
+    FromQueryResult, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect,
+    RelationTrait, Set, TransactionTrait, Value,
+};
 
 #[derive(FromQueryResult)]
 struct CategoryQueryResult {
@@ -41,47 +46,50 @@ impl Query {
             .await
             .context("failed to select categories")?;
 
-        let res: SelectCategoryTagsOutput =
-            category_tags
-                .into_iter()
-                .fold(SelectCategoryTagsOutput { category_tags: HashMap::new(), other_tags: SelectCategoryOutput { name: None, ordinal: None, tags: Vec::new() } }, |mut acc, record| {
-                    if let Some(category_id) = record.category_id {
-                        let entry = acc.category_tags.entry(category_id).or_insert(SelectCategoryOutput {
-                            name: record.category_name,
-                            tags: vec![],
-                            ordinal: record.category_ordinal,
-                        });
-                        entry.tags.push(TagOrdinal {
-                            id: record.tag_id,
-                            tag: record.tag_name,
-                            ordinal: record.tag_ordinal,
-                        });
-                    } else {
-                        acc.other_tags.tags.push(TagOrdinal {
-                            id: record.tag_id,
-                            tag: record.tag_name,
-                            ordinal: record.tag_ordinal,
-                        });
-                    }
+        let res: SelectCategoryTagsOutput = category_tags.into_iter().fold(
+            SelectCategoryTagsOutput::default(),
+            |mut acc, record| {
+                let tags = if let Some(category_id) = record.category_id {
+                    &mut acc
+                        .category_tags
+                        .entry(category_id)
+                        .or_insert(SelectCategoryOutput::new_empty(
+                            record.category_name,
+                            record.category_ordinal,
+                        ))
+                        .tags
+                } else {
+                    &mut acc.other_tags.tags
+                };
 
-                    acc
+                tags.push(TagOrdinal {
+                    id: record.tag_id,
+                    tag: record.tag_name,
+                    ordinal: record.tag_ordinal,
                 });
+
+                acc
+            },
+        );
 
         Ok(res)
     }
 
     async fn get_ordinal_from_id(db: &DbConn, id: i32) -> Result<i32, AppError> {
         let res = categories::Entity::find_by_id(id)
-            .one(db).await.context("failed to get ordinal from id")?
+            .one(db)
+            .await
+            .context("failed to get ordinal from id")?
             .ok_or(AppError::RowNotFound)?;
         Ok(res.ordinal)
     }
 
     async fn get_category_count(db: &DbConn) -> Result<i32, AppError> {
-        let res: Option<i32> = categories::Entity::find()
-            .select_only()
-            .column_as(categories::Column::Id.count(), "count").into_tuple().one(db).await.context("failed to determine count of categories")?;
-        Ok(res.expect("where is the count???"))
+        let res = categories::Entity::find()
+            .count(db)
+            .await
+            .context("failed to determine count of columns")?;
+        Ok(res as i32)
     }
 }
 
@@ -120,7 +128,10 @@ impl Mutation {
         Ok(())
     }
 
-    pub async fn update_category_ordinal(db: &DbConn, data: UpdateCategoryOrdinalInput) -> Result<(), AppError> {
+    pub async fn update_category_ordinal(
+        db: &DbConn,
+        data: UpdateCategoryOrdinalInput,
+    ) -> Result<(), AppError> {
         let old_ord = Query::get_ordinal_from_id(db, data.category_id).await?;
         let mut model = categories::Entity::find_by_id(data.category_id)
             .one(db)
@@ -128,40 +139,64 @@ impl Mutation {
             .context("failed to select category")?
             .ok_or(AppError::RowNotFound)?
             .into_active_model();
-        
+
         let tr = db.begin().await.context("failed to begin transaction")?;
         Self::left_shift_ordinals(&tr, old_ord).await?;
         Self::right_shift_ordinals(&tr, data.new_ord).await?;
-        
+
         model.ordinal = Set(data.new_ord);
-        model.update(&tr).await.context("failed to update category")?;
+        model
+            .update(&tr)
+            .await
+            .context("failed to update category")?;
         tr.commit().await.context("failed to commit transaction")?;
-        
+
         Ok(())
     }
 
     pub async fn delete_category_by_id(db: &DbConn, id: i32) -> Result<(), AppError> {
         let deleted_ord = Query::get_ordinal_from_id(db, id).await?;
         let tr = db.begin().await.context("failed to begin transaction")?;
-        categories::Entity::delete_by_id(id).exec(&tr).await.context("failed to delete category")?;
+        categories::Entity::delete_by_id(id)
+            .exec(&tr)
+            .await
+            .context("failed to delete category")?;
         Self::left_shift_ordinals(&tr, deleted_ord).await?;
         tr.commit().await.context("failed to commit transaction")?;
         Ok(())
     }
 
-    async fn left_shift_ordinals(db: &impl ConnectionTrait, start_ord: i32) -> Result<(), AppError> {
+    async fn left_shift_ordinals(
+        db: &impl ConnectionTrait,
+        start_ord: i32,
+    ) -> Result<(), AppError> {
         categories::Entity::update_many()
             .filter(categories::Column::Ordinal.gt(start_ord))
-            .col_expr(categories::Column::Ordinal, SimpleExpr::from(categories::Column::Ordinal.into_expr()).sub(SimpleExpr::Value(Value::Int(Some(1)))))
-            .exec(db).await.context("failed to left shift ordinals")?;
+            .col_expr(
+                categories::Column::Ordinal,
+                SimpleExpr::from(categories::Column::Ordinal.into_expr())
+                    .sub(SimpleExpr::Value(Value::Int(Some(1)))),
+            )
+            .exec(db)
+            .await
+            .context("failed to left shift ordinals")?;
         Ok(())
     }
 
-    async fn right_shift_ordinals(db: &impl ConnectionTrait, start_ord: i32) -> Result<(), AppError> {
+    async fn right_shift_ordinals(
+        db: &impl ConnectionTrait,
+        start_ord: i32,
+    ) -> Result<(), AppError> {
         categories::Entity::update_many()
             .filter(categories::Column::Ordinal.gte(start_ord))
-            .col_expr(categories::Column::Ordinal, SimpleExpr::from(categories::Column::Ordinal.into_expr()).add(SimpleExpr::Value(Value::Int(Some(1)))))
-            .exec(db).await.context("failed to right shift ordinals")?;
+            .col_expr(
+                categories::Column::Ordinal,
+                SimpleExpr::from(categories::Column::Ordinal.into_expr())
+                    .add(SimpleExpr::Value(Value::Int(Some(1)))),
+            )
+            .exec(db)
+            .await
+            .context("failed to right shift ordinals")?;
         Ok(())
     }
 }

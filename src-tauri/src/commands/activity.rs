@@ -56,9 +56,21 @@ pub struct QueryActivityOutput {
     pub activity_ordinal: i32,
 }
 
+impl QueryActivityOutput {
+    pub fn new_empty(title: String, body: Option<String>, activity_ordinal: i32) -> Self {
+        Self {
+            title,
+            body,
+            category_tags: HashMap::new(),
+            other_tags: Vec::new(),
+            activity_ordinal,
+        }
+    }
+}
+
 pub type QueryActivitiesOutput = HashMap<i32, QueryActivityOutput>;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryColumnOutput {
     pub name: Option<String>,
@@ -66,7 +78,17 @@ pub struct QueryColumnOutput {
     pub activities: QueryActivitiesOutput,
 }
 
-#[derive(Serialize, Debug)]
+impl QueryColumnOutput {
+    pub fn new_empty(name: Option<String>, column_ordinal: Option<i32>) -> Self {
+        Self {
+            name,
+            column_ordinal,
+            activities: HashMap::new(),
+        }
+    }
+}
+
+#[derive(Serialize, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryActivitiesWithColumnsOutput {
     pub columns: HashMap<i32, QueryColumnOutput>,

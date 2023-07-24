@@ -87,87 +87,59 @@ impl Query {
             .all(db)
             .await?;
 
-        let res: QueryActivitiesWithColumnsOutput =
-            res.into_iter().fold(QueryActivitiesWithColumnsOutput {
-                columns: HashMap::new(),
-                other_activities: QueryColumnOutput { name: None, column_ordinal: None, activities: HashMap::new() },
-            }, |mut acc, x| {
-                if let Some(column_id) = x.column_id {
-                    let column_entry = acc.columns.entry(column_id).or_insert(QueryColumnOutput {
-                        name: x.column_name,
-                        activities: HashMap::new(),
-                        column_ordinal: x.column_ordinal,
-                    });
-
-                    let activity_entry =
-                        column_entry
-                            .activities
-                            .entry(x.id)
-                            .or_insert(QueryActivityOutput {
-                                title: x.name,
-                                body: x.body,
-                                category_tags: HashMap::new(),
-                                other_tags: Vec::new(),
-                                activity_ordinal: x.ordinal,
-                            });
-
-                    if let (Some(tag_name), Some(tag_ordinal), Some(tag_id)) = (x.tag_name, x.tag_ordinal, x.tag_id) {
-                        if let (Some(category_id), Some(category_name), Some(category_ordinal)) =
-                            (x.category_id, x.category_name, x.category_ordinal)
-                        {
-                            activity_entry.category_tags.insert(
-                                category_id,
-                                CategoryTag {
-                                    tag_id,
-                                    category_name,
-                                    tag_name,
-                                    category_ordinal,
-                                    tag_ordinal,
-                                },
-                            );
-                        } else {
-                            activity_entry.other_tags.push(tag_name);
-                        };
-                    }
-
-                    acc
+        let res: QueryActivitiesWithColumnsOutput = res.into_iter().fold(
+            QueryActivitiesWithColumnsOutput::default(),
+            |mut acc, record| {
+                let activities = if let Some(column_id) = record.column_id {
+                    &mut acc
+                        .columns
+                        .entry(column_id)
+                        .or_insert(QueryColumnOutput::new_empty(
+                            record.column_name,
+                            record.column_ordinal,
+                        ))
+                        .activities
                 } else {
-                    let activity_entry =
-                        acc
-                            .other_activities
-                            .activities
-                            .entry(x.id)
-                            .or_insert(QueryActivityOutput {
-                                title: x.name,
-                                body: x.body,
-                                category_tags: HashMap::new(),
-                                other_tags: Vec::new(),
-                                activity_ordinal: x.ordinal,
-                            });
+                    &mut acc.other_activities.activities
+                };
 
-                    if let (Some(tag_name), Some(tag_ordinal), Some(tag_id)) = (x.tag_name, x.tag_ordinal, x.tag_id) {
-                        if let (Some(category_id), Some(category_name), Some(category_ordinal)) =
-                            (x.category_id, x.category_name, x.category_ordinal)
-                        {
-                            activity_entry.category_tags.insert(
-                                category_id,
-                                CategoryTag {
-                                    tag_id,
-                                    category_name,
-                                    tag_name,
-                                    category_ordinal,
-                                    tag_ordinal,
-                                },
-                            );
-                        } else {
-                            activity_entry.other_tags.push(tag_name);
-                        };
-                    }
-                    acc
+                let activity_entry =
+                    activities
+                        .entry(record.id)
+                        .or_insert(QueryActivityOutput::new_empty(
+                            record.name,
+                            record.body,
+                            record.ordinal,
+                        ));
+
+                if let Some(tag_id) = record.tag_id {
+                    if let Some(category_id) = record.category_id {
+                        activity_entry.category_tags.insert(
+                            category_id,
+                            CategoryTag {
+                                tag_id,
+                                category_name: record
+                                    .category_name
+                                    .expect("No category name found for category"),
+                                tag_name: record.tag_name.expect("No tag name found for tag"),
+                                category_ordinal: record
+                                    .category_ordinal
+                                    .expect("No category ordinal found for category"),
+                                tag_ordinal: record
+                                    .tag_ordinal
+                                    .expect("No tag ordinal found for category"),
+                            },
+                        );
+                    } else {
+                        activity_entry
+                            .other_tags
+                            .push(record.tag_name.expect("No tag name found for tag"));
+                    };
                 }
-            });
 
-        debug!("Selected activities: {res:?}");
+                acc
+            },
+        );
 
         Ok(res)
     }
@@ -185,15 +157,12 @@ impl Query {
         db: &DbConn,
         column_id: Option<i32>,
     ) -> Result<i32, AppError> {
-        let res: Option<i32> = activities::Entity::find()
-            .select_only()
+        let res = activities::Entity::find()
             .filter(activities::Column::ColumnId.eq(column_id))
-            .column_as(activities::Column::Id.count(), "count")
-            .into_tuple()
-            .one(db)
+            .count(db)
             .await
-            .context("failed to determine count of activities")?;
-        Ok(res.expect("where is the count???"))
+            .context("failed to determine count of columns")?;
+        Ok(res as i32)
     }
 
     async fn get_column_id_from_activity_id(db: &DbConn, id: i32) -> Result<Option<i32>, AppError> {
