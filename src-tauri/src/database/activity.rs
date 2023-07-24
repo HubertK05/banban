@@ -65,6 +65,7 @@ impl Query {
             .column_as(category_tags::Column::Id, "tag_id")
             .column_as(category_tags::Column::TagName, "tag_name")
             .column_as(category_tags::Column::Ordinal, "tag_ordinal")
+            .column_as(category_tags::Column::Color, "tag_color")
             .column_as(categories::Column::Id, "category_id")
             .column_as(categories::Column::Ordinal, "category_ordinal")
             .column_as(categories::Column::Name, "category_name")
