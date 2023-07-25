@@ -1,10 +1,12 @@
 <script lang="ts">
-    import Column from "./Column.svelte";
+    import BoardColumn from "./BoardColumn.svelte";
     import { columns, currentEditable, isDebug } from "../../stores";
     import { invoke } from "@tauri-apps/api/tauri";
     import { shortcut } from "../../actions/shortcut";
     import DebugLabel from "../debug/DebugLabel.svelte";
-
+    import { dndzone, setDebugMode } from "svelte-dnd-action";
+    import type { Column } from "../../interfaces/main";
+    setDebugMode(false);
     const boardName = "Kanban";
     async function createColumn({
         currentTarget,
@@ -26,6 +28,46 @@
             });
         }, 100);
     }
+
+    $: idColumns = Array.from($columns).map(([id, col]) => {
+        return {
+            id,
+            col,
+        };
+    });
+
+    function handleConsider(
+        e: CustomEvent<
+            DndEvent<{
+                id: number;
+                col: Column;
+            }>
+        > & {
+            target: any;
+        }
+    ) {
+        e.detail.items.forEach(({ id, col }, index) => {
+            col.ord = index;
+        });
+        idColumns = e.detail.items;
+    }
+    function handleFinalize(
+        e: CustomEvent<
+            DndEvent<{
+                id: number;
+                col: Column;
+            }>
+        > & {
+            target: any;
+        }
+    ) {
+        e.detail.items.forEach(({ id, col }, index) => {
+            const c = $columns.get(id);
+            c.ord = index;
+            $columns.set(id, c);
+        });
+        $columns = $columns;
+    }
 </script>
 
 <div
@@ -34,13 +76,22 @@
     <div class="px-10 mt-6">
         <h1 class="text-2xl font-bold">{boardName}</h1>
     </div>
-    <div class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto">
-        {#each Array.from($columns.entries()).sort(([aId,colA], [bId, colB]) => {
-            return $columns.get(aId).ord - $columns.get(bId).ord;
-        }) as [id, column] (id)}
+    <selection
+        class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto"
+        use:dndzone={{
+            items: idColumns,
+            type: "columns",
+        }}
+        on:consider={handleConsider}
+        on:finalize={handleFinalize}
+    >
+        {#each Array.from(idColumns).sort((a, b) => {
+            return a.col.ord - b.col.ord;
+        }) as { id, col } (id)}
             <DebugLabel text={`ID ${id}`} />
-            <Column {column} columnId={id} />
+            <BoardColumn column={col} columnId={id} />
         {/each}
+
         <button
             on:click={createColumn}
             class="btn variant-ghost-tertiary max-h-96">+</button
@@ -54,5 +105,5 @@
             >Debug <br /><kbd class="kbd">⌘ + D</kbd></button
         >
         <div class="flex-shrink-0 w-6" />
-    </div>
+    </selection>
 </div>

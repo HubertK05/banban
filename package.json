@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.4.5",
-    "@tauri-apps/api": "^1.4.0"
+    "@tauri-apps/api": "^1.4.0",
+    "svelte-dnd-action": "^0.9.24"
   },
   "devDependencies": {
     "@skeletonlabs/skeleton": "^1.10.0",

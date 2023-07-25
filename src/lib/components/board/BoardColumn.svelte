@@ -8,6 +8,7 @@
     import ActivityCard from "./ActivityCard.svelte";
     import { columns, currentEditable } from "../../stores";
     import { fly } from "svelte/transition";
+    import { dndzone } from "svelte-dnd-action";
 
     export let columnId: number;
     export let column: Column;
@@ -46,6 +47,57 @@
         await invoke("delete_column", { id: columnId });
         $columns.delete(columnId);
         $columns = $columns;
+    }
+
+    $: idActivities = Array.from(column.activities).map(([id, activity]) => {
+        return { activity, id, columnId };
+    });
+
+    function handleConsider(
+        e: CustomEvent<
+            DndEvent<{
+                id: number;
+                activity: Activity;
+                columnId: number;
+            }>
+        > & {
+            target: any;
+        }
+    ) {
+        console.info("consider");
+        const activityId = Number(e.detail.info.id);
+
+        e.detail.items.forEach(({ id, activity }, index) => {
+            activity.ord = index;
+        });
+        idActivities = e.detail.items;
+    }
+
+    async function handleFinalize(
+        e: CustomEvent<
+            DndEvent<{
+                id: number;
+                activity: Activity;
+                columnId: number;
+            }>
+        > & {
+            target: any;
+        }
+    ) {
+        console.info("finalize");
+        const activityId = Number(e.detail.info.id);
+        const draggedActivity = column.activities.get(activityId);
+        const newOrd = e.detail.items.findIndex(({ id }) => id === activityId);
+        await invoke("update_activity_column", {
+            data: { id: activityId, columnId, newOrd },
+        });
+        console.log(draggedActivity);
+        const activities = new Map();
+        e.detail.items.forEach(async ({ id, activity }, index) => {
+            activity.ord = index;
+            activities.set(id, activity);
+        });
+        column.activities = activities;
     }
 </script>
 
@@ -93,11 +145,22 @@
             </svg>
         </button>
     </div>
-    <div class="flex flex-col pb-2 overflow-auto">
-        {#each Array.from(column.activities).sort(([aId, a], [bId, b]) => {
-            return a.ord - b.ord;
-        }) as [activityId, activity] (activityId)}
-            <ActivityCard {activity} id={activityId} {columnId} />
-        {/each}
+    <div class="h-96">
+        <section
+            class="flex flex-col pb-2 overflow-auto"
+            use:dndzone={{
+                items: idActivities,
+                type: "activities",
+                zoneTabIndex: -1,
+            }}
+            on:consider={handleConsider}
+            on:finalize={handleFinalize}
+        >
+            {#each Array.from(idActivities).sort((a, b) => {
+                return a.activity.ord - b.activity.ord;
+            }) as { activity, id } (id)}
+                <ActivityCard {activity} {id} {columnId} />
+            {/each}
+        </section>
     </div>
 </div>
