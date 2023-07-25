@@ -153,18 +153,15 @@
     </div>
     <div class="h-96">
         <section
-            class="flex flex-col pb-2 overflow-auto"
+            class="flex flex-col pb-2 overflow-auto min-h-full"
             use:dndzone={{
                 items: idActivities,
-                type: "activities",
-                zoneTabIndex: -1,
+                type: "activities"
             }}
             on:consider={handleConsider}
             on:finalize={handleFinalize}
         >
-            {#each Array.from(idActivities).sort((a, b) => {
-                return a.activity.ord - b.activity.ord;
-            }) as { id, activity } (id)}
+            {#each Array.from(idActivities) as { id, activity } (id)}
                 <ActivityCard {activity} {id} {columnId} />
             {/each}
         </section>

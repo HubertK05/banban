@@ -53,7 +53,7 @@
         });
         idColumns = e.detail.items;
     }
-    function handleFinalize(
+    async function handleFinalize(
         e: CustomEvent<
             DndEvent<{
                 id: number;
@@ -69,6 +69,13 @@
             $columns.set(id, c);
         });
         $columns = $columns;
+        
+        const draggedColumnId = Number(e.detail.info.id);
+        const index = e.detail.items.findIndex(({ id }) => id === draggedColumnId);
+        await invoke("update_column_ordinal", { data: {
+            columnId: draggedColumnId,
+            newOrd: index,
+        } });
     }
 </script>
 
@@ -82,8 +89,7 @@
         class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto"
         use:dndzone={{
             items: idColumns,
-            type: "columns",
-            zoneTabIndex: -1,
+            type: "columns"
         }}
         on:consider={handleConsider}
         on:finalize={handleFinalize}
