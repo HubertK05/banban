@@ -6,8 +6,10 @@
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { dndzone, setDebugMode } from "svelte-dnd-action";
     import type { Column } from "../../interfaces/main";
+  import { onMount } from "svelte";
     setDebugMode(false);
     const boardName = "Kanban";
+
     async function createColumn({
         currentTarget,
     }: MouseEvent & {
@@ -34,7 +36,7 @@
             id,
             col,
         };
-    });
+    }).sort((a, b) => {return a.col.ord - b.col.ord});
 
     function handleConsider(
         e: CustomEvent<
@@ -76,11 +78,12 @@
     <div class="px-10 mt-6">
         <h1 class="text-2xl font-bold">{boardName}</h1>
     </div>
-    <selection
+    <section
         class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto"
         use:dndzone={{
             items: idColumns,
             type: "columns",
+            zoneTabIndex: -1,
         }}
         on:consider={handleConsider}
         on:finalize={handleFinalize}
@@ -88,7 +91,6 @@
         {#each Array.from(idColumns).sort((a, b) => {
             return a.col.ord - b.col.ord;
         }) as { id, col } (id)}
-            <DebugLabel text={`ID ${id}`} />
             <BoardColumn column={col} columnId={id} />
         {/each}
 
@@ -105,5 +107,5 @@
             >Debug <br /><kbd class="kbd">⌘ + D</kbd></button
         >
         <div class="flex-shrink-0 w-6" />
-    </selection>
+    </section>
 </div>

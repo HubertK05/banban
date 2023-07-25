@@ -105,7 +105,9 @@
     }
 </script>
 
-<div class="flex flex-col flex-shrink-0 w-72" transition:fly>
+<div class="flex flex-col flex-shrink-0 w-72">
+    <DebugLabel text={`ID ${columnId}`} />
+    <DebugLabel text={`ORD ${column.ord}`} />
     <button class="btn btn-sm variant-ghost-error" on:click={removeColumn}
         >Remove column</button
     >
@@ -162,7 +164,7 @@
         >
             {#each Array.from(idActivities).sort((a, b) => {
                 return a.activity.ord - b.activity.ord;
-            }) as { activity, id } (id)}
+            }) as { id, activity } (id)}
                 <ActivityCard {activity} {id} {columnId} />
             {/each}
         </section>
