@@ -117,6 +117,7 @@
     class="relative flex flex-col items-start p-4 mt-3 bg-white rounded-lg cursor-pointer bg-opacity-90 group hover:bg-opacity-100"
     draggable="true"
 >
+    <DebugLabel text={"ord: " + activity.ord} />
     <button
         on:click={showDrawer}
         class="absolute top-0 right-5 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"
@@ -205,7 +206,7 @@
     </div>
     <div class="flex flex-row">
         {#each activity.tags as tagId}
-            <DebugLabel text={"ID: "+tagId}></DebugLabel>
+            <DebugLabel text={"ID: " + tagId} />
             {@const tag = $tags.get(tagId)}
             <TagBadge name={tag.name} color={tag.color} />
         {/each}

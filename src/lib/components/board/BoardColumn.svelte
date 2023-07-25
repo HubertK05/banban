@@ -9,16 +9,17 @@
     import { columns, currentEditable } from "../../stores";
     import { fly } from "svelte/transition";
     import { dndzone } from "svelte-dnd-action";
+    import DebugLabel from "../debug/DebugLabel.svelte";
 
     export let columnId: number;
     export let column: Column;
 
-    // $: {
-    //     // WARNING! Updates every key stroke
-    //     invoke("rename_column", {
-    //         data: { id: columnId, newName: column.name },
-    //     });
-    // }
+    $: {
+        // WARNING! Updates every key stroke
+        invoke("rename_column", {
+            data: { id: columnId, newName: column.name },
+        });
+    }
 
     async function createActivity() {
         const name = "New activity";
@@ -33,7 +34,12 @@
         } = await invoke("create_activity", {
             data: { name, body, columnId },
         });
+        console.debug("ordinal", res.ordinal);
         const column = $columns.get(columnId);
+        Array.from(column.activities.entries()).forEach(([id, activity]) => {
+            activity.ord += 1;
+            column.activities.set(id, activity);
+        });
         column.activities.set(res.id, { name, body, tags, ord: res.ordinal });
         $columns.set(columnId, column);
         $columns = $columns;
@@ -50,7 +56,7 @@
     }
 
     $: idActivities = Array.from(column.activities).map(([id, activity]) => {
-        return { activity, id, columnId };
+        return { activity, id, colId: columnId };
     });
 
     function handleConsider(
@@ -58,7 +64,7 @@
             DndEvent<{
                 id: number;
                 activity: Activity;
-                columnId: number;
+                colId: number;
             }>
         > & {
             target: any;
@@ -78,26 +84,33 @@
             DndEvent<{
                 id: number;
                 activity: Activity;
-                columnId: number;
+                colId: number;
             }>
         > & {
             target: any;
         }
     ) {
         console.info("finalize");
-        const activityId = Number(e.detail.info.id);
-        const draggedActivity = column.activities.get(activityId);
-        const newOrd = e.detail.items.findIndex(({ id }) => id === activityId);
-        await invoke("update_activity_column", {
-            data: { id: activityId, columnId, newOrd },
-        });
-        console.log(draggedActivity);
+        e.detail.info.id;
         const activities = new Map();
-        e.detail.items.forEach(async ({ id, activity }, index) => {
+        e.detail.items.forEach(({ id, activity, colId }, index) => {
             activity.ord = index;
             activities.set(id, activity);
+            console.debug(index, activity);
         });
         column.activities = activities;
+
+        const activityId = Number(e.detail.info.id);
+        const index = e.detail.items.findIndex(({ id }) => id === activityId);
+        console.log(index);
+        if (index !== -1) {
+            console.debug("Same column");
+            await invoke("update_activity_column", {
+                data: { id: activityId, columnId, newOrd: index },
+            });
+        } else {
+            console.debug("Other column");
+        }
     }
 </script>
 
