@@ -6,10 +6,11 @@
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { dndzone, setDebugMode } from "svelte-dnd-action";
     import type { Column } from "../../interfaces/main";
-  import { onMount } from "svelte";
+    import { onMount } from "svelte";
+    import { flip } from "svelte/animate";
     setDebugMode(false);
     const boardName = "Kanban";
-
+    const flipDurationMs = 300;
     async function createColumn({
         currentTarget,
     }: MouseEvent & {
@@ -31,12 +32,16 @@
         }, 100);
     }
 
-    $: idColumns = Array.from($columns).map(([id, col]) => {
-        return {
-            id,
-            col,
-        };
-    }).sort((a, b) => {return a.col.ord - b.col.ord});
+    $: draggableColumns = Array.from($columns.entries())
+        .map(([id, col]) => {
+            return {
+                id,
+                col,
+            };
+        })
+        .sort((a, b) => {
+            return a.col.ord - b.col.ord;
+        });
 
     function handleConsider(
         e: CustomEvent<
@@ -51,7 +56,7 @@
         e.detail.items.forEach(({ id, col }, index) => {
             col.ord = index;
         });
-        idColumns = e.detail.items;
+        draggableColumns = e.detail.items;
     }
     async function handleFinalize(
         e: CustomEvent<
@@ -69,13 +74,17 @@
             $columns.set(id, c);
         });
         $columns = $columns;
-        
+
         const draggedColumnId = Number(e.detail.info.id);
-        const index = e.detail.items.findIndex(({ id }) => id === draggedColumnId);
-        await invoke("update_column_ordinal", { data: {
-            columnId: draggedColumnId,
-            newOrd: index,
-        } });
+        const index = e.detail.items.findIndex(
+            ({ id }) => id === draggedColumnId
+        );
+        await invoke("update_column_ordinal", {
+            data: {
+                columnId: draggedColumnId,
+                newOrd: index,
+            },
+        });
     }
 </script>
 
@@ -88,16 +97,19 @@
     <section
         class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto"
         use:dndzone={{
-            items: idColumns,
-            type: "columns"
+            items: draggableColumns,
+            flipDurationMs,
+            type: "columns",
         }}
         on:consider={handleConsider}
         on:finalize={handleFinalize}
     >
-        {#each Array.from(idColumns).sort((a, b) => {
+        {#each Array.from(draggableColumns).sort((a, b) => {
             return a.col.ord - b.col.ord;
         }) as { id, col } (id)}
-            <BoardColumn column={col} columnId={id} />
+            <div animate:flip={{ duration: flipDurationMs }}>
+                <BoardColumn column={col} columnId={id} />
+            </div>
         {/each}
 
         <button

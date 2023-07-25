@@ -10,9 +10,11 @@
     import { fly } from "svelte/transition";
     import { dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
+    import { flip } from "svelte/animate";
 
     export let columnId: number;
     export let column: Column;
+    const flipDurationMs = 300;
 
     $: {
         // WARNING! Updates every key stroke
@@ -54,9 +56,13 @@
         $columns = $columns;
     }
 
-    $: idActivities = Array.from(column.activities).map(([id, activity]) => {
-        return { activity, id, colId: columnId };
-    }).sort((a, b) => {return a.activity.ord - b.activity.ord});
+    $: draggableActivities = Array.from(column.activities)
+        .map(([id, activity]) => {
+            return { activity, id, colId: columnId };
+        })
+        .sort((a, b) => {
+            return a.activity.ord - b.activity.ord;
+        });
 
     function handleConsider(
         e: CustomEvent<
@@ -73,7 +79,7 @@
         e.detail.items.forEach(({ id, activity }, index) => {
             activity.ord = index;
         });
-        idActivities = e.detail.items;
+        draggableActivities = e.detail.items;
     }
 
     async function handleFinalize(
@@ -155,14 +161,17 @@
         <section
             class="flex flex-col pb-2 overflow-auto min-h-full"
             use:dndzone={{
-                items: idActivities,
-                type: "activities"
+                items: draggableActivities,
+                flipDurationMs,
+                type: "activities",
             }}
             on:consider={handleConsider}
             on:finalize={handleFinalize}
         >
-            {#each Array.from(idActivities) as { id, activity } (id)}
-                <ActivityCard {activity} {id} {columnId} />
+            {#each Array.from(draggableActivities) as { id, activity } (id)}
+                <div animate:flip={{ duration: flipDurationMs }}>
+                    <ActivityCard {activity} {id} {columnId} />
+                </div>
             {/each}
         </section>
     </div>
