@@ -7,7 +7,6 @@
     } from "../../interfaces/main";
     import ActivityCard from "./ActivityCard.svelte";
     import { columns, currentEditable } from "../../stores";
-    import { fly } from "svelte/transition";
     import { dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";

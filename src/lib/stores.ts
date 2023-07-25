@@ -1,6 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import type { Activities, Activity, Categories, Columns, DrawerTab, Editable, Tag, Tags } from "./interfaces/main";
-import { baseCategories, mockColumns, mockTags } from "./mock";
+import { baseCategories, mockColumns, mockTags, stringToColour } from "./mock";
 import { invoke } from "@tauri-apps/api";
 
 
@@ -49,7 +49,7 @@ async function getAllCategories() {
     Object.entries(res.categoryTags).forEach(([categoryId, category])=>{
         const tagIds = category.tags.map(t=>t.id)
         category.tags.forEach((tag)=>{
-            _tags.set(tag.id, {name: tag.tag, ord: tag.ordinal})
+            _tags.set(tag.id, {name: tag.tag, ord: tag.ordinal, color: stringToColour(tag.tag)})
         })
         _categories.set(Number(categoryId), {name: category.name, ord: category.ordinal, tags: tagIds})
     })

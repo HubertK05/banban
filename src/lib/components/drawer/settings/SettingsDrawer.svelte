@@ -1,10 +1,10 @@
 <script lang="ts">
     import { drawerStore } from "@skeletonlabs/skeleton";
-    import { categories, previousDrawerTab } from "../../stores";
-    import BackButton from "./BackButton.svelte";
+    import { categories, previousDrawerTab } from "../../../stores";
+    import BackButton from "../BackButton.svelte";
     import { invoke } from "@tauri-apps/api";
-    import TagSettings from "./tag/TagSettings.svelte";
-    import CategorySettings from "./tag/CategorySettings.svelte";
+    import TagSettings from "../tag/TagSettings.svelte";
+    import CategorySettings from "../tag/CategorySettings.svelte";
 
     let categoryName: string = "";
     async function createCategory() {

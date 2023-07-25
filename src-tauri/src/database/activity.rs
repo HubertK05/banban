@@ -248,11 +248,11 @@ impl Mutation {
     ) -> Result<(), AppError> {
         let old_column_id = Query::get_column_id_from_activity_id(db, data.id).await?;
         let old_ord = Query::get_ordinal_from_id(db, data.id).await?;
-        
+
         let tr = db.begin().await.context("failed to begin transaction")?;
         Self::left_shift_ordinals(&tr, old_ord, old_column_id).await?;
         Self::right_shift_ordinals(&tr, data.new_ord, data.column_id).await?;
-        
+
         let mut record = Activity::find_by_id(data.id)
             .one(&tr)
             .await
@@ -261,7 +261,7 @@ impl Mutation {
             .into_active_model();
         record.set(activities::Column::Ordinal, data.new_ord.into());
         record.set(activities::Column::ColumnId, data.column_id.into());
-        
+
         Activity::update(record)
             .exec(&tr)
             .await

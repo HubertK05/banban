@@ -1,13 +1,11 @@
 <script lang="ts">
     import BoardColumn from "./BoardColumn.svelte";
-    import { columns, currentEditable, isDebug } from "../../stores";
+    import { columns } from "../../stores";
     import { invoke } from "@tauri-apps/api/tauri";
-    import { shortcut } from "../../actions/shortcut";
-    import DebugLabel from "../debug/DebugLabel.svelte";
     import { dndzone, setDebugMode } from "svelte-dnd-action";
     import type { Column } from "../../interfaces/main";
-    import { onMount } from "svelte";
     import { flip } from "svelte/animate";
+    import DebugButton from "../debug/DebugButton.svelte";
     setDebugMode(false);
     const boardName = "Kanban";
     const flipDurationMs = 300;
@@ -116,14 +114,7 @@
             on:click={createColumn}
             class="btn variant-ghost-tertiary max-h-96">+</button
         >
-        <button
-            on:click={() => {
-                $isDebug = !$isDebug;
-            }}
-            use:shortcut={{ control: true, key: "d" }}
-            class="btn variant-ghost-warning max-h-10"
-            >Debug <br /><kbd class="kbd">⌘ + D</kbd></button
-        >
+        <DebugButton />
         <div class="flex-shrink-0 w-6" />
     </section>
 </div>

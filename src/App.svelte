@@ -8,7 +8,7 @@
         drawerStore,
     } from "@skeletonlabs/skeleton";
     import Board from "./lib/components/board/Board.svelte";
-    import BoardDrawer from "./lib/components/board/BoardDrawer.svelte";
+    import BoardDrawer from "./lib/components/drawer/BoardDrawer.svelte";
     let tabSet: number = 0;
 </script>
 
