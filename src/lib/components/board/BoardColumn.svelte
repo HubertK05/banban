@@ -34,7 +34,6 @@
         } = await invoke("create_activity", {
             data: { name, body, columnId },
         });
-        console.debug("ordinal", res.ordinal);
         const column = $columns.get(columnId);
         Array.from(column.activities.entries()).forEach(([id, activity]) => {
             activity.ord += 1;
@@ -57,7 +56,7 @@
 
     $: idActivities = Array.from(column.activities).map(([id, activity]) => {
         return { activity, id, colId: columnId };
-    });
+    }).sort((a, b) => {return a.activity.ord - b.activity.ord});
 
     function handleConsider(
         e: CustomEvent<
@@ -70,9 +69,7 @@
             target: any;
         }
     ) {
-        console.info("consider");
         const activityId = Number(e.detail.info.id);
-
         e.detail.items.forEach(({ id, activity }, index) => {
             activity.ord = index;
         });
@@ -90,26 +87,20 @@
             target: any;
         }
     ) {
-        console.info("finalize");
         e.detail.info.id;
         const activities = new Map();
         e.detail.items.forEach(({ id, activity, colId }, index) => {
             activity.ord = index;
             activities.set(id, activity);
-            console.debug(index, activity);
         });
         column.activities = activities;
 
         const activityId = Number(e.detail.info.id);
         const index = e.detail.items.findIndex(({ id }) => id === activityId);
-        console.log(index);
         if (index !== -1) {
-            console.debug("Same column");
             await invoke("update_activity_column", {
                 data: { id: activityId, columnId, newOrd: index },
             });
-        } else {
-            console.debug("Other column");
         }
     }
 </script>
