@@ -1,10 +1,11 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::Manager;
-use tracing::info;
+#[macro_use]
+extern crate tracing;
 
 use crate::commands::{activity::*, category::*, columns::*, splashscreen::*, tags::*};
+use tauri::Manager;
 
 pub mod commands;
 pub mod database;

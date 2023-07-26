@@ -16,7 +16,6 @@ use sea_orm::{
     EntityTrait, FromQueryResult, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
     QuerySelect, RelationTrait, Set, TransactionTrait, Value,
 };
-use tracing::trace;
 
 #[derive(FromQueryResult)]
 struct CategoryQueryResult {

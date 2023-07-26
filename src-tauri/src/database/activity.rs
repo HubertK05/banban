@@ -9,7 +9,6 @@ use ::entity::{
     activity_tags, categories, category_tags, columns,
 };
 use sea_orm::*;
-use tracing::debug;
 
 use crate::{
     commands::activity::{

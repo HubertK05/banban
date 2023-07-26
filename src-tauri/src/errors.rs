@@ -1,6 +1,5 @@
 use sea_orm::DbErr;
 use thiserror::Error;
-use tracing::error;
 
 #[derive(Debug, Error)]
 pub enum AppError {

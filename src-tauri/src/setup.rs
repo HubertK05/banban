@@ -3,7 +3,6 @@ use sqlx::migrate::Migrator;
 use sqlx::SqlitePool;
 use tauri::api::path::app_data_dir;
 use tauri::Config;
-use tracing::error;
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::{fmt, EnvFilter};
 
