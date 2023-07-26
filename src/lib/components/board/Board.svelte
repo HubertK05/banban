@@ -98,6 +98,7 @@
             items: draggableColumns,
             flipDurationMs,
             type: "columns",
+            dropTargetStyle: {},
         }}
         on:consider={handleConsider}
         on:finalize={handleFinalize}

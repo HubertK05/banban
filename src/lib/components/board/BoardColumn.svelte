@@ -163,6 +163,10 @@
                 items: draggableActivities,
                 flipDurationMs,
                 type: "activities",
+                dropTargetStyle: {
+                    outline: "rgba(164, 190, 224, 0.2) solid 3px",
+                    "border-radius": "1rem",
+                },
             }}
             on:consider={handleConsider}
             on:finalize={handleFinalize}
