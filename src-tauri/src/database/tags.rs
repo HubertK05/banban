@@ -8,7 +8,7 @@ use anyhow::Context;
 use entity::category_tags::{self, Entity as CategoryTag, Model};
 use sea_orm::{
     sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, EntityTrait,
-    IntoActiveModel, PaginatorTrait, QueryFilter, QuerySelect, Set, TransactionTrait, Value,
+    IntoActiveModel, PaginatorTrait, QueryFilter, Set, TransactionTrait, Value,
 };
 use sea_orm::{Condition, DbErr, QueryOrder};
 
@@ -44,7 +44,7 @@ impl Query {
                     .add(
                         category_tags::Column::CategoryId
                             .is_null()
-                            .and(SimpleExpr::from(category_id == None)),
+                            .and(SimpleExpr::from(category_id.is_none())),
                     ),
             )
             .count(db)
@@ -184,7 +184,7 @@ impl Mutation {
                     .add(
                         category_tags::Column::CategoryId
                             .is_null()
-                            .and(SimpleExpr::from(category_id == None)),
+                            .and(SimpleExpr::from(category_id.is_none())),
                     ),
             )
             .col_expr(
@@ -211,7 +211,7 @@ impl Mutation {
                     .add(
                         category_tags::Column::CategoryId
                             .is_null()
-                            .and(SimpleExpr::from(category_id == None)),
+                            .and(SimpleExpr::from(category_id.is_none())),
                     ),
             )
             .col_expr(

@@ -1,5 +1,3 @@
-use std::collections::{HashMap, HashSet};
-
 use anyhow::Context;
 use sea_orm::{sea_query::SimpleExpr, DbConn};
 
@@ -17,7 +15,7 @@ use crate::{
         UpdateActivityColumnInput, UpdateActivityContentInput,
     },
     errors::AppError,
-    utils::coloring::{int_to_rgb, rgb_int_to_string},
+    utils::coloring::rgb_int_to_string,
 };
 
 #[derive(FromQueryResult)]
@@ -180,7 +178,7 @@ impl Query {
                     .add(
                         activities::Column::ColumnId
                             .is_null()
-                            .and(SimpleExpr::from(column_id == None)),
+                            .and(SimpleExpr::from(column_id.is_none())),
                     ),
             )
             .count(db)
@@ -301,7 +299,7 @@ impl Mutation {
                     .add(
                         category_tags::Column::CategoryId
                             .is_null()
-                            .and(SimpleExpr::from(data.category_id == None)),
+                            .and(SimpleExpr::from(data.category_id.is_none())),
                     ),
             )
             .filter(category_tags::Column::TagName.eq(data.tag_name))
@@ -334,7 +332,7 @@ impl Mutation {
                     .add(
                         category_tags::Column::CategoryId
                             .is_null()
-                            .and(SimpleExpr::from(data.category_id == None)),
+                            .and(SimpleExpr::from(data.category_id.is_none())),
                     ),
             )
             .filter(category_tags::Column::TagName.eq(data.tag_name))
@@ -367,7 +365,7 @@ impl Mutation {
                     .add(
                         activities::Column::ColumnId
                             .is_null()
-                            .and(SimpleExpr::from(column_id == None)),
+                            .and(SimpleExpr::from(column_id.is_none())),
                     ),
             )
             .col_expr(
@@ -394,7 +392,7 @@ impl Mutation {
                     .add(
                         activities::Column::ColumnId
                             .is_null()
-                            .and(SimpleExpr::from(column_id == None)),
+                            .and(SimpleExpr::from(column_id.is_none())),
                     ),
             )
             .col_expr(

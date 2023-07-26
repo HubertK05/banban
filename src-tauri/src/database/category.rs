@@ -4,7 +4,7 @@ use crate::{
         UpdateCategoryOrdinalInput,
     },
     errors::AppError,
-    utils::coloring::{int_to_rgb, rgb_int_to_string},
+    utils::coloring::rgb_int_to_string,
 };
 use anyhow::Context;
 use entity::{

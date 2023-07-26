@@ -42,7 +42,7 @@ pub fn get_database_pool(config: &Config) -> DatabaseConnection {
             .run(&pool)
             .await
             .expect("Failed to run database migrations");
-        let conn = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool);
-        conn
+        
+        SqlxSqliteConnector::from_sqlx_sqlite_pool(pool)
     })
 }

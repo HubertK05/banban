@@ -1,16 +1,15 @@
 use crate::{
     commands::{
         columns::{RenameColumnInput, UpdateColumnOrdinalInput},
-        tags::{AttachTagToCategoryInput, CreateTagInput, UpdateTagNameInput},
     },
     errors::AppError,
 };
 use anyhow::Context;
 use entity::columns::{self, Entity as Column, Model};
 use sea_orm::{
-    sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, DbErr,
-    EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, Set,
-    TransactionTrait, Value,
+    ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, DbErr,
+    EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder, Set,
+    TransactionTrait,
 };
 
 pub struct Query;

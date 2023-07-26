@@ -1,4 +1,3 @@
-use entity::category_tags;
 use sea_orm::DbConn;
 use serde::{Deserialize, Serialize};
 use tauri::State;
