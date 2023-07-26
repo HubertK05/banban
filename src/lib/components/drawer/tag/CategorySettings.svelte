@@ -46,6 +46,7 @@
     }) as tagId}
         {@const tag = $tags.get(tagId)}
         <DebugLabel text={"ID: "+tagId}></DebugLabel>
+        <DebugLabel text={"ORD: "+tag.ord}></DebugLabel>
         <TagSettings {tag} {tagId} {categoryId} />
     {:else}
         <button
