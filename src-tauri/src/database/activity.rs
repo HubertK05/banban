@@ -166,8 +166,8 @@ impl Query {
         let res = activities::Entity::find()
             .filter(
                 Condition::any()
-                    .add(category_tags::Column::CategoryId.eq(column_id))
-                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(column_id == None)))
+                    .add(activities::Column::ColumnId.eq(column_id))
+                    .add(activities::Column::ColumnId.is_null().and(SimpleExpr::from(column_id == None)))
             )
             .count(db)
             .await
@@ -332,8 +332,8 @@ impl Mutation {
             .filter(activities::Column::Ordinal.gt(start_ord))
             .filter(
                 Condition::any()
-                    .add(category_tags::Column::CategoryId.eq(column_id))
-                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(column_id == None)))
+                    .add(activities::Column::ColumnId.eq(column_id))
+                    .add(activities::Column::ColumnId.is_null().and(SimpleExpr::from(column_id == None)))
             )
             .col_expr(
                 activities::Column::Ordinal,
@@ -355,8 +355,8 @@ impl Mutation {
             .filter(activities::Column::Ordinal.gte(start_ord))
             .filter(
                 Condition::any()
-                    .add(category_tags::Column::CategoryId.eq(column_id))
-                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(column_id == None)))
+                    .add(activities::Column::ColumnId.eq(column_id))
+                    .add(activities::Column::ColumnId.is_null().and(SimpleExpr::from(column_id == None)))
             )
             .col_expr(
                 activities::Column::Ordinal,
