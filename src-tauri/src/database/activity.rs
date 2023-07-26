@@ -164,7 +164,11 @@ impl Query {
         column_id: Option<i32>,
     ) -> Result<i32, AppError> {
         let res = activities::Entity::find()
-            .filter(activities::Column::ColumnId.eq(column_id))
+            .filter(
+                Condition::any()
+                    .add(category_tags::Column::CategoryId.eq(column_id))
+                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(column_id == None)))
+            )
             .count(db)
             .await
             .context("failed to determine count of columns")?;
@@ -326,7 +330,11 @@ impl Mutation {
     ) -> Result<(), AppError> {
         activities::Entity::update_many()
             .filter(activities::Column::Ordinal.gt(start_ord))
-            .filter(activities::Column::ColumnId.eq(column_id))
+            .filter(
+                Condition::any()
+                    .add(category_tags::Column::CategoryId.eq(column_id))
+                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(column_id == None)))
+            )
             .col_expr(
                 activities::Column::Ordinal,
                 SimpleExpr::from(activities::Column::Ordinal.into_expr())
@@ -345,7 +353,11 @@ impl Mutation {
     ) -> Result<(), AppError> {
         activities::Entity::update_many()
             .filter(activities::Column::Ordinal.gte(start_ord))
-            .filter(activities::Column::ColumnId.eq(column_id))
+            .filter(
+                Condition::any()
+                    .add(category_tags::Column::CategoryId.eq(column_id))
+                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(column_id == None)))
+            )
             .col_expr(
                 activities::Column::Ordinal,
                 SimpleExpr::from(activities::Column::Ordinal.into_expr())

@@ -6,6 +6,7 @@ use crate::{
 };
 use anyhow::Context;
 use entity::category_tags;
+use sea_orm::Condition;
 use sea_orm::{
     sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, EntityTrait,
     IntoActiveModel, PaginatorTrait, QueryFilter, QuerySelect, Set, TransactionTrait, Value,
@@ -28,7 +29,11 @@ impl Query {
         category_id: Option<i32>,
     ) -> Result<i32, AppError> {
         let res = category_tags::Entity::find()
-            .filter(category_tags::Column::CategoryId.eq(category_id))
+            .filter(
+                Condition::any()
+                    .add(category_tags::Column::CategoryId.eq(category_id))
+                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(category_id == None)))
+            )
             .count(db)
             .await
             .context("failed to determine count of columns")?;
@@ -160,7 +165,11 @@ impl Mutation {
     ) -> Result<(), AppError> {
         category_tags::Entity::update_many()
             .filter(category_tags::Column::Ordinal.gt(start_ord))
-            .filter(category_tags::Column::CategoryId.eq(category_id))
+            .filter(
+                Condition::any()
+                    .add(category_tags::Column::CategoryId.eq(category_id))
+                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(category_id == None)))
+            )
             .col_expr(
                 category_tags::Column::Ordinal,
                 SimpleExpr::from(category_tags::Column::Ordinal.into_expr())
@@ -179,7 +188,11 @@ impl Mutation {
     ) -> Result<(), AppError> {
         category_tags::Entity::update_many()
             .filter(category_tags::Column::Ordinal.gte(start_ord))
-            .filter(category_tags::Column::CategoryId.eq(category_id))
+            .filter(
+                Condition::any()
+                    .add(category_tags::Column::CategoryId.eq(category_id))
+                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(category_id == None)))
+            )
             .col_expr(
                 category_tags::Column::Ordinal,
                 SimpleExpr::from(category_tags::Column::Ordinal.into_expr())

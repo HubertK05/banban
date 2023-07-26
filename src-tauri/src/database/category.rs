@@ -39,7 +39,7 @@ impl Query {
             .column_as(categories::Column::Name, "category_name")
             .column_as(categories::Column::Ordinal, "category_ordinal")
             .join(
-                sea_orm::JoinType::InnerJoin,
+                sea_orm::JoinType::LeftJoin,
                 category_tags::Relation::Categories.def(),
             )
             .order_by(categories::Column::Ordinal, sea_orm::Order::Asc)
