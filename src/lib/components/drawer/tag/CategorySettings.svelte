@@ -15,9 +15,14 @@
             tagName: string;
             categoryId?: number;
             ordinal: number;
+            color: string;
         } = await invoke("create_tag", { data: { tagName, categoryId } });
         console.debug(res);
-        $tags.set(res.id, { name: res.tagName, ord: res.ordinal });
+        $tags.set(res.id, {
+            name: res.tagName,
+            ord: res.ordinal,
+            color: `#${res.color}`,
+        });
         $tags = $tags;
         if (categoryId !== undefined) {
             const category = $categories.get(categoryId);

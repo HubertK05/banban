@@ -17,16 +17,19 @@
 
     let selectedCategoryId: number;
 
-    function changeTagColor(
+    async function changeTagColor(
         e: Event & {
             currentTarget: EventTarget & HTMLInputElement;
         },
         tag: Tag,
         tagId: number
     ) {
-        console.log(e.currentTarget.value, tagId);
-        const color = e.currentTarget.value;
-        $tags.set(tagId, { ...tag, color });
+        const newColor = e.currentTarget.value;
+        await invoke("update_tag_color", {
+            data: { categoryTagId: tagId, color: newColor.slice(1) },
+        });
+
+        $tags.set(tagId, { ...tag, color: newColor });
         $tags = $tags;
         $columns = $columns;
     }
@@ -70,6 +73,7 @@
             },
         });
         $selectedActivity.tags.push(newTagId);
+        $selectedActivity = $selectedActivity;
         $columns = $columns;
     }
 </script>
@@ -99,6 +103,7 @@
                 <input
                     class="input"
                     type="color"
+                    value={tag.color}
                     on:change={(e) => changeTagColor(e, tag, tagId)}
                 />
 

@@ -1,9 +1,9 @@
 use entity::category_tags;
 use sea_orm::DbConn;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tauri::State;
 
-use crate::{database::tags::Mutation, errors::AppError};
+use crate::{database::tags::Mutation, errors::AppError, utils::coloring::rgb_int_to_string};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -12,12 +12,29 @@ pub struct CreateTagInput {
     pub category_id: Option<i32>,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateTagOutput {
+    pub id: i32,
+    pub tag_name: String,
+    pub category_id: Option<i32>,
+    pub color: String,
+    pub ordinal: i32,
+}
+
 #[tauri::command]
 pub async fn create_tag(
     db: State<'_, DbConn>,
     data: CreateTagInput,
-) -> Result<category_tags::Model, AppError> {
-    Mutation::create_tag(db.inner(), data).await
+) -> Result<CreateTagOutput, AppError> {
+    let model = Mutation::create_tag(db.inner(), data).await?;
+    Ok(CreateTagOutput {
+        id: model.id,
+        tag_name: model.tag_name,
+        category_id: model.category_id,
+        color: rgb_int_to_string(model.color),
+        ordinal: model.ordinal,
+    })
 }
 
 #[derive(Deserialize)]
