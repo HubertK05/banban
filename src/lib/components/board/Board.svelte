@@ -1,6 +1,6 @@
 <script lang="ts">
     import BoardColumn from "./BoardColumn.svelte";
-    import { columns } from "../../stores";
+    import { columns, currentEditable, isDebug } from "../../stores";
     import { invoke } from "@tauri-apps/api/tauri";
     import { dndzone, setDebugMode } from "svelte-dnd-action";
     import type { Column } from "../../interfaces/main";

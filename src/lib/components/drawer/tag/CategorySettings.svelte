@@ -9,9 +9,6 @@
     import TagSettings from "./TagSettings.svelte";
     import DebugLabel from "../../debug/DebugLabel.svelte";
 
-    async function showCreateTagForm() {
-        const availableCategories = Array.from($categories.entries());
-    }
     async function createTag(tagName: string, categoryId?: number) {
         const res: {
             id: number;
@@ -45,8 +42,8 @@
         return $tags.get(a).ord - $tags.get(b).ord;
     }) as tagId}
         {@const tag = $tags.get(tagId)}
-        <DebugLabel text={"ID: "+tagId}></DebugLabel>
-        <DebugLabel text={"ORD: "+tag.ord}></DebugLabel>
+        <DebugLabel text={"ID: " + tagId} />
+        <DebugLabel text={"ORD: " + tag.ord} />
         <TagSettings {tag} {tagId} {categoryId} />
     {:else}
         <button

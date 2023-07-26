@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { stringToColour } from "../../mock";
-
     export let name: string;
     export let color: string;
 </script>

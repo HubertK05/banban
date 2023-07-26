@@ -58,15 +58,15 @@ VALUES
 
 INSERT INTO "category_tags" ("id", "tag_name", "category_id", "color", "ordinal")
 VALUES
-    (1, 'Tiny', 1, 46079, 0),
-    (2, 'Small', 1, 510208, 1),
-    (3, 'Medium', 1, 14275072, 2),
-    (4, 'Large', 1, 16746248, 3),
-    (5, 'X-Large', 1, 16711680, 4),
-    (6, 'Low', 2, 207, 0),
-    (7, 'Medium', 2, 1429248, 1),
-    (8, 'High', 2, 13600512, 2),
-    (9, 'Urgent', 2, 16716820, 3);
+    (1, '🦔 Tiny', 1, 46079, 0),
+    (2, '🐇 Small', 1, 510208, 1),
+    (3, '🐂 Medium', 1, 14275072, 2),
+    (4, '🦑 Large', 1, 16746248, 3),
+    (5, '🐋 X-Large', 1, 16711680, 4),
+    (6, '🏝 Low', 2, 207, 0),
+    (7, '🏕 Medium', 2, 1429248, 1),
+    (8, '🏔 High', 2, 13600512, 2),
+    (9, '🌋 Urgent', 2, 16716820, 3);
 
 INSERT INTO "activity_tags" ("activity_id", "category_tag_id")
 VALUES

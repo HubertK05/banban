@@ -13,7 +13,6 @@
         selectedActivity,
         tags,
     } from "../../stores";
-    import { fly } from "svelte/transition";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import TagBadge from "./TagBadge.svelte";
     import {

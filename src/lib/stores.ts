@@ -41,15 +41,15 @@ await main()
 async function getAllCategories() {
 
     const res: {
-        categoryTags: Record<number, {name?: string, ordinal?: number, tags: {tag: string, ordinal: number, id: number}[]}>, 
-        otherTags: {name?: string, ordinal?: number, tags: {tag: string, ordinal: number, id: number}[]}[]} = await invoke("select_all_categories");
+        categoryTags: Record<number, {name?: string, ordinal?: number, tags: {tag: string, ordinal: number, id: number, color: string}[]}>, 
+        otherTags: {name?: string, ordinal?: number, tags: {tag: string, ordinal: number, id: number, color: string}[]}[]} = await invoke("select_all_categories");
 
     const _categories: Categories = new Map();
     const _tags: Tags = new Map();
     Object.entries(res.categoryTags).forEach(([categoryId, category])=>{
         const tagIds = category.tags.map(t=>t.id)
-        category.tags.forEach((tag)=>{
-            _tags.set(tag.id, {name: tag.tag, ord: tag.ordinal, color: stringToColour(tag.tag)})
+        category.tags.forEach((tag) => {
+            _tags.set(tag.id, {name: tag.tag, ord: tag.ordinal, color: `#${tag.color}`})
         })
         _categories.set(Number(categoryId), {name: category.name, ord: category.ordinal, tags: tagIds})
     })

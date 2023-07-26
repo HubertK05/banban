@@ -66,6 +66,7 @@ pub async fn update_tag_ordinal(
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateTagColorInput {
     pub category_tag_id: i32,
     pub color: String,
