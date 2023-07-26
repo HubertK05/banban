@@ -3,7 +3,7 @@ use sea_orm::DbConn;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
-use crate::{database::category_tags::Mutation, errors::AppError, utils::coloring::rgb_int_to_string};
+use crate::{database::tags::Mutation, errors::AppError, utils::coloring::rgb_int_to_string};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]

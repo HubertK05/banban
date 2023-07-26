@@ -52,7 +52,6 @@ impl Query {
 
     pub async fn get_all_activities(db: &DbConn) -> Result<Vec<Model>, DbErr> {
         let out: Vec<Model> = Activity::find()
-            .select_only()
             .order_by_asc(activities::Column::Ordinal)
             .into_model()
             .all(db)
@@ -94,10 +93,10 @@ impl Query {
                 JoinType::LeftJoin,
                 category_tags::Relation::Categories.def(),
             )
-            .order_by(columns::Column::Ordinal, sea_orm::Order::Asc)
-            .order_by(activities::Column::Ordinal, sea_orm::Order::Asc)
-            .order_by(categories::Column::Ordinal, sea_orm::Order::Asc)
-            .order_by(category_tags::Column::Ordinal, sea_orm::Order::Asc)
+            .order_by_asc(columns::Column::Ordinal)
+            .order_by_asc(activities::Column::Ordinal)
+            .order_by_asc(categories::Column::Ordinal)
+            .order_by_asc(category_tags::Column::Ordinal)
             .into_model()
             .all(db)
             .await?;
@@ -300,7 +299,11 @@ impl Mutation {
             .filter(
                 Condition::any()
                     .add(category_tags::Column::CategoryId.eq(data.category_id))
-                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(data.category_id == None)))
+                    .add(
+                        category_tags::Column::CategoryId
+                            .is_null()
+                            .and(SimpleExpr::from(data.category_id == None)),
+                    ),
             )
             .filter(category_tags::Column::TagName.eq(data.tag_name))
             .one(db)
@@ -329,7 +332,11 @@ impl Mutation {
             .filter(
                 Condition::any()
                     .add(category_tags::Column::CategoryId.eq(data.category_id))
-                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(data.category_id == None)))
+                    .add(
+                        category_tags::Column::CategoryId
+                            .is_null()
+                            .and(SimpleExpr::from(data.category_id == None)),
+                    ),
             )
             .filter(category_tags::Column::TagName.eq(data.tag_name))
             .one(db)
