@@ -3,6 +3,7 @@
     import {
         categories,
         columns,
+        nonCategoryTags,
         previousDrawerTab,
         selectedActivity,
         tags,
@@ -45,7 +46,7 @@
                         console.debug("Swapping category tag");
                         await invoke("remove_tag_from_activity", {
                             data: {
-                                id: currentTagId,
+                                id: $selectedActivity.id,
                                 categoryId: selectedCategoryId,
                                 tagName: $tags.get(currentTagId).name,
                             },
@@ -76,6 +77,47 @@
         $selectedActivity = $selectedActivity;
         $columns = $columns;
     }
+
+    async function addNonCategoryTag(newTagId: number, tag: Tag) {
+        const tags = $nonCategoryTags;
+        for (let currentTagId of $selectedActivity.tags) {
+            if (newTagId === currentTagId) {
+                console.debug("a target tag already exists in the activity");
+                return;
+            }
+        }
+        await invoke("add_tag_to_activity", {
+            data: {
+                id: $selectedActivity.id,
+                categoryId: null,
+                tagName: tag.name,
+            },
+        });
+        $selectedActivity.tags.push(newTagId);
+        $selectedActivity = $selectedActivity;
+        $columns = $columns;
+    }
+
+    async function removeNonCategoryTag(newTagId: number, tag: Tag) {
+        const tags = $nonCategoryTags;
+        for (let currentTagId of $selectedActivity.tags) {
+            if (newTagId === currentTagId) {
+                await invoke("remove_tag_from_activity", {
+                    data: {
+                        id: $selectedActivity.id,
+                        categoryId: selectedCategoryId,
+                        tagName: tags.get(currentTagId).name,
+                    },
+                });
+                let a = $selectedActivity.tags;
+                a.splice($selectedActivity.tags.findIndex(x => x === currentTagId), 1);
+                $selectedActivity.tags = a;
+                $columns = $columns;
+                return;
+            }
+        }
+        console.debug("a target tag does not exist in the current activity");
+    }
 </script>
 
 <BackButton />
@@ -92,6 +134,11 @@
             value={categoryId}>{category.name}</ListBoxItem
         >
     {/each}
+    <ListBoxItem
+        bind:group={selectedCategoryId}
+        name=Other
+        value={null}>Other</ListBoxItem
+    >
 </ListBox>
 {#if selectedCategoryId}
     <div class="flex flex-col">
@@ -117,6 +164,40 @@
                     on:click={() => changeActivityTag(tagId, tag)}
                     >Choose</button
                 >
+            </div>
+        {:else}
+            <div class="self-center mt-2">Category is empty</div>
+        {/each}
+    </div>
+{/if}
+{#if selectedCategoryId === null}
+    <div class="flex flex-col">
+        {#each $nonCategoryTags as [tagId, storeTag] (tagId)}
+            {@const tag = $nonCategoryTags.get(tagId)}
+            <div
+                class="flex flex-row space-x-6 items-center place-content-between m-2"
+            >
+                <input
+                    class="input"
+                    type="color"
+                    value={tag.color}
+                    on:change={(e) => changeTagColor(e, tag, tagId)}
+                />
+
+                <TagBadge name={tag.name} color={tag.color} />
+                {#if $selectedActivity.tags.find((id) => id === tagId)}
+                    <button
+                        class={`btn btn-sm variant-ghost-secondary`}
+                        on:click={() => removeNonCategoryTag(tagId, tag)}
+                        >Remove</button
+                    >
+                {:else}
+                    <button
+                    class={`btn btn-sm variant-ghost-primary`}
+                        on:click={() => addNonCategoryTag(tagId, tag)}
+                        >Choose</button
+                    >
+                {/if}
             </div>
         {:else}
             <div class="self-center mt-2">Category is empty</div>

@@ -1,5 +1,5 @@
 import { writable, type Writable } from "svelte/store";
-import type { Activities, Activity, Categories, Columns, DrawerTab, Editable, Tag, Tags } from "./interfaces/main";
+import type { Activities, Activity, Categories, Columns, DrawerTab, Editable, NonCategoryTags, Tag, Tags } from "./interfaces/main";
 import { baseCategories, mockColumns, mockTags, stringToColour } from "./mock";
 import { invoke } from "@tauri-apps/api";
 
@@ -11,6 +11,7 @@ export const isDebug: Writable<boolean> = writable(false);
 export const selectedActivity: Writable<(Activity & { id: number, columnId: number }) | null> = writable(null)
 export const tags: Writable<Map<number, Tag>> = writable(mockTags);
 export const categories: Writable<Categories | null> = writable(baseCategories)
+export const nonCategoryTags: Writable<Map<number, Tag>> = writable(new Map())
 export const previousDrawerTab: Writable<DrawerTab | null> = writable(null)
 export const columns: Writable<Columns> = writable(mockColumns)
 export const currentEditable: Writable<Editable | null> = writable(null)
@@ -42,10 +43,11 @@ async function getAllCategories() {
 
     const res: {
         categoryTags: Record<number, {name?: string, ordinal?: number, tags: {tag: string, ordinal: number, id: number, color: string}[]}>, 
-        otherTags: {name?: string, ordinal?: number, tags: {tag: string, ordinal: number, id: number, color: string}[]}[]} = await invoke("select_all_categories");
+        otherTags: {name?: string, ordinal?: number, tags: {tag: string, ordinal: number, id: number, color: string}[]}} = await invoke("select_all_categories");
 
     const _categories: Categories = new Map();
     const _tags: Tags = new Map();
+    const _otherTags: NonCategoryTags = new Map();
     Object.entries(res.categoryTags).forEach(([categoryId, category])=>{
         const tagIds = category.tags.map(t=>t.id)
         category.tags.forEach((tag) => {
@@ -53,14 +55,16 @@ async function getAllCategories() {
         })
         _categories.set(Number(categoryId), {name: category.name, ord: category.ordinal, tags: tagIds})
     })
-    // res.otherTags.forEach(tag=>{
-    //    // do something with other tags
-    // })
+    res.otherTags.tags.forEach(tag=>{
+        _otherTags.set(tag.id, {name: tag.tag, ord: tag.ordinal, color: `#${tag.color}`});
+    });
     tags.set(_tags)
+    nonCategoryTags.set(_otherTags)
     categories.set(_categories)
     console.debug("tags",_tags)
+    console.debug("non category tags",_otherTags)
     console.debug("categories", _categories)
-    return {  _categories, _tags };
+    return {  _categories, _tags, _otherTags };
 }
 async function queryAllActivities() {
     const res = await invoke("query_all_activities") as {
@@ -79,7 +83,7 @@ async function queryAllActivities() {
                     tagName: string,
                     tagOrdinal: number
                 }>, 
-                otherTags: string[],
+                otherTags: Record<number, string>,
                 activityOrdinal: number}>
         }>
     };
@@ -89,6 +93,7 @@ async function queryAllActivities() {
         const activities: Activities = new Map();
         Object.entries(column.activities).forEach(([activityId, activity])=>{
             const tagIds = Object.entries(activity.categoryTags).map(([tagId,tag])=>tag.tagId)
+            Object.entries(activity.otherTags).forEach(([tagId, tag]) => {console.log("tag id:", tagId); tagIds.push(Number(tagId))});
             activities.set(Number(activityId), {name: activity.title, tags: tagIds, ord: activity.activityOrdinal, body: activity.body})
         })
         _columns.set(Number(columnId), {activities, name: column.name, ord: column.columnOrdinal})

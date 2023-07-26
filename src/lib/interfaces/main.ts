@@ -32,6 +32,7 @@ export interface Category {
 
 export type Categories = Map<number, Category>
 
+export type NonCategoryTags = Map<number, Tag>
 
 export interface Editable {
     id: number;

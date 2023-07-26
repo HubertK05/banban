@@ -1,6 +1,6 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
-    import { categories, columns, tags } from "../../../stores";
+    import { categories, columns, nonCategoryTags, tags } from "../../../stores";
     import {
         ListBox,
         ListBoxItem,
@@ -24,10 +24,13 @@
             color: `#${res.color}`,
         });
         $tags = $tags;
-        if (categoryId !== undefined) {
+        if (categoryId !== undefined && categoryId !== null) {
             const category = $categories.get(categoryId);
             category.tags.push(res.id);
             $categories = $categories;
+        } else if (categoryId !== undefined) {
+            $nonCategoryTags.set(res.id, {name: res.tagName, ord: res.ordinal});
+            $nonCategoryTags = $nonCategoryTags;
         }
     }
 
@@ -63,7 +66,24 @@
     <p>There are no categories</p>
     <button class="btn varinat-fil">Create new</button>
 {/each}
+
 <hr />
+<p>Other</p>
+{#each Array.from($nonCategoryTags).sort((a, b) => {
+    return a[1].ord - b[1].ord;
+}) as [tagId, tag]}
+    <DebugLabel text={"ID: "+tagId}></DebugLabel>
+    <DebugLabel text={"ORD: "+tag.ord}></DebugLabel>
+    <TagSettings {tag} {tagId} categoryId={null} />
+{:else}
+    <button
+        class="btn variant-ghost-tertiary"
+        on:click={() => {
+            createCategoryId = null;
+            createTagNode.focus();
+        }}>Add new tag</button
+    >
+{/each}
 <div class="flex flex-row items-center p-5">
     <div>
         <input
@@ -82,6 +102,12 @@
                     >{category.name} - {category.tags.length}</ListBoxItem
                 >
             {/each}
+            <ListBoxItem
+                bind:group={createCategoryId}
+                value={null}
+                name="categoryId"
+                >other - {$nonCategoryTags.size}</ListBoxItem
+            >
         </ListBox>
     </div>
     <button

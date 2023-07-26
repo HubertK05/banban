@@ -1,6 +1,6 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
-    import { categories, columns, tags } from "../../../stores";
+    import { categories, columns, nonCategoryTags, tags } from "../../../stores";
     import type { Category, Tag } from "../../../interfaces/main";
     import TagBadge from "../../board/TagBadge.svelte";
 
@@ -23,11 +23,20 @@
             });
             $columns.set(columnId, column);
         });
-        const category = $categories.get(categoryId);
-        category.tags = category.tags.filter((id) => id !== tagId);
-        $categories.set(categoryId, category);
-        $categories = $categories;
-        $columns = $columns;
+        if (categoryId) {
+            const category = $categories.get(categoryId);
+            category.tags = category.tags.filter((id) => id !== tagId);
+            $categories.set(categoryId, category);
+            $categories = $categories;
+            $columns = $columns;
+        } else {
+            // let tags = Array.from($nonCategoryTags);
+            // tags = tags.filter(([id, tag]) => id !== tagId);
+            // $nonCategoryTags = tags;
+            $nonCategoryTags.delete(tagId);
+            $nonCategoryTags = $nonCategoryTags;
+            $columns = $columns;
+        }
     }
 
     async function renameTag() {
@@ -84,27 +93,59 @@
         await invoke("update_tag_ordinal", {
             data: { categoryTagId: tagId, newOrd },
         });
-        const tag = $tags.get(tagId);
-        $tags.set(tagId, { ...tag, ord: newOrd });
-        let a: Array<number> = $categories.get(categoryId).tags;
-        a.splice(tag.ord, 1);
-        a.splice(newOrd, 0, tagId);
-        a.forEach((x, idx) => {
-            $tags.get(x).ord = idx;
-        });
-        $categories.get(categoryId).tags = a;
+        // console.debug(tagId);
+        
+        if (categoryId) {
+            const tag = $tags.get(tagId);
+            $tags.set(tagId, { ...tag, ord: newOrd });
+            let a: Array<number> = $categories.get(categoryId).tags;
+            a.splice(tag.ord, 1);
+            a.splice(newOrd, 0, tagId);
+            a.forEach((x, idx) => {
+                $tags.get(x).ord = idx;
+            });
+            $categories.get(categoryId).tags = a;
+            $categories = $categories;
+        } else {
+            const tag = $nonCategoryTags.get(tagId);
+            // console.debug("previous state: ", $nonCategoryTags);
+            let a: Array<[number, Tag]> = Array.from($nonCategoryTags).sort((a, b) => {
+                return a[1].ord - b[1].ord;
+            });
+            // console.debug("array from previous state: ", a);
+            a.forEach((x) => {console.debug(x)});
+            let modifiedTag = a[tag.ord];
+            a.splice(tag.ord, 1);
+            a.splice(newOrd, 0, modifiedTag);
+            // console.debug("array after splicing: ");
+            a.forEach((x) => {console.debug(x)});
+            a.forEach(([currTagId, currTag], idx) => {
+                $nonCategoryTags.get(currTagId).ord = idx;
+            });
+            $nonCategoryTags.set(tagId, { ...tag, ord: newOrd });
+            $nonCategoryTags = $nonCategoryTags;
+            // console.debug("array after changing indices: ", a);
+            // console.debug("new state: ", $nonCategoryTags);
+        }
         $tags = $tags;
-        $categories = $categories;
         inputTagOrdinal = "";
     }
 
     async function changeColor() {
+        console.debug(tagId);
+        console.debug(inputTagColor.slice(1));
         await invoke("update_tag_color", {
             data: { categoryTagId: tagId, color: inputTagColor.slice(1) },
         });
-        const tag = $tags.get(tagId);
-        $tags.set(tagId, { ...tag, color: inputTagColor });
-        $tags = $tags;
+        if (categoryId) {
+            const tag = $tags.get(tagId);
+            $tags.set(tagId, { ...tag, color: inputTagColor });
+            $tags = $tags;
+        } else {
+            const tag = $nonCategoryTags.get(tagId);
+            $nonCategoryTags.set(tagId, { ...tag, color: inputTagColor });
+            $nonCategoryTags = $nonCategoryTags;
+        }
     }
 </script>
 

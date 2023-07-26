@@ -9,6 +9,7 @@
         columns,
         currentEditable,
         isDebug,
+        nonCategoryTags,
         previousDrawerTab,
         selectedActivity,
         tags,
@@ -207,7 +208,12 @@
         {#each activity.tags as tagId}
             <DebugLabel text={"ID: " + tagId} />
             {@const tag = $tags.get(tagId)}
-            <TagBadge name={tag.name} color={tag.color} />
+            {#if tag}
+                <TagBadge name={tag.name} color={tag.color} />
+            {:else}
+                {@const nonCategoryTag = $nonCategoryTags.get(tagId)}
+                <TagBadge name={nonCategoryTag.name} color={nonCategoryTag.color} />
+            {/if}
         {/each}
     </div>
     <div
