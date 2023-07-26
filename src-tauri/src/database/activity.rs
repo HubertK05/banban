@@ -139,7 +139,7 @@ impl Query {
                     } else {
                         activity_entry
                             .other_tags
-                            .push(record.tag_name.expect("No tag name found for tag"));
+                            .insert(tag_id, record.tag_name.expect("No tag name found for tag"));
                     };
                 }
 
@@ -281,7 +281,11 @@ impl Mutation {
         data: AddTagToActivityInput,
     ) -> Result<(), AppError> {
         let category_tag_id = category_tags::Entity::find()
-            .filter(category_tags::Column::CategoryId.eq(data.category_id))
+            .filter(
+                Condition::any()
+                    .add(category_tags::Column::CategoryId.eq(data.category_id))
+                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(data.category_id == None)))
+            )
             .filter(category_tags::Column::TagName.eq(data.tag_name))
             .one(db)
             .await
@@ -306,7 +310,11 @@ impl Mutation {
         data: RemoveTagFromActivityInput,
     ) -> Result<(), AppError> {
         let category_tag_id = category_tags::Entity::find()
-            .filter(category_tags::Column::CategoryId.eq(data.category_id))
+            .filter(
+                Condition::any()
+                    .add(category_tags::Column::CategoryId.eq(data.category_id))
+                    .add(category_tags::Column::CategoryId.is_null().and(SimpleExpr::from(data.category_id == None)))
+            )
             .filter(category_tags::Column::TagName.eq(data.tag_name))
             .one(db)
             .await
@@ -316,6 +324,7 @@ impl Mutation {
 
         activity_tags::Entity::delete_many()
             .filter(activity_tags::Column::CategoryTagId.eq(category_tag_id))
+            .filter(activity_tags::Column::ActivityId.eq(data.id))
             .exec(db)
             .await
             .context("failed to delete activity_tag")?;

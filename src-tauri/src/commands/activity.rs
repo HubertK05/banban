@@ -53,7 +53,7 @@ pub struct QueryActivityOutput {
     pub title: String,
     pub body: Option<String>,
     pub category_tags: HashMap<i32, CategoryTag>,
-    pub other_tags: Vec<String>,
+    pub other_tags: HashMap<i32, String>,
     pub activity_ordinal: i32,
 }
 
@@ -63,7 +63,7 @@ impl QueryActivityOutput {
             title,
             body,
             category_tags: HashMap::new(),
-            other_tags: Vec::new(),
+            other_tags: HashMap::new(),
             activity_ordinal,
         }
     }
