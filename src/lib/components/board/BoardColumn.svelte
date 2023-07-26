@@ -166,7 +166,6 @@
                 dropTargetStyle: {
                     "box-shadow": "0px 0px 0px 4px rgba(164, 190, 224, 0.2)",
                     "border-radius": "0.25rem",
-                    "outline-offset": "5px",
                 },
             }}
             on:consider={handleConsider}

@@ -1,103 +1,87 @@
 import { writable, type Writable } from "svelte/store";
-import type { Activities, Activity, Categories, Columns, DrawerTab, Editable, NonCategoryTags, Tag, Tags } from "./interfaces/main";
-import { baseCategories, mockColumns, mockTags, stringToColour } from "./mock";
+import type { Activities, Activity, Categories, Columns, DrawerTab, Editable, NonCategoryTags, Tags } from "./interfaces/main";
 import { invoke } from "@tauri-apps/api";
 
 
-// const serverData1 = await getAllCategories()
-// const serverColumns = await queryAllActivities()
-const isMock = false;
+const { _tags, _categories, _otherTags } = await getAllTags()
+const _columns = await getAllActivities()
+
 export const isDebug: Writable<boolean> = writable(false);
-export const selectedActivity: Writable<(Activity & { id: number, columnId: number }) | null> = writable(null)
-export const tags: Writable<Map<number, Tag>> = writable(mockTags);
-export const categories: Writable<Categories | null> = writable(baseCategories)
-export const nonCategoryTags: Writable<Map<number, Tag>> = writable(new Map())
 export const previousDrawerTab: Writable<DrawerTab | null> = writable(null)
-export const columns: Writable<Columns> = writable(mockColumns)
 export const currentEditable: Writable<Editable | null> = writable(null)
+export const selectedActivity: Writable<(Activity & { id: number, columnId: number }) | null> = writable(null)
+
+export const columns: Writable<Columns> = writable(_columns)
+export const categories: Writable<Categories | null> = writable(_categories)
+export const tags: Writable<Tags> = writable(_tags);
+export const nonCategoryTags: Writable<Tags> = writable(_otherTags)
+
 currentEditable.subscribe((editable) => {
     if (editable !== null) {
         console.info(`Current editable - ${editable.field} ID: ${editable.id}`)
     }
 })
 
-async function main() {
-    const {_tags, _categories} = await getAllCategories()
-    const _columns = await queryAllActivities()   
-    console.debug("tags", _tags);
-    console.debug("categories", _categories)
-    console.debug("columns", _columns)
-    tags.set(_tags)
-    console.info("Tags set up")
-    categories.set(_categories)
-    console.info("Categories set up")
-    columns.set(new Map())
-    columns.set(_columns)
-    console.info("Columns set up")
-
-}
-
-await main()
-
-async function getAllCategories() {
+async function getAllTags() {
 
     const res: {
-        categoryTags: Record<number, {name?: string, ordinal?: number, tags: {tag: string, ordinal: number, id: number, color: string}[]}>, 
-        otherTags: {name?: string, ordinal?: number, tags: {tag: string, ordinal: number, id: number, color: string}[]}} = await invoke("select_all_categories");
+        categoryTags: Record<number, { name?: string, ordinal?: number, tags: { tag: string, ordinal: number, id: number, color: string }[] }>,
+        otherTags: { name?: string, ordinal?: number, tags: { tag: string, ordinal: number, id: number, color: string }[] }
+    } = await invoke("select_all_categories");
 
     const _categories: Categories = new Map();
     const _tags: Tags = new Map();
     const _otherTags: NonCategoryTags = new Map();
-    Object.entries(res.categoryTags).forEach(([categoryId, category])=>{
-        const tagIds = category.tags.map(t=>t.id)
+    Object.entries(res.categoryTags).forEach(([categoryId, category]) => {
+        const tagIds = category.tags.map(t => t.id)
         category.tags.forEach((tag) => {
-            _tags.set(tag.id, {name: tag.tag, ord: tag.ordinal, color: `#${tag.color}`})
+            _tags.set(tag.id, { name: tag.tag, ord: tag.ordinal, color: `#${tag.color}` })
         })
-        _categories.set(Number(categoryId), {name: category.name, ord: category.ordinal, tags: tagIds})
+        _categories.set(Number(categoryId), { name: category.name, ord: category.ordinal, tags: tagIds })
     })
-    res.otherTags.tags.forEach(tag=>{
-        _otherTags.set(tag.id, {name: tag.tag, ord: tag.ordinal, color: `#${tag.color}`});
+    res.otherTags.tags.forEach(tag => {
+        _otherTags.set(tag.id, { name: tag.tag, ord: tag.ordinal, color: `#${tag.color}` });
     });
-    tags.set(_tags)
-    nonCategoryTags.set(_otherTags)
-    categories.set(_categories)
-    console.debug("tags",_tags)
-    console.debug("non category tags",_otherTags)
+
+    console.debug("tags", _tags)
+    console.debug("non category tags", _otherTags)
     console.debug("categories", _categories)
-    return {  _categories, _tags, _otherTags };
+    return { _categories, _tags, _otherTags };
 }
-async function queryAllActivities() {
+async function getAllActivities() {
     const res = await invoke("query_all_activities") as {
-        columns: Record<number, 
-        {
-            name?: string, 
-            columnOrdinal?: number, 
-            activities: Record<number, 
+        columns: Record<number,
             {
-                title: string, 
-                body?: string, 
-                categoryTags: Record<number, {
-                    categoryName: string,
-                    categoryOrdinal: number,
-                    tagId: number
-                    tagName: string,
-                    tagOrdinal: number
-                }>, 
-                otherTags: Record<number, string>,
-                activityOrdinal: number}>
-        }>
+                name?: string,
+                columnOrdinal?: number,
+                activities: Record<number,
+                    {
+                        title: string,
+                        body?: string,
+                        categoryTags: Record<number, {
+                            categoryName: string,
+                            categoryOrdinal: number,
+                            tagId: number
+                            tagName: string,
+                            tagOrdinal: number
+                        }>,
+                        otherTags: Record<number, string>,
+                        activityOrdinal: number
+                    }>
+            }>
     };
     const _columns: Columns = new Map();
 
-    Object.entries(res.columns).forEach(([columnId,column])=>{
+    Object.entries(res.columns).forEach(([columnId, column]) => {
         const activities: Activities = new Map();
-        Object.entries(column.activities).forEach(([activityId, activity])=>{
-            const tagIds = Object.entries(activity.categoryTags).map(([tagId,tag])=>tag.tagId)
-            Object.entries(activity.otherTags).forEach(([tagId, tag]) => {console.log("tag id:", tagId); tagIds.push(Number(tagId))});
-            activities.set(Number(activityId), {name: activity.title, tags: tagIds, ord: activity.activityOrdinal, body: activity.body})
+        Object.entries(column.activities).forEach(([activityId, activity]) => {
+            const tagIds = Object.entries(activity.categoryTags).map(([tagId, tag]) => tag.tagId)
+            Object.entries(activity.otherTags).forEach(([tagId, tag]) => { console.log("tag id:", tagId); tagIds.push(Number(tagId)) });
+            activities.set(Number(activityId), { name: activity.title, tags: tagIds, ord: activity.activityOrdinal, body: activity.body })
         })
-        _columns.set(Number(columnId), {activities, name: column.name, ord: column.columnOrdinal})
+        _columns.set(Number(columnId), { activities, name: column.name, ord: column.columnOrdinal })
     })
+
     console.debug("columns", _columns)
     return _columns
 }
