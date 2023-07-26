@@ -2,8 +2,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::Manager;
+use tracing::info;
 
-use crate::commands::{activity::*, category::*, columns::*, tags::*};
+use crate::commands::{activity::*, category::*, columns::*, splashscreen::*, tags::*};
 
 pub mod commands;
 pub mod database;
@@ -17,6 +18,7 @@ fn main() {
     tauri::Builder::default()
         .setup(|app| {
             app.manage(setup::get_database_pool(&app.config()));
+            info!("Spinning up banban");
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -46,6 +48,7 @@ fn main() {
             rename_column,
             delete_column,
             update_column_ordinal,
+            close_splashscreen
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

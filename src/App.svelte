@@ -9,7 +9,13 @@
     } from "@skeletonlabs/skeleton";
     import Board from "./lib/components/board/Board.svelte";
     import BoardDrawer from "./lib/components/drawer/BoardDrawer.svelte";
+    import { onMount } from "svelte";
+    import { invoke } from "@tauri-apps/api";
     let tabSet: number = 0;
+
+    onMount(async () => {
+        await invoke("close_splashscreen");
+    });
 </script>
 
 <div style="display: contents" class="h-full overflow-hidden">
