@@ -4,7 +4,9 @@ use anyhow::Context;
 use sea_orm::{sea_query::SimpleExpr, DbConn};
 
 use ::entity::{
-    activities, activities::Entity as Activity, activity_tags, categories, category_tags, columns,
+    activities,
+    activities::{Entity as Activity, Model},
+    activity_tags, categories, category_tags, columns,
 };
 use sea_orm::*;
 use tracing::debug;
@@ -46,6 +48,16 @@ impl Query {
     ) -> Result<Option<activities::Model>, DbErr> {
         let tasks = Activity::find_by_id(id).one(db).await?;
         Ok(tasks)
+    }
+
+    pub async fn get_all_activities(db: &DbConn) -> Result<Vec<Model>, DbErr> {
+        let out: Vec<Model> = Activity::find()
+            .select_only()
+            .order_by_asc(activities::Column::Ordinal)
+            .into_model()
+            .all(db)
+            .await?;
+        Ok(out)
     }
 
     pub async fn query_all_activities(
@@ -167,7 +179,11 @@ impl Query {
             .filter(
                 Condition::any()
                     .add(activities::Column::ColumnId.eq(column_id))
-                    .add(activities::Column::ColumnId.is_null().and(SimpleExpr::from(column_id == None)))
+                    .add(
+                        activities::Column::ColumnId
+                            .is_null()
+                            .and(SimpleExpr::from(column_id == None)),
+                    ),
             )
             .count(db)
             .await
@@ -342,7 +358,11 @@ impl Mutation {
             .filter(
                 Condition::any()
                     .add(activities::Column::ColumnId.eq(column_id))
-                    .add(activities::Column::ColumnId.is_null().and(SimpleExpr::from(column_id == None)))
+                    .add(
+                        activities::Column::ColumnId
+                            .is_null()
+                            .and(SimpleExpr::from(column_id == None)),
+                    ),
             )
             .col_expr(
                 activities::Column::Ordinal,
@@ -365,7 +385,11 @@ impl Mutation {
             .filter(
                 Condition::any()
                     .add(activities::Column::ColumnId.eq(column_id))
-                    .add(activities::Column::ColumnId.is_null().and(SimpleExpr::from(column_id == None)))
+                    .add(
+                        activities::Column::ColumnId
+                            .is_null()
+                            .and(SimpleExpr::from(column_id == None)),
+                    ),
             )
             .col_expr(
                 activities::Column::Ordinal,

@@ -1,3 +1,4 @@
+use sea_orm::DbErr;
 use thiserror::Error;
 use tracing::error;
 
@@ -15,6 +16,12 @@ impl From<anyhow::Error> for AppError {
     fn from(val: anyhow::Error) -> Self {
         error!("{val:?}");
         Self::Unexpected(val)
+    }
+}
+
+impl From<DbErr> for AppError {
+    fn from(value: DbErr) -> Self {
+        Self::Unexpected(anyhow::anyhow!(value))
     }
 }
 

@@ -6,10 +6,11 @@ use crate::{
     errors::AppError,
 };
 use anyhow::Context;
-use entity::columns;
+use entity::columns::{self, Entity as Column, Model};
 use sea_orm::{
-    sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, EntityTrait,
-    IntoActiveModel, PaginatorTrait, QueryFilter, QuerySelect, Set, TransactionTrait, Value,
+    sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, DbErr,
+    EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, Set,
+    TransactionTrait, Value,
 };
 
 pub struct Query;
@@ -30,6 +31,15 @@ impl Query {
             .await
             .context("failed to determine count of columns")?;
         Ok(res as i32)
+    }
+
+    pub async fn get_all_columns(db: &DbConn) -> Result<Vec<Model>, DbErr> {
+        let out: Vec<Model> = Column::find()
+            .order_by_asc(columns::Column::Ordinal)
+            .into_model()
+            .all(db)
+            .await?;
+        Ok(out)
     }
 }
 

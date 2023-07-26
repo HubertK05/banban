@@ -7,12 +7,16 @@ use crate::{
     utils::coloring::{int_to_rgb, rgb_int_to_string},
 };
 use anyhow::Context;
-use entity::{categories, category_tags};
-use sea_orm::{
-    sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, EntityTrait,
-    FromQueryResult, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect,
-    RelationTrait, Set, TransactionTrait, Value,
+use entity::{
+    categories::{self, Entity as Category, Model},
+    category_tags,
 };
+use sea_orm::{
+    sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, DbErr,
+    EntityTrait, FromQueryResult, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
+    QuerySelect, RelationTrait, Set, TransactionTrait, Value,
+};
+use tracing::trace;
 
 #[derive(FromQueryResult)]
 struct CategoryQueryResult {
@@ -76,6 +80,16 @@ impl Query {
             },
         );
 
+        Ok(res)
+    }
+
+    pub async fn get_all_categories(db: &DbConn) -> Result<Vec<Model>, DbErr> {
+        let res = Category::find()
+            .order_by_asc(categories::Column::Ordinal)
+            .into_model()
+            .all(db)
+            .await?;
+        trace!("{res:#?}");
         Ok(res)
     }
 
