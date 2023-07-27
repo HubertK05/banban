@@ -6,10 +6,16 @@
         type Column,
     } from "../../interfaces/main";
     import ActivityCard from "../board/ActivityCard.svelte";
-    import { activities, columns, currentEditable, otherActivities } from "../../stores";
+    import {
+        activities,
+        columns,
+        currentEditable,
+        otherActivities,
+    } from "../../stores";
     import { dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
+    import { drawerStore } from "@skeletonlabs/skeleton";
 
     const flipDurationMs = 100;
     console.log($otherActivities);
@@ -21,6 +27,12 @@
         .sort((a, b) => {
             return a.activity.ordinal - b.activity.ordinal;
         });
+
+    $: {
+        if ($otherActivities.size === 0) {
+            drawerStore.close();
+        }
+    }
 
     function handleConsider(
         e: CustomEvent<
@@ -73,7 +85,7 @@
     <div class="flex items-center flex-shrink-0 h-10 px-2">
         <span
             class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30"
-            >{$otherActivities.size}</span
+            >{draggableActivities.length}</span
         >
     </div>
     <div class="h-96">
@@ -93,13 +105,16 @@
         >
             {#each Array.from(draggableActivities) as { id, activity } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
-                    <ActivityCard activity={{
-                        name: activity.name,
-                        ordinal: activity.ordinal,
-                        tags: activity.tags,
-                        body: activity.body,
-                        columnId: null
-                    }} {id} />
+                    <ActivityCard
+                        activity={{
+                            name: activity.name,
+                            ordinal: activity.ordinal,
+                            tags: activity.tags,
+                            body: activity.body,
+                            columnId: null,
+                        }}
+                        {id}
+                    />
                 </div>
             {/each}
         </section>
