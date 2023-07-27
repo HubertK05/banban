@@ -1,8 +1,27 @@
+export interface BackendColumn {
+    name?: string,
+    columnOrdinal?: number,
+    activities: Record<number,
+        {
+            title: string,
+            body?: string,
+            categoryTags: Record<number, {
+                categoryName: string,
+                categoryOrdinal: number,
+                tagId: number
+                tagName: string,
+                tagOrdinal: number
+            }>,
+            otherTags: Record<number, string>,
+            activityOrdinal: number
+        }>
+}
+
 export interface Activity {
     name: string,
     body?: string
     tags: Array<number>
-    ord: number
+    ordinal: number
 }
 
 export type Activities = Map<number, Activity>
@@ -14,6 +33,8 @@ export interface Column {
 }
 
 export type Columns = Map<number, Column>
+
+export type NonColumnActivities = Map<number, Activity>
 
 export interface Tag {
     name: string;
@@ -47,5 +68,6 @@ export enum ActiveField {
 
 export enum DrawerTab {
     Activity = "activity",
-    Settings = "settings"
+    Settings = "settings",
+    OtherActivities = "otherActivities"
 }
