@@ -18,6 +18,7 @@ use crate::{
 pub struct ColumnOutput {
     pub name: String,
     pub ordinal: i32,
+    pub activities: Vec<i32>,
 }
 
 #[derive(Serialize)]

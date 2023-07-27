@@ -1,9 +1,8 @@
 <script lang="ts">
     import BoardColumn from "./BoardColumn.svelte";
-    import { columns, currentEditable, isDebug } from "../../stores";
+    import { columns, currentEditable, isDebug, type Col } from "../../stores";
     import { invoke } from "@tauri-apps/api/tauri";
     import { dndzone, setDebugMode } from "svelte-dnd-action";
-    import type { Column } from "../../interfaces/main";
     import { flip } from "svelte/animate";
     import DebugButton from "../debug/DebugButton.svelte";
     setDebugMode(false);
@@ -19,7 +18,7 @@
             "create_column",
             { name }
         );
-        $columns.set(res.id, { name, activities: new Map(), ord: res.ordinal });
+        $columns.set(res.id, { name, activities: [], ordinal: res.ordinal });
         $columns = $columns;
         setTimeout(() => {
             currentTarget.scrollIntoView({
@@ -38,21 +37,21 @@
             };
         })
         .sort((a, b) => {
-            return a.col.ord - b.col.ord;
+            return a.col.ordinal - b.col.ordinal;
         });
 
     function handleConsider(
         e: CustomEvent<
             DndEvent<{
                 id: number;
-                col: Column;
+                col: Col;
             }>
         > & {
             target: any;
         }
     ) {
         e.detail.items.forEach(({ id, col }, index) => {
-            col.ord = index;
+            col.ordinal = index;
         });
         draggableColumns = e.detail.items;
     }
@@ -60,7 +59,7 @@
         e: CustomEvent<
             DndEvent<{
                 id: number;
-                col: Column;
+                col: Col;
             }>
         > & {
             target: any;
@@ -68,7 +67,7 @@
     ) {
         e.detail.items.forEach(({ id, col }, index) => {
             const c = $columns.get(id);
-            c.ord = index;
+            c.ordinal = index;
             $columns.set(id, c);
         });
         $columns = $columns;
@@ -104,7 +103,7 @@
         on:finalize={handleFinalize}
     >
         {#each Array.from(draggableColumns).sort((a, b) => {
-            return a.col.ord - b.col.ord;
+            return a.col.ordinal - b.col.ordinal;
         }) as { id, col } (id)}
             <div animate:flip={{ duration: flipDurationMs }}>
                 <BoardColumn column={col} columnId={id} />

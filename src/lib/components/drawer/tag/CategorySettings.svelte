@@ -1,6 +1,6 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
-    import { categories, columns, nonCategoryTags, tags } from "../../../stores";
+    import { categories, columns, otherTags, tags } from "../../../stores";
     import {
         ListBox,
         ListBoxItem,
@@ -18,19 +18,26 @@
             color: string;
         } = await invoke("create_tag", { data: { tagName, categoryId } });
         console.debug(res);
-        $tags.set(res.id, {
-            name: res.tagName,
-            ord: res.ordinal,
-            color: `#${res.color}`,
-        });
-        $tags = $tags;
+
         if (categoryId !== undefined && categoryId !== null) {
+            $tags.set(res.id, {
+                name: res.tagName,
+                ordinal: res.ordinal,
+                color: `#${res.color}`,
+                categoryId,
+            });
             const category = $categories.get(categoryId);
             category.tags.push(res.id);
+            $categories.set(categoryId, category);
+            $tags = $tags;
             $categories = $categories;
-        } else if (categoryId !== undefined) {
-            $nonCategoryTags.set(res.id, {name: res.tagName, ord: res.ordinal});
-            $nonCategoryTags = $nonCategoryTags;
+        } else {
+            $otherTags.set(res.id, {
+                name: res.tagName,
+                ordinal: res.ordinal,
+                color: res.color,
+            });
+            $otherTags = $otherTags;
         }
     }
 
@@ -43,15 +50,15 @@
 <h2 class="h2">Tag options</h2>
 
 {#each Array.from($categories).sort(([shit1, catA], [shit2, catB]) => {
-    return catA.ord - catB.ord;
+    return catA.ordinal - catB.ordinal;
 }) as [categoryId, category]}
     <p>{category.name}</p>
     {#each category.tags.sort((a, b) => {
-        return $tags.get(a).ord - $tags.get(b).ord;
+        return $tags.get(a).ordinal - $tags.get(b).ordinal;
     }) as tagId}
         {@const tag = $tags.get(tagId)}
         <DebugLabel text={"ID: " + tagId} />
-        <DebugLabel text={"ORD: " + tag.ord} />
+        <DebugLabel text={"ORD: " + tag.ordinal} />
         <TagSettings {tag} {tagId} {categoryId} />
     {:else}
         <button
@@ -69,11 +76,11 @@
 
 <hr />
 <p>Other</p>
-{#each Array.from($nonCategoryTags).sort((a, b) => {
-    return a[1].ord - b[1].ord;
+{#each Array.from($otherTags).sort((a, b) => {
+    return a[1].ordinal - b[1].ordinal;
 }) as [tagId, tag]}
-    <DebugLabel text={"ID: "+tagId}></DebugLabel>
-    <DebugLabel text={"ORD: "+tag.ord}></DebugLabel>
+    <DebugLabel text={"ID: " + tagId} />
+    <DebugLabel text={"ORD: " + tag.ordinal} />
     <TagSettings {tag} {tagId} categoryId={null} />
 {:else}
     <button
@@ -105,8 +112,7 @@
             <ListBoxItem
                 bind:group={createCategoryId}
                 value={null}
-                name="categoryId"
-                >other - {$nonCategoryTags.size}</ListBoxItem
+                name="categoryId">other - {$otherTags.size}</ListBoxItem
             >
         </ListBox>
     </div>

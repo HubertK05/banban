@@ -1,18 +1,20 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
-    import {
-        ActiveField,
-        type Activity,
-        type Column,
-    } from "../../interfaces/main";
     import ActivityCard from "./ActivityCard.svelte";
-    import { columns, currentEditable } from "../../stores";
-    import { dndzone } from "svelte-dnd-action";
+    import {
+        columns,
+        currentEditable,
+        type Col,
+        activities,
+        type Actv,
+    } from "../../stores";
+    import { TRIGGERS, dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
+    import { ActiveField } from "../../interfaces/main";
 
     export let columnId: number;
-    export let column: Column;
+    export let column: Col;
     const flipDurationMs = 125;
 
     $: {
@@ -36,12 +38,23 @@
             data: { name, body, columnId },
         });
         const column = $columns.get(columnId);
-        Array.from(column.activities.entries()).forEach(([id, activity]) => {
-            activity.ord += 1;
-            column.activities.set(id, activity);
+        const columnActivities = column.activities.map((id) => {
+            return $activities.get(id);
         });
-        column.activities.set(res.id, { name, body, tags, ord: res.ordinal });
+        Array.from(columnActivities.entries()).forEach(([id, activity]) => {
+            activity.ordinal += 1;
+            $activities.set(id, activity);
+        });
+        column.activities.push(res.id);
+        $activities.set(res.id, {
+            name,
+            body,
+            tags,
+            ordinal: res.ordinal,
+            columnId: columnId,
+        });
         $columns.set(columnId, column);
+        $activities = $activities;
         $columns = $columns;
     }
 
@@ -51,32 +64,45 @@
 
     async function removeColumn() {
         await invoke("delete_column", { id: columnId });
+        column.activities.forEach((activityId) => {
+            $activities.delete(activityId);
+        });
         $columns.delete(columnId);
+        $activities = $activities;
+
         $columns = $columns;
     }
 
     $: draggableActivities = Array.from(column.activities)
-        .map(([id, activity]) => {
+        .map((id) => {
+            const activity = $activities.get(id);
             return { activity, id, colId: columnId };
         })
         .sort((a, b) => {
-            return a.activity.ord - b.activity.ord;
+            return a.activity.ordinal - b.activity.ordinal;
         });
 
     function handleConsider(
         e: CustomEvent<
             DndEvent<{
                 id: number;
-                activity: Activity;
+                activity: Actv;
                 colId: number;
             }>
         > & {
             target: any;
         }
     ) {
+        const trigger = e.detail.info.trigger;
+        console.log(columnId, "trigger", trigger);
+        if (trigger === TRIGGERS.DRAGGED_ENTERED) {
+            dropTargetClasses = ["bg-black"];
+        } else if (trigger === TRIGGERS.DRAGGED_LEFT) {
+            dropTargetClasses = ["bg-transparent"];
+        }
         const activityId = Number(e.detail.info.id);
         e.detail.items.forEach(({ id, activity }, index) => {
-            activity.ord = index;
+            activity.ordinal = index;
         });
         draggableActivities = e.detail.items;
     }
@@ -85,21 +111,26 @@
         e: CustomEvent<
             DndEvent<{
                 id: number;
-                activity: Activity;
+                activity: Actv;
                 colId: number;
             }>
         > & {
             target: any;
         }
     ) {
-        e.detail.info.id;
-        const activities = new Map();
+        dropTargetClasses = ["bg-transparent"];
+        const activitiesIds = [];
         e.detail.items.forEach(({ id, activity, colId }, index) => {
-            activity.ord = index;
-            activities.set(id, activity);
+            activity.ordinal = index;
+            $activities.set(id, activity);
+            activitiesIds.push(id);
         });
-        column.activities = activities;
-
+        $columns.set(columnId, {
+            ...$columns.get(columnId),
+            activities: activitiesIds,
+        });
+        $activities = $activities;
+        $columns = $columns;
         const activityId = Number(e.detail.info.id);
         const index = e.detail.items.findIndex(({ id }) => id === activityId);
         if (index !== -1) {
@@ -108,11 +139,13 @@
             });
         }
     }
+    let dropTargetClasses: Array<string> = ["bg-transaprent"];
 </script>
 
+{dropTargetClasses}
 <div class="flex flex-col flex-shrink-0 w-72">
     <DebugLabel text={`ID ${columnId}`} />
-    <DebugLabel text={`ORD ${column.ord}`} />
+    <DebugLabel text={`ORD ${column.ordinal}`} />
     <button class="btn btn-sm variant-ghost-error" on:click={removeColumn}
         >Remove column</button
     >
@@ -157,16 +190,18 @@
         </button>
     </div>
     <div class="h-96">
+        <!-- svelte-ignore missing-declaration -->
         <section
-            class="flex flex-col pb-2 overflow-auto min-h-full"
+            class="flex flex-col pb-2 overflow-auto min-h-full bg-transaprent"
             use:dndzone={{
                 items: draggableActivities,
                 flipDurationMs,
                 type: "activities",
                 dropTargetStyle: {
-                    "box-shadow": "0px 0px 0px 4px rgba(164, 190, 224, 0.2)",
+                    "box-shadow": `0px 0px 0px 4px rgba(164, 190, 224, 0.2)`,
                     "border-radius": "0.25rem",
                 },
+                dropTargetClasses,
             }}
             on:consider={handleConsider}
             on:finalize={handleFinalize}

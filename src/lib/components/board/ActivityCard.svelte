@@ -1,18 +1,16 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
+    import { ActiveField, DrawerTab } from "../../interfaces/main";
     import {
-        ActiveField,
-        type Activity,
-        DrawerTab,
-    } from "../../interfaces/main";
-    import {
+        activities,
         columns,
         currentEditable,
         isDebug,
-        nonCategoryTags,
+        otherTags,
         previousDrawerTab,
         selectedActivity,
         tags,
+        type Actv,
     } from "../../stores";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import TagBadge from "./TagBadge.svelte";
@@ -25,13 +23,17 @@
 
     export let id: number;
     export let columnId: number;
-    export let activity: Activity;
+    export let activity: Actv;
 
     async function removeActivity() {
         await invoke("delete_activity", { id });
+
         const column = $columns.get(columnId);
-        column.activities.delete(id);
+        const index = column.activities.findIndex((aId) => aId === id);
+        column.activities.splice(index, 1);
         $columns.set(columnId, column);
+        $activities.delete(id);
+        $activities = $activities;
         $columns = $columns;
     }
 
@@ -50,15 +52,10 @@
     }
 
     function createBody() {
-        const column = $columns.get(columnId);
-        column.activities.set(id, {
-            name: activity.name,
-            body: "new body",
-            tags: activity.tags,
-            ord: activity.ord,
-        });
-        $columns.set(columnId, column);
-        $columns = $columns;
+        const activity = $activities.get(id);
+        activity.body = "new body";
+        $activities.set(id, activity);
+        $activities = $activities;
     }
 
     async function updateActivity() {
@@ -68,15 +65,8 @@
         invoke("update_activity_content", {
             data: { id, name: activity.name, body: activity.body },
         });
-        const column = $columns.get(columnId);
-        column.activities.set(id, {
-            name: activity.name,
-            body: activity.body,
-            tags: activity.tags,
-            ord: activity.ord,
-        });
-        $columns.set(columnId, column);
-        $columns = $columns;
+        $activities.set(id, activity);
+        $activities = $activities;
     }
 
     //WARNING! update on every keystroke, should use `updateActivity` in the future
@@ -117,7 +107,7 @@
     class="relative flex flex-col items-start p-4 mt-3 bg-white rounded-lg cursor-pointer bg-opacity-90 group hover:bg-opacity-100"
     draggable="true"
 >
-    <DebugLabel text={"ord: " + activity.ord} />
+    <DebugLabel text={"ord: " + activity.ordinal} />
     <button
         on:click={showDrawer}
         class="absolute top-0 right-5 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"
@@ -211,8 +201,11 @@
             {#if tag}
                 <TagBadge name={tag.name} color={tag.color} />
             {:else}
-                {@const nonCategoryTag = $nonCategoryTags.get(tagId)}
-                <TagBadge name={nonCategoryTag.name} color={nonCategoryTag.color} />
+                {@const nonCategoryTag = $otherTags.get(tagId)}
+                <TagBadge
+                    name={nonCategoryTag.name}
+                    color={nonCategoryTag.color}
+                />
             {/if}
         {/each}
     </div>

@@ -3,12 +3,12 @@
     import {
         categories,
         columns,
-        nonCategoryTags,
+        otherTags,
         previousDrawerTab,
         selectedActivity,
         tags,
+        type Tag,
     } from "../../stores";
-    import { DrawerTab, type Tag } from "../../interfaces/main";
     import TagBadge from "../board/TagBadge.svelte";
     import BackButton from "./BackButton.svelte";
     import { fly, slide } from "svelte/transition";
@@ -16,7 +16,7 @@
     import DebugLabel from "../debug/DebugLabel.svelte";
     import SettingsButton from "../board/SettingsButton.svelte";
 
-    let selectedCategoryId: number;
+    let selectedCategoryId: number | null;
 
     async function changeTagColor(
         e: Event & {
@@ -29,10 +29,17 @@
         await invoke("update_tag_color", {
             data: { categoryTagId: tagId, color: newColor.slice(1) },
         });
-
-        $tags.set(tagId, { ...tag, color: newColor });
-        $tags = $tags;
-        $columns = $columns;
+        if (selectedCategoryId == null) {
+            $otherTags.set(tagId, { ...tag, color: newColor });
+            $otherTags = $otherTags;
+        } else {
+            $tags.set(tagId, {
+                ...tag,
+                color: newColor,
+                categoryId: selectedCategoryId,
+            });
+            $tags = $tags;
+        }
     }
 
     async function changeActivityTag(newTagId: number, tag: Tag) {
@@ -78,8 +85,8 @@
         $columns = $columns;
     }
 
-    async function addNonCategoryTag(newTagId: number, tag: Tag) {
-        const tags = $nonCategoryTags;
+    async function addCategoryTag(newTagId: number, tag: Tag) {
+        const tags = $otherTags;
         for (let currentTagId of $selectedActivity.tags) {
             if (newTagId === currentTagId) {
                 console.debug("a target tag already exists in the activity");
@@ -89,7 +96,7 @@
         await invoke("add_tag_to_activity", {
             data: {
                 id: $selectedActivity.id,
-                categoryId: null,
+                categoryId: selectedCategoryId,
                 tagName: tag.name,
             },
         });
@@ -99,7 +106,7 @@
     }
 
     async function removeNonCategoryTag(newTagId: number, tag: Tag) {
-        const tags = $nonCategoryTags;
+        const tags = $otherTags;
         for (let currentTagId of $selectedActivity.tags) {
             if (newTagId === currentTagId) {
                 await invoke("remove_tag_from_activity", {
@@ -110,7 +117,10 @@
                     },
                 });
                 let a = $selectedActivity.tags;
-                a.splice($selectedActivity.tags.findIndex(x => x === currentTagId), 1);
+                a.splice(
+                    $selectedActivity.tags.findIndex((x) => x === currentTagId),
+                    1
+                );
                 $selectedActivity.tags = a;
                 $columns = $columns;
                 return;
@@ -125,7 +135,7 @@
 <h2 class="h2">Categories</h2>
 <ListBox>
     {#each Array.from($categories.entries()).sort(([a, catA], [b, catB]) => {
-        return catA.ord - catB.ord;
+        return catA.ordinal - catB.ordinal;
     }) as [categoryId, category]}
         <DebugLabel text={"ID: " + categoryId} />
         <ListBoxItem
@@ -134,10 +144,8 @@
             value={categoryId}>{category.name}</ListBoxItem
         >
     {/each}
-    <ListBoxItem
-        bind:group={selectedCategoryId}
-        name=Other
-        value={null}>Other</ListBoxItem
+    <ListBoxItem bind:group={selectedCategoryId} name="Other" value={null}
+        >Other</ListBoxItem
     >
 </ListBox>
 {#if selectedCategoryId}
@@ -172,8 +180,8 @@
 {/if}
 {#if selectedCategoryId === null}
     <div class="flex flex-col">
-        {#each $nonCategoryTags as [tagId, storeTag] (tagId)}
-            {@const tag = $nonCategoryTags.get(tagId)}
+        {#each $otherTags as [tagId, storeTag] (tagId)}
+            {@const tag = $otherTags.get(tagId)}
             <div
                 class="flex flex-row space-x-6 items-center place-content-between m-2"
             >
@@ -193,8 +201,8 @@
                     >
                 {:else}
                     <button
-                    class={`btn btn-sm variant-ghost-primary`}
-                        on:click={() => addNonCategoryTag(tagId, tag)}
+                        class={`btn btn-sm variant-ghost-primary`}
+                        on:click={() => addCategoryTag(tagId, tag)}
                         >Choose</button
                     >
                 {/if}

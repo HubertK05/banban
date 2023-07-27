@@ -1,20 +1,20 @@
 import { writable, type Writable } from "svelte/store";
-import type { Activities, Activity, Categories, Columns, DrawerTab, Editable, NonCategoryTags, Tags } from "./interfaces/main";
+import type { DrawerTab, Editable } from "./interfaces/main";
 import { invoke } from "@tauri-apps/api";
 
 
-const { _tags, _categories, _otherTags } = await getAllTags()
-const _columns = await getAllActivities()
-
+const data = await fetchAll()
 export const isDebug: Writable<boolean> = writable(false);
 export const previousDrawerTab: Writable<DrawerTab | null> = writable(null)
 export const currentEditable: Writable<Editable | null> = writable(null)
-export const selectedActivity: Writable<(Activity & { id: number, columnId: number }) | null> = writable(null)
+export const selectedActivity: Writable<((Actv | OtherActv) & { id: number }) | null> = writable(null)
 
-export const columns: Writable<Columns> = writable(_columns)
-export const categories: Writable<Categories | null> = writable(_categories)
-export const tags: Writable<Tags> = writable(_tags);
-export const nonCategoryTags: Writable<Tags> = writable(_otherTags)
+export const columns: Writable<Map<number, Col>> = writable(data.columns)
+export const activities: Writable<Map<number, Actv>> = writable(data.activities);
+export const otherActivities: Writable<Map<number, OtherActv>> = writable(data.otherActivities)
+export const categories: Writable<Map<number, Category>> = writable(data.categories)
+export const tags: Writable<Map<number, Tag & { categoryId: number }>> = writable(data.categoryTags);
+export const otherTags: Writable<Map<number, Tag>> = writable(data.otherTags)
 
 currentEditable.subscribe((editable) => {
     if (editable !== null) {
@@ -22,84 +22,20 @@ currentEditable.subscribe((editable) => {
     }
 })
 
-async function getAllTags() {
-
-    const res: {
-        categoryTags: Record<number, { name?: string, ordinal?: number, tags: { tag: string, ordinal: number, id: number, color: string }[] }>,
-        otherTags: { name?: string, ordinal?: number, tags: { tag: string, ordinal: number, id: number, color: string }[] }
-    } = await invoke("select_all_categories");
-
-    const _categories: Categories = new Map();
-    const _tags: Tags = new Map();
-    const _otherTags: NonCategoryTags = new Map();
-    Object.entries(res.categoryTags).forEach(([categoryId, category]) => {
-        const tagIds = category.tags.map(t => t.id)
-        category.tags.forEach((tag) => {
-            _tags.set(tag.id, { name: tag.tag, ord: tag.ordinal, color: `#${tag.color}` })
-        })
-        _categories.set(Number(categoryId), { name: category.name, ord: category.ordinal, tags: tagIds })
-    })
-    res.otherTags.tags.forEach(tag => {
-        _otherTags.set(tag.id, { name: tag.tag, ord: tag.ordinal, color: `#${tag.color}` });
-    });
-
-    console.debug("tags", _tags)
-    console.debug("non category tags", _otherTags)
-    console.debug("categories", _categories)
-    return { _categories, _tags, _otherTags };
-}
-async function getAllActivities() {
-    const res = await invoke("query_all_activities") as {
-        columns: Record<number,
-            {
-                name?: string,
-                columnOrdinal?: number,
-                activities: Record<number,
-                    {
-                        title: string,
-                        body?: string,
-                        categoryTags: Record<number, {
-                            categoryName: string,
-                            categoryOrdinal: number,
-                            tagId: number
-                            tagName: string,
-                            tagOrdinal: number
-                        }>,
-                        otherTags: Record<number, string>,
-                        activityOrdinal: number
-                    }>
-            }>
-    };
-    const _columns: Columns = new Map();
-
-    Object.entries(res.columns).forEach(([columnId, column]) => {
-        const activities: Activities = new Map();
-        Object.entries(column.activities).forEach(([activityId, activity]) => {
-            const tagIds = Object.entries(activity.categoryTags).map(([tagId, tag]) => tag.tagId)
-            Object.entries(activity.otherTags).forEach(([tagId, tag]) => { console.log("tag id:", tagId); tagIds.push(Number(tagId)) });
-            activities.set(Number(activityId), { name: activity.title, tags: tagIds, ord: activity.activityOrdinal, body: activity.body })
-        })
-        _columns.set(Number(columnId), { activities, name: column.name, ord: column.columnOrdinal })
-    })
-
-    console.debug("columns", _columns)
-    return _columns
-}
-
-
-interface Col {
+export interface Col {
     name: string,
     ordinal: number
+    activities: Array<number>
 }
 
-interface OtherActv {
+export interface OtherActv {
     name: string,
     body?: string,
     ordinal: number,
     tags: Array<number>
 }
 
-interface Actv {
+export interface Actv {
     name: string,
     body?: string,
     ordinal: number,
@@ -107,46 +43,40 @@ interface Actv {
     columnId: number
 }
 
-interface Tag {
-    name: string,
-    color: string,
-    categoryId: number,
-    ordinal: number
-}
-
-interface OtherTag {
+export interface Tag {
     name: string,
     color: string,
     ordinal: number
 }
 
-interface Category {
+export interface Category {
     name: string,
     ordinal: number,
     tags: Array<number>
 }
 
 
-interface LoadData {
+export interface LoadData {
     columns: Map<number, Col>
     activities: Map<number, Actv>
     otherActivities: Map<number, OtherActv>
     categories: Map<number, Category>,
-    categoryTags: Map<number, Tag>
-    otherTags: Map<number, OtherTag>
+    categoryTags: Map<number, Tag & { categoryId: number }>
+    otherTags: Map<number, Tag>
 }
 
-interface RawLoadData {
+export interface RawLoadData {
     columns: Record<number, Col>
     activities: Record<number, Actv>
     otherActivities: Record<number, OtherActv>
     categories: Record<number, Category>,
     categoryTags: Record<number, Tag>
-    otherTags: Record<number, OtherTag>
+    otherTags: Record<number, Tag>
 }
-fetchAll()
+
 async function fetchAll() {
-    let res = await invoke("fetch_all") as RawLoadData;
+    const res = await invoke("fetch_all") as RawLoadData;
+
     const columns = new Map();
     Object.entries(res.columns).forEach(([columnId, column]) => {
         columns.set(Number(columnId), column)
@@ -173,5 +103,5 @@ async function fetchAll() {
     })
     const data: LoadData = { columns, activities, otherActivities, categories, categoryTags, otherTags }
     console.debug(data)
-
+    return data
 }

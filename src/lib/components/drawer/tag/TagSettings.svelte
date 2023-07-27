@@ -1,12 +1,18 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
-    import { categories, columns, nonCategoryTags, tags } from "../../../stores";
-    import type { Category, Tag } from "../../../interfaces/main";
+    import {
+        activities,
+        categories,
+        columns,
+        otherTags,
+        tags,
+        type Tag,
+    } from "../../../stores";
     import TagBadge from "../../board/TagBadge.svelte";
 
     export let tagId: number;
     export let tag: Tag;
-    export let categoryId: number;
+    export let categoryId: number | undefined;
 
     let inputTagName: string = "";
     let inputTagOrdinal: string = "";
@@ -15,26 +21,25 @@
 
     async function removeTag() {
         await invoke("delete_tag", { categoryTagId: tagId });
-        $tags.delete(tagId);
         $columns.forEach((column, columnId) => {
-            column.activities.forEach((activity, activityId) => {
+            column.activities.map((activityId) => {
+                const activity = $activities.get(activityId);
                 activity.tags = activity.tags.filter((id) => id !== tagId);
-                column.activities.set(activityId, activity);
+                $activities.set(activityId, activity);
             });
             $columns.set(columnId, column);
         });
-        if (categoryId) {
+        if (categoryId !== undefined && categoryId !== null) {
+            $tags.delete(tagId);
             const category = $categories.get(categoryId);
             category.tags = category.tags.filter((id) => id !== tagId);
             $categories.set(categoryId, category);
+            $tags = $tags;
             $categories = $categories;
             $columns = $columns;
         } else {
-            // let tags = Array.from($nonCategoryTags);
-            // tags = tags.filter(([id, tag]) => id !== tagId);
-            // $nonCategoryTags = tags;
-            $nonCategoryTags.delete(tagId);
-            $nonCategoryTags = $nonCategoryTags;
+            $otherTags.delete(tagId);
+            $otherTags = $otherTags;
             $columns = $columns;
         }
     }
@@ -94,40 +99,48 @@
             data: { categoryTagId: tagId, newOrd },
         });
         // console.debug(tagId);
-        
+
         if (categoryId) {
             const tag = $tags.get(tagId);
-            $tags.set(tagId, { ...tag, ord: newOrd });
-            let a: Array<number> = $categories.get(categoryId).tags;
-            a.splice(tag.ord, 1);
-            a.splice(newOrd, 0, tagId);
-            a.forEach((x, idx) => {
-                $tags.get(x).ord = idx;
+            $tags.set(tagId, { ...tag, ordinal: newOrd });
+            const orderedTags: Array<number> = $categories.get(categoryId).tags;
+            orderedTags.splice(tag.ordinal, 1);
+            orderedTags.splice(newOrd, 0, tagId);
+            orderedTags.forEach((x, idx) => {
+                $tags.get(x).ordinal = idx;
             });
-            $categories.get(categoryId).tags = a;
+
+            $categories.get(categoryId).tags = orderedTags;
+            $tags = $tags;
             $categories = $categories;
         } else {
-            const tag = $nonCategoryTags.get(tagId);
+            const tag = $otherTags.get(tagId);
             // console.debug("previous state: ", $nonCategoryTags);
-            let a: Array<[number, Tag]> = Array.from($nonCategoryTags).sort((a, b) => {
-                return a[1].ord - b[1].ord;
-            });
+            let a: Array<[number, Tag]> = Array.from($otherTags).sort(
+                ([a, tagA], [b, tagB]) => {
+                    return tagA.ordinal - tagB.ordinal;
+                }
+            );
             // console.debug("array from previous state: ", a);
-            a.forEach((x) => {console.debug(x)});
-            let modifiedTag = a[tag.ord];
-            a.splice(tag.ord, 1);
+            a.forEach((x) => {
+                console.debug(x);
+            });
+            let modifiedTag = a[tag.ordinal];
+            a.splice(tag.ordinal, 1);
             a.splice(newOrd, 0, modifiedTag);
             // console.debug("array after splicing: ");
-            a.forEach((x) => {console.debug(x)});
-            a.forEach(([currTagId, currTag], idx) => {
-                $nonCategoryTags.get(currTagId).ord = idx;
+            a.forEach((x) => {
+                console.debug(x);
             });
-            $nonCategoryTags.set(tagId, { ...tag, ord: newOrd });
-            $nonCategoryTags = $nonCategoryTags;
+            a.forEach(([currTagId, currTag], idx) => {
+                $otherTags.get(currTagId).ordinal = idx;
+            });
+            $otherTags.set(tagId, { ...tag, ordinal: newOrd });
+            $otherTags = $otherTags;
             // console.debug("array after changing indices: ", a);
             // console.debug("new state: ", $nonCategoryTags);
         }
-        $tags = $tags;
+
         inputTagOrdinal = "";
     }
 
@@ -142,9 +155,9 @@
             $tags.set(tagId, { ...tag, color: inputTagColor });
             $tags = $tags;
         } else {
-            const tag = $nonCategoryTags.get(tagId);
-            $nonCategoryTags.set(tagId, { ...tag, color: inputTagColor });
-            $nonCategoryTags = $nonCategoryTags;
+            const tag = $otherTags.get(tagId);
+            $otherTags.set(tagId, { ...tag, color: inputTagColor });
+            $otherTags = $otherTags;
         }
     }
 </script>

@@ -8,7 +8,10 @@ use crate::{
     errors::AppError,
 };
 use anyhow::Context;
-use entity::columns::{self, Entity as Column, Model};
+use entity::{
+    activities,
+    columns::{self, Entity as Column, Model},
+};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, DbErr, EntityTrait, IntoActiveModel,
     PaginatorTrait, QueryFilter, QueryOrder, Set, TransactionTrait,
@@ -35,23 +38,28 @@ impl Query {
     }
 
     pub async fn all_columns(db: &DbConn) -> Result<HashMap<i32, ColumnOutput>, DbErr> {
-        let res: Vec<Model> = Column::find()
+        let res = Column::find()
+            .find_with_related(activities::Entity)
             .order_by_asc(columns::Column::Ordinal)
-            .into_model()
             .all(db)
             .await?;
 
         let out: HashMap<i32, ColumnOutput> =
-            res.into_iter().fold(HashMap::new(), |mut acc, column| {
-                acc.insert(
-                    column.id,
-                    ColumnOutput {
-                        name: column.name,
-                        ordinal: column.ordinal,
-                    },
-                );
-                acc
-            });
+            res.into_iter()
+                .fold(HashMap::new(), |mut acc, (column, activities)| {
+                    acc.insert(
+                        column.id,
+                        ColumnOutput {
+                            name: column.name,
+                            ordinal: column.ordinal,
+                            activities: activities
+                                .into_iter()
+                                .map(|activity| activity.id)
+                                .collect(),
+                        },
+                    );
+                    acc
+                });
         Ok(out)
     }
 }

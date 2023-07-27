@@ -20,7 +20,7 @@ pub fn rgb_string_to_int(input: &str) -> Result<i32, AppError> {
 }
 
 pub fn rgb_int_to_string(input: i32) -> String {
-    (0..3).fold(String::new(), |mut color, i| {
+    (0..3).fold(String::from("#"), |mut color, i| {
         let value = (input >> ((2 - i) * 8)) & 0xff;
         let hex = format!("{value:X}");
         color.push_str(&format!("{hex:0<2}"));
