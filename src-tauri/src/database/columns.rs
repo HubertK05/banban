@@ -1,15 +1,17 @@
+use std::collections::HashMap;
+
 use crate::{
     commands::{
         columns::{RenameColumnInput, UpdateColumnOrdinalInput},
+        fetch::ColumnOutput,
     },
     errors::AppError,
 };
 use anyhow::Context;
 use entity::columns::{self, Entity as Column, Model};
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, DbErr,
-    EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder, Set,
-    TransactionTrait,
+    ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, DbErr, EntityTrait, IntoActiveModel,
+    PaginatorTrait, QueryFilter, QueryOrder, Set, TransactionTrait,
 };
 
 pub struct Query;
@@ -32,12 +34,24 @@ impl Query {
         Ok(res as i32)
     }
 
-    pub async fn get_all_columns(db: &DbConn) -> Result<Vec<Model>, DbErr> {
-        let out: Vec<Model> = Column::find()
+    pub async fn all_columns(db: &DbConn) -> Result<HashMap<i32, ColumnOutput>, DbErr> {
+        let res: Vec<Model> = Column::find()
             .order_by_asc(columns::Column::Ordinal)
             .into_model()
             .all(db)
             .await?;
+
+        let out: HashMap<i32, ColumnOutput> =
+            res.into_iter().fold(HashMap::new(), |mut acc, column| {
+                acc.insert(
+                    column.id,
+                    ColumnOutput {
+                        name: column.name,
+                        ordinal: column.ordinal,
+                    },
+                );
+                acc
+            });
         Ok(out)
     }
 }

@@ -4,7 +4,7 @@
 #[macro_use]
 extern crate tracing;
 
-use crate::commands::{activity::*, category::*, columns::*, splashscreen::*, tags::*};
+use crate::commands::{activity::*, category::*, columns::*, fetch::*, splashscreen::*, tags::*};
 use tauri::Manager;
 
 pub mod commands;
@@ -49,7 +49,8 @@ fn main() {
             rename_column,
             delete_column,
             update_column_ordinal,
-            close_splashscreen
+            close_splashscreen,
+            fetch_all
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

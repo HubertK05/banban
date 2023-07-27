@@ -1,7 +1,12 @@
+use std::collections::HashMap;
+
 use crate::{
-    commands::category::{
-        SelectCategoryOutput, SelectCategoryTagsOutput, TagData, UpdateCategoryNameInput,
-        UpdateCategoryOrdinalInput,
+    commands::{
+        category::{
+            SelectCategoryOutput, SelectCategoryTagsOutput, TagData, UpdateCategoryNameInput,
+            UpdateCategoryOrdinalInput,
+        },
+        fetch::{CategoryOutput, CategoryTagOutput},
     },
     errors::AppError,
     utils::coloring::rgb_int_to_string,
@@ -9,13 +14,14 @@ use crate::{
 use anyhow::Context;
 use entity::{
     categories::{self, Entity as Category, Model},
-    category_tags,
+    category_tags::{self, Entity as CategoryTag},
 };
 use sea_orm::{
     sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, DbErr,
     EntityTrait, FromQueryResult, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder,
     QuerySelect, RelationTrait, Set, TransactionTrait, Value,
 };
+use serde::Serialize;
 
 #[derive(FromQueryResult)]
 struct CategoryQueryResult {
@@ -31,6 +37,46 @@ struct CategoryQueryResult {
 pub struct Query;
 
 impl Query {
+    pub async fn all_with_category_tags(
+        db: &DbConn,
+    ) -> Result<
+        (
+            HashMap<i32, CategoryOutput>,
+            HashMap<i32, CategoryTagOutput>,
+        ),
+        DbErr,
+    > {
+        let res = Category::find()
+            .find_with_related(CategoryTag)
+            .all(db)
+            .await?;
+
+        let mut categories = HashMap::new();
+        let mut category_tags = HashMap::new();
+        res.into_iter().for_each(|(category, tags)| {
+            categories.insert(
+                category.id,
+                CategoryOutput {
+                    name: category.name,
+                    ordinal: category.ordinal,
+                    tags: tags.iter().map(|tag| tag.id).collect(),
+                },
+            );
+            tags.into_iter().for_each(|tag| {
+                category_tags.insert(
+                    tag.id,
+                    CategoryTagOutput {
+                        name: tag.tag_name,
+                        color: rgb_int_to_string(tag.color),
+                        ordinal: tag.ordinal,
+                        category_id: category.id,
+                    },
+                );
+            })
+        });
+
+        Ok((categories, category_tags))
+    }
     pub async fn select_all_categories(db: &DbConn) -> Result<SelectCategoryTagsOutput, AppError> {
         let category_tags: Vec<CategoryQueryResult> = category_tags::Entity::find()
             .select_only()

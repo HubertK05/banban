@@ -1,5 +1,8 @@
+use std::collections::HashMap;
+
+use crate::commands::fetch::OtherTagOutput;
 use crate::commands::tags::{UpdateTagColorInput, UpdateTagOrdinalInput};
-use crate::utils::coloring::{rgb_string_to_int, string_to_color};
+use crate::utils::coloring::{rgb_int_to_string, rgb_string_to_int, string_to_color};
 use crate::{
     commands::tags::{AttachTagToCategoryInput, CreateTagInput, UpdateTagNameInput},
     errors::AppError,
@@ -15,13 +18,25 @@ use sea_orm::{Condition, DbErr, QueryOrder};
 pub struct Query;
 
 impl Query {
-    pub async fn get_all_tags(db: &DbConn) -> Result<Vec<Model>, DbErr> {
+    pub async fn all_other_tags(db: &DbConn) -> Result<HashMap<i32, OtherTagOutput>, DbErr> {
         let res = CategoryTag::find()
-            .order_by_asc(category_tags::Column::Ordinal)
-            .into_model()
+            .filter(Condition::any().add(category_tags::Column::CategoryId.is_null()))
             .all(db)
             .await?;
-        Ok(res)
+
+        let out: HashMap<i32, OtherTagOutput> =
+            res.into_iter().fold(HashMap::new(), |mut acc, tag| {
+                acc.insert(
+                    tag.id,
+                    OtherTagOutput {
+                        name: tag.tag_name,
+                        color: rgb_int_to_string(tag.color),
+                        ordinal: tag.ordinal,
+                    },
+                );
+                acc
+            });
+        Ok(out)
     }
 
     async fn get_ordinal_from_id(db: &DbConn, category_tag_id: i32) -> Result<i32, AppError> {

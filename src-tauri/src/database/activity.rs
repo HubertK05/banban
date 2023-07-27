@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use anyhow::Context;
 use sea_orm::{sea_query::SimpleExpr, DbConn};
 
@@ -9,10 +11,13 @@ use ::entity::{
 use sea_orm::*;
 
 use crate::{
-    commands::activity::{
-        AddTagToActivityInput, CategoryTag, CreateActivityInput, QueryActivitiesWithColumnsOutput,
-        QueryActivityOutput, QueryColumnOutput, RemoveTagFromActivityInput,
-        UpdateActivityColumnInput, UpdateActivityContentInput,
+    commands::{
+        activity::{
+            AddTagToActivityInput, CategoryTag, CreateActivityInput,
+            QueryActivitiesWithColumnsOutput, QueryActivityOutput, QueryColumnOutput,
+            RemoveTagFromActivityInput, UpdateActivityColumnInput, UpdateActivityContentInput,
+        },
+        fetch::{ActivityOutput, ColumnActivityOutput},
     },
     errors::AppError,
     utils::coloring::rgb_int_to_string,
@@ -47,12 +52,56 @@ impl Query {
         Ok(tasks)
     }
 
-    pub async fn get_all_activities(db: &DbConn) -> Result<Vec<Model>, DbErr> {
-        let out: Vec<Model> = Activity::find()
+    pub async fn all_column_activities(
+        db: &DbConn,
+    ) -> Result<HashMap<i32, ColumnActivityOutput>, DbErr> {
+        let res = Activity::find()
+            .find_with_related(category_tags::Entity)
+            .filter(Condition::any().add(activities::Column::ColumnId.is_not_null()))
             .order_by_asc(activities::Column::Ordinal)
-            .into_model()
             .all(db)
             .await?;
+
+        let out = res
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, (activity, tags)| {
+                acc.insert(
+                    activity.id,
+                    ColumnActivityOutput {
+                        name: activity.name,
+                        body: activity.body,
+                        ordinal: activity.ordinal,
+                        tags: tags.into_iter().map(|tag| tag.id).collect(),
+                        column_id: activity.column_id.unwrap(),
+                    },
+                );
+                acc
+            });
+        Ok(out)
+    }
+
+    pub async fn all_other_activities(db: &DbConn) -> Result<HashMap<i32, ActivityOutput>, DbErr> {
+        let res = Activity::find()
+            .find_with_related(category_tags::Entity)
+            .filter(Condition::any().add(activities::Column::ColumnId.is_null()))
+            .order_by_asc(activities::Column::Ordinal)
+            .all(db)
+            .await?;
+
+        let out = res
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, (activity, tags)| {
+                acc.insert(
+                    activity.id,
+                    ActivityOutput {
+                        name: activity.name,
+                        body: activity.body,
+                        ordinal: activity.ordinal,
+                        tags: tags.into_iter().map(|tag| tag.id).collect(),
+                    },
+                );
+                acc
+            });
         Ok(out)
     }
 
