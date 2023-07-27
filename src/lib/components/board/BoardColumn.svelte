@@ -234,7 +234,7 @@
             on:consider={handleConsider}
             on:finalize={handleFinalize}
         >
-            {#each Array.from(draggableActivities) as { id, activity } (id)}
+            {#each draggableActivities as { id, activity } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
                     <ActivityCard {activity} {id} />
                 </div>
