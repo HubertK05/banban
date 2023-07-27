@@ -22,16 +22,15 @@
     } from "@skeletonlabs/skeleton";
 
     export let id: number;
-    export let columnId: number;
     export let activity: Actv;
 
     async function removeActivity() {
         await invoke("delete_activity", { id });
 
-        const column = $columns.get(columnId);
+        const column = $columns.get(activity.columnId);
         const index = column.activities.findIndex((aId) => aId === id);
         column.activities.splice(index, 1);
-        $columns.set(columnId, column);
+        $columns.set(activity.columnId, column);
         $activities.delete(id);
         $activities = $activities;
         $columns = $columns;
@@ -94,7 +93,7 @@
 
     function showDrawer() {
         $previousDrawerTab = null;
-        $selectedActivity = { ...activity, id, columnId };
+        $selectedActivity = { ...activity, id, columnId: activity.columnId };
         const drawer: DrawerSettings = {
             id: DrawerTab.Activity,
             width: "w-1/2",

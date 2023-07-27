@@ -98,7 +98,6 @@
         await invoke("update_tag_ordinal", {
             data: { categoryTagId: tagId, newOrd },
         });
-        // console.debug(tagId);
 
         if (categoryId) {
             const tag = $tags.get(tagId);
@@ -145,8 +144,6 @@
     }
 
     async function changeColor() {
-        console.debug(tagId);
-        console.debug(inputTagColor.slice(1));
         await invoke("update_tag_color", {
             data: { categoryTagId: tagId, color: inputTagColor.slice(1) },
         });
