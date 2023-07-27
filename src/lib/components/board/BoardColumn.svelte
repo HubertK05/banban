@@ -66,13 +66,28 @@
     async function removeColumn() {
         console.debug("column id", columnId);
         await invoke("delete_column", { id: columnId });
-        
-        let columnActivities: Array<[number, Actv]> = Array.from(column.activities).map(activityId => [activityId, $activities.get(activityId)]);
+        const newColumns = Array.from($columns.entries());
+        const index = newColumns.findIndex(
+            ([colId, column]) => colId === columnId
+        );
+        newColumns.forEach(([colId, column], idx) => {
+            if (idx >= index) {
+                column.ordinal -= 1;
+                $columns.set(colId, column);
+            }
+        });
+        let columnActivities: Array<[number, Actv]> = Array.from(
+            column.activities
+        ).map((activityId) => [activityId, $activities.get(activityId)]);
         column.activities.forEach((activityId) => {
             $activities.delete(activityId);
         });
         column.activities = [];
-        let sortedColumnActivities = columnActivities.sort(([activityId1, activity1], [activityId2, activity2]) => { return activity1.ordinal - activity2.ordinal });
+        let sortedColumnActivities = columnActivities.sort(
+            ([activityId1, activity1], [activityId2, activity2]) => {
+                return activity1.ordinal - activity2.ordinal;
+            }
+        );
         sortedColumnActivities.forEach(([activityId, activity]) => {
             // let activity = $activities.get(activityId);
             activity.ordinal = $otherActivities.size;
