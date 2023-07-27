@@ -66,7 +66,9 @@ VALUES
     (6, '🏝 Low', 2, 207, 0),
     (7, '🏕 Medium', 2, 1429248, 1),
     (8, '🏔 High', 2, 13600512, 2),
-    (9, '🌋 Urgent', 2, 16716820, 3);
+    (9, '🌋 Urgent', 2, 16716820, 3),
+    (10, '💼 Work', null, 15235358, 0),
+    (11, '🍲 Cooking', null, 16766023, 1);
 
 INSERT INTO "activity_tags" ("activity_id", "category_tag_id")
 VALUES
