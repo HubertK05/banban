@@ -1,10 +1,13 @@
 <script lang="ts">
     import BoardColumn from "./BoardColumn.svelte";
-    import { columns, currentEditable, isDebug, type Col } from "../../stores";
+    import { columns, currentEditable, isDebug, previousDrawerTab, selectedActivity, type Col } from "../../stores";
     import { invoke } from "@tauri-apps/api/tauri";
     import { dndzone, setDebugMode } from "svelte-dnd-action";
+    import { DrawerTab, type Column } from "../../interfaces/main";
     import { flip } from "svelte/animate";
     import DebugButton from "../debug/DebugButton.svelte";
+  import OtherActivitiesButton from "./OtherActivitiesButton.svelte";
+  import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
     setDebugMode(false);
     const boardName = "Kanban";
     const flipDurationMs = 300;
@@ -83,6 +86,17 @@
             },
         });
     }
+
+    function showDrawer() {
+        $previousDrawerTab = null;
+        let drawer: DrawerSettings = {
+            id: DrawerTab.OtherActivities,
+            width: 'w-min',
+            bgBackdrop: 'none'
+            // bgDrawer: 'none'
+        };
+        drawerStore.open(drawer);
+    }
 </script>
 
 <div
@@ -90,6 +104,18 @@
 >
     <div class="px-10 mt-6">
         <h1 class="text-2xl font-bold">{boardName}</h1>
+        <button on:click={showDrawer}>
+            <svg
+                class="w-4 h-4 fill-current"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+            >
+                <path
+                    d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                />
+            </svg>
+        </button>
     </div>
     <section
         class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto"
