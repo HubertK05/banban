@@ -117,30 +117,33 @@
             </svg>
         </button>
     </div>
-    <section
-        class="flex flex-grow px-10 mt-4 space-x-6 overflow-auto"
-        use:dndzone={{
-            items: draggableColumns,
-            flipDurationMs,
-            type: "columns",
-            dropTargetStyle: {},
-        }}
-        on:consider={handleConsider}
-        on:finalize={handleFinalize}
-    >
-        {#each Array.from(draggableColumns).sort((a, b) => {
-            return a.col.ordinal - b.col.ordinal;
-        }) as { id, col } (id)}
-            <div animate:flip={{ duration: flipDurationMs }}>
-                <BoardColumn column={col} columnId={id} />
-            </div>
-        {/each}
-
-        <button
-            on:click={createColumn}
-            class="btn variant-ghost-tertiary max-h-96">+</button
+    <div class="flex">
+        <section
+            class="flex flex-row px-10 mt-4 space-x-6 w-max"
+            use:dndzone={{
+                items: draggableColumns,
+                flipDurationMs,
+                type: "columns",
+                dropTargetStyle: {},
+            }}
+            on:consider={handleConsider}
+            on:finalize={handleFinalize}
         >
-        <DebugButton />
-        <div class="flex-shrink-0 w-6" />
-    </section>
+            {#each Array.from(draggableColumns).sort((a, b) => {
+                return a.col.ordinal - b.col.ordinal;
+            }) as { id, col } (id)}
+                <div animate:flip={{ duration: flipDurationMs }}>
+                    <BoardColumn column={col} columnId={id} />
+                </div>
+            {/each}
+        </section>
+        <div class="flex flex-row space-x-6">
+            <button
+                on:click={createColumn}
+                class="btn variant-ghost-tertiary h-96">+</button
+            >
+            <DebugButton />
+            <div class="flex-shrink-0 w-6" />
+        </div>
+    </div>
 </div>
