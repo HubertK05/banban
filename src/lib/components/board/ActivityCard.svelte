@@ -194,7 +194,7 @@
             >
         {/if}
     </div>
-    <div class="flex flex-row">
+    <div class="flex flex-row flex-wrap">
         {#each activity.tags as tagId}
             <DebugLabel text={"ID: " + tagId} />
             {@const tag = $tags.get(tagId)}
