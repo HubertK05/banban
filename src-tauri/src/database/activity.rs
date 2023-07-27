@@ -23,7 +23,7 @@ use crate::{
     utils::coloring::rgb_int_to_string,
 };
 
-#[derive(FromQueryResult)]
+#[derive(FromQueryResult, Debug)]
 struct ActivityQueryResult {
     id: i32,
     name: String,
@@ -126,7 +126,7 @@ impl Query {
             .column_as(categories::Column::Id, "category_id")
             .column_as(categories::Column::Ordinal, "category_ordinal")
             .column_as(categories::Column::Name, "category_name")
-            .join(JoinType::InnerJoin, activities::Relation::Columns.def())
+            .join(JoinType::FullOuterJoin, activities::Relation::Columns.def())
             .join_rev(
                 JoinType::LeftJoin,
                 activity_tags::Relation::Activities.def(),
