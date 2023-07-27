@@ -76,7 +76,7 @@ pub struct FetchOutput {
 }
 
 #[tauri::command]
-pub async fn fetch_all(db: State<'_, DbConn>, name: String) -> Result<FetchOutput, AppError> {
+pub async fn fetch_all(db: State<'_, DbConn>) -> Result<FetchOutput, AppError> {
     let activities = activity::Query::all_column_activities(&db).await?;
     let other_activities = activity::Query::all_other_activities(&db).await?;
     let columns = columns::Query::all_columns(&db).await?;

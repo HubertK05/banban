@@ -86,3 +86,92 @@ async function getAllActivities() {
     return _columns
 }
 
+
+interface Col {
+    name: string,
+    ordinal: number
+}
+
+interface OtherActv {
+    name: string,
+    body?: string,
+    ordinal: number,
+    tags: Array<number>
+}
+
+interface Actv {
+    name: string,
+    body?: string,
+    ordinal: number,
+    tags: Array<number>,
+    columnId: number
+}
+
+interface Tag {
+    name: string,
+    color: string,
+    categoryId: number,
+    ordinal: number
+}
+
+interface OtherTag {
+    name: string,
+    color: string,
+    ordinal: number
+}
+
+interface Category {
+    name: string,
+    ordinal: number,
+    tags: Array<number>
+}
+
+
+interface LoadData {
+    columns: Map<number, Col>
+    activities: Map<number, Actv>
+    otherActivities: Map<number, OtherActv>
+    categories: Map<number, Category>,
+    categoryTags: Map<number, Tag>
+    otherTags: Map<number, OtherTag>
+}
+
+interface RawLoadData {
+    columns: Record<number, Col>
+    activities: Record<number, Actv>
+    otherActivities: Record<number, OtherActv>
+    categories: Record<number, Category>,
+    categoryTags: Record<number, Tag>
+    otherTags: Record<number, OtherTag>
+}
+fetchAll()
+async function fetchAll() {
+    let res = await invoke("fetch_all") as RawLoadData;
+    const columns = new Map();
+    Object.entries(res.columns).forEach(([columnId, column]) => {
+        columns.set(Number(columnId), column)
+    })
+    const activities = new Map()
+    Object.entries(res.activities).forEach(([activityId, activity]) => {
+        activities.set(Number(activityId), activity)
+    })
+    const otherActivities = new Map()
+    Object.entries(res.otherActivities).forEach(([activityId, activity]) => {
+        otherActivities.set(Number(activityId), activity)
+    })
+    const categories = new Map()
+    Object.entries(res.categories).forEach(([categoryId, category]) => {
+        categories.set(Number(categoryId), category)
+    })
+    const categoryTags = new Map()
+    Object.entries(res.categoryTags).forEach(([tagId, tag]) => {
+        categoryTags.set(Number(tagId), tag)
+    })
+    const otherTags = new Map()
+    Object.entries(res.otherTags).forEach(([tagId, tag]) => {
+        otherTags.set(Number(tagId), tag)
+    })
+    const data: LoadData = { columns, activities, otherActivities, categories, categoryTags, otherTags }
+    console.debug(data)
+
+}
