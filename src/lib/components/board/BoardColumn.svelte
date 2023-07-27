@@ -6,6 +6,7 @@
         currentEditable,
         type Col,
         activities,
+        otherActivities,
         type Actv,
     } from "../../stores";
     import { TRIGGERS, dndzone } from "svelte-dnd-action";
@@ -63,14 +64,26 @@
     }
 
     async function removeColumn() {
+        console.debug("column id", columnId);
         await invoke("delete_column", { id: columnId });
+        
+        let columnActivities: Array<[number, Actv]> = Array.from(column.activities).map(activityId => [activityId, $activities.get(activityId)]);
         column.activities.forEach((activityId) => {
             $activities.delete(activityId);
         });
+        column.activities = [];
+        let sortedColumnActivities = columnActivities.sort(([activityId1, activity1], [activityId2, activity2]) => { return activity1.ordinal - activity2.ordinal });
+        sortedColumnActivities.forEach(([activityId, activity]) => {
+            // let activity = $activities.get(activityId);
+            activity.ordinal = $otherActivities.size;
+            $otherActivities.set(activityId, activity);
+        });
+
         $columns.delete(columnId);
         $activities = $activities;
 
         $columns = $columns;
+        $otherActivities = $otherActivities;
     }
 
     $: draggableActivities = Array.from(column.activities)
@@ -208,7 +221,7 @@
         >
             {#each Array.from(draggableActivities) as { id, activity } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
-                    <ActivityCard {activity} {id} {columnId} />
+                    <ActivityCard {activity} {id} />
                 </div>
             {/each}
         </section>
