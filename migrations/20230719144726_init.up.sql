@@ -10,7 +10,7 @@ CREATE TABLE activities (
     body TEXT,
     column_id INTEGER,
     ordinal INT NOT NULL,
-    FOREIGN KEY (column_id) REFERENCES columns(id) ON DELETE CASCADE
+    FOREIGN KEY (column_id) REFERENCES columns(id) ON DELETE SET NULL
 );
 
 CREATE TABLE categories (
