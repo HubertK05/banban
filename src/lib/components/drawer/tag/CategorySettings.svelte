@@ -23,7 +23,7 @@
             $tags.set(res.id, {
                 name: res.tagName,
                 ordinal: res.ordinal,
-                color: `#${res.color}`,
+                color: res.color,
                 categoryId,
             });
             const category = $categories.get(categoryId);
