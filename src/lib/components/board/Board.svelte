@@ -1,13 +1,20 @@
 <script lang="ts">
     import BoardColumn from "./BoardColumn.svelte";
-    import { columns, currentEditable, isDebug, previousDrawerTab, selectedActivity, type Col } from "../../stores";
+    import {
+        columns,
+        currentEditable,
+        isDebug,
+        previousDrawerTab,
+        selectedActivity,
+        type Col,
+    } from "../../stores";
     import { invoke } from "@tauri-apps/api/tauri";
     import { dndzone, setDebugMode } from "svelte-dnd-action";
     import { DrawerTab, type Column } from "../../interfaces/main";
     import { flip } from "svelte/animate";
     import DebugButton from "../debug/DebugButton.svelte";
-  import OtherActivitiesButton from "./OtherActivitiesButton.svelte";
-  import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
+    import OtherActivitiesButton from "./OtherActivitiesButton.svelte";
+    import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
     setDebugMode(false);
     const boardName = "Kanban";
     const flipDurationMs = 300;
@@ -21,7 +28,7 @@
             "create_column",
             { name }
         );
-        $columns.set(res.id, { name, activities: [], ordinal: res.ordinal });
+        $columns.set(res.id, { name, activities: [], ordinal: $columns.size });
         $columns = $columns;
         setTimeout(() => {
             currentTarget.scrollIntoView({
@@ -91,8 +98,8 @@
         $previousDrawerTab = null;
         let drawer: DrawerSettings = {
             id: DrawerTab.OtherActivities,
-            width: 'w-min',
-            bgBackdrop: 'none'
+            width: "w-min",
+            bgBackdrop: "none",
             // bgDrawer: 'none'
         };
         drawerStore.open(drawer);
