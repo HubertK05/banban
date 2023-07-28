@@ -71,9 +71,10 @@
     //WARNING! update on every keystroke, should use `updateActivity` in the future
 
     $: {
-        invoke("update_activity_content", {
-            data: { id, name: activity.name, body: activity.body },
-        });
+        console.warn("updating activity", id, activity.name, activity.body);
+        // invoke("update_activity_content", {
+        //     data: { id, name: activity.name, body: activity.body },
+        // });
     }
 
     function showRemoveModal() {

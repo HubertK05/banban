@@ -39,9 +39,10 @@
             data: { name, body, columnId },
         });
         const column = $columns.get(columnId);
-        const columnActivities = column.activities.map((id) => {
-            return $activities.get(id);
-        });
+        const columnActivities: Map<number, Actv> = column.activities.reduce((acc, id) => {
+            acc.set(id, $activities.get(id));
+            return acc;
+        }, new Map());
         Array.from(columnActivities.entries()).forEach(([id, activity]) => {
             activity.ordinal += 1;
             $activities.set(id, activity);
