@@ -13,7 +13,7 @@
             name: string;
             ordinal: number;
         } = await invoke("create_category", { name: categoryName });
-        $categories.set(res.id, { name: res.name, tags: [], ord: res.ordinal });
+        $categories.set(res.id, { name: res.name, tags: [], ordinal: res.ordinal });
         categoryName = "";
         $categories = $categories;
     }

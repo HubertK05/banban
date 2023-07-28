@@ -9,6 +9,7 @@
         type Tag,
     } from "../../../stores";
     import TagBadge from "../../board/TagBadge.svelte";
+  import DebugLabel from "../../debug/DebugLabel.svelte";
 
     export let tagId: number;
     export let tag: Tag;
@@ -70,6 +71,8 @@
 </script>
 
 <div class="flex flex-col p-2">
+    <DebugLabel text={"ID: " + tagId} />
+    <DebugLabel text={"ORD: " + tag.ordinal} />
     <TagBadge name={tag.name} color={tag.color} />
     <div class="mt-2">
         <button class="btn btn-sm variant-filled" on:click={removeTag}
