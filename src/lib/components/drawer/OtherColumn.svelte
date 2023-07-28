@@ -18,7 +18,6 @@
     import { drawerStore } from "@skeletonlabs/skeleton";
 
     const flipDurationMs = 100;
-    console.log($otherActivities);
 
     $: draggableActivities = Array.from($otherActivities)
         .map(([id, activity]) => {

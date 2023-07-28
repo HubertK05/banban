@@ -65,7 +65,6 @@
     }
 
     async function removeColumn() {
-        console.debug("column id", columnId);
         await invoke("delete_column", { id: columnId });
         const newColumns = Array.from($columns.entries());
         const index = newColumns.findIndex(

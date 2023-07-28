@@ -39,7 +39,6 @@
             ordinal: number;
             color: string;
         } = await invoke("create_tag", { data: { tagName, categoryId } });
-        console.debug(res);
 
         if (categoryId !== undefined && categoryId !== null) {
             $tags.set(res.id, {
@@ -73,10 +72,6 @@
             target: any;
         }
     ) {
-        console.log(e.detail.info.id, e.detail.info.trigger);
-        e.detail.items.forEach(item => {
-            console.log(item);
-        })
         const selectedTagId: number = Number(e.detail.info.id);
         const categoryId = $tags.get(selectedTagId)?.categoryId;
 
