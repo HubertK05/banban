@@ -3,5 +3,8 @@
     import ActivityName from "./ActivityName.svelte";
 </script>
 
-<ActivityName />
-<ActivityBody />
+<h2 class="h2">Content</h2>
+<div class="flex flex-col place-content-center">
+    <ActivityName />
+    <ActivityBody />
+</div>

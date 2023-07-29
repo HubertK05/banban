@@ -16,7 +16,7 @@
     import { invoke } from "@tauri-apps/api";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import SettingsButton from "../board/SettingsButton.svelte";
-    import ActivityContent from "./ActivityContent.svelte";
+    import ActivityContent from "./activityContent/ActivityContent.svelte";
 
     let selectedCategoryId: number | null;
 
