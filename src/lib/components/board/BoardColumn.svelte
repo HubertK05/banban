@@ -219,10 +219,10 @@
             </svg>
         </button>
     </div>
-    <div class="h-96">
+    <div class="h-[70vh]">
         <!-- svelte-ignore missing-declaration -->
         <section
-            class="flex flex-col pb-2 overflow-auto min-h-full {$hoverColumnId ===
+            class="flex flex-col pb-2 overflow-auto max-h-full min-h-full {$hoverColumnId ===
             columnId
                 ? 'shadow-2xl rounded-md'
                 : ''}"
