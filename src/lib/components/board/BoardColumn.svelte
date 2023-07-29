@@ -9,6 +9,7 @@
         otherActivities,
         type Actv,
         hoverColumnId,
+        columnDragDisabled,
     } from "../../stores";
     import { TRIGGERS, dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
@@ -192,16 +193,27 @@
         };
         modalStore.trigger(modal);
     }
+
+    function startDrag() {
+        $columnDragDisabled = false;
+    }
 </script>
 
-<div class="flex flex-col flex-shrink-0 w-72">
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div
+    class="flex flex-col flex-shrink-0 w-72 {$columnDragDisabled
+        ? 'cursor-grab'
+        : ''}"
+    on:mousedown={startDrag}
+    on:touchstart={startDrag}
+>
     <DebugLabel text={`ID ${columnId}`} />
     <DebugLabel text={`ORD ${column.ordinal}`} />
     <div class="flex items-center flex-shrink-0 h-10 px-2">
         {#if $currentEditable !== null && $currentEditable.id === columnId && $currentEditable.field === ActiveField.ColumnName}
             <span
                 contenteditable="true"
-                class="block text-sm font-semibold"
+                class="block text-sm font-semibold cursor-default"
                 bind:innerText={column.name}
             />
         {:else}
@@ -210,12 +222,13 @@
             <span
                 contenteditable="false"
                 on:click={handleNameClick}
-                class="block text-sm font-semibold">{column.name}</span
+                class="block text-sm font-semibold cursor-default"
+                >{column.name}</span
             >
         {/if}
 
         <span
-            class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30"
+            class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30 cursor-default"
             >{draggableActivities.length}</span
         >
         <button
