@@ -42,12 +42,11 @@
         }
     }
 
-    async function changeActivityTag(newTagId: number, tag: Tag) {
+    async function setActivityTag(newTagId: number, tag: Tag) {
         const categoryTags = $categories.get(selectedCategoryId).tags;
         for (let currentTagId of $selectedActivity.tags) {
             if (categoryTags.includes(currentTagId)) {
                 for (let categoryTag of categoryTags) {
-                    console.log($selectedActivity.tags, categoryTag);
                     const index = $selectedActivity.tags.indexOf(categoryTag);
                     if (index !== -1) {
                         console.debug("Swapping category tag");
@@ -85,7 +84,29 @@
         $columns = $columns;
     }
 
-    async function addCategoryTag(newTagId: number, tag: Tag) {
+    async function removeActivityTag(tagId: number) {
+        const activityTags: number[] = $selectedActivity.tags;
+        for (let i = 0; i < activityTags.length; i++) {
+            console.debug(tagId, activityTags[i]);
+            if (activityTags[i] === tagId) {
+                console.debug(`Removing tag ${tagId} from activity`);
+                await invoke("remove_tag_from_activity", {
+                    data: {
+                        id: $selectedActivity.id,
+                        categoryId: selectedCategoryId,
+                        tagName: $tags.get(activityTags[i]).name,
+                    },
+                })
+                $selectedActivity.tags.splice(i, 1);
+                $selectedActivity = $selectedActivity;
+                $columns = $columns;
+                return;
+            }
+        }
+        console.warn(`No tag with id ${tagId} found in the activity`);
+    }
+
+    async function addNonCategoryTag(newTagId: number, tag: Tag) {
         const tags = $otherTags;
         for (let currentTagId of $selectedActivity.tags) {
             if (newTagId === currentTagId) {
@@ -105,10 +126,10 @@
         $columns = $columns;
     }
 
-    async function removeNonCategoryTag(newTagId: number, tag: Tag) {
+    async function removeNonCategoryTag(tagId: number, tag: Tag) {
         const tags = $otherTags;
         for (let currentTagId of $selectedActivity.tags) {
-            if (newTagId === currentTagId) {
+            if (tagId === currentTagId) {
                 await invoke("remove_tag_from_activity", {
                     data: {
                         id: $selectedActivity.id,
@@ -163,15 +184,20 @@
                 />
 
                 <TagBadge name={tag.name} color={tag.color} />
-                <button
-                    class={`btn btn-sm ${
-                        $selectedActivity.tags.find((id) => id === tagId)
-                            ? "variant-ghost-secondary"
-                            : "variant-ghost-primary"
-                    }`}
-                    on:click={() => changeActivityTag(tagId, tag)}
-                    >Choose</button
-                >
+
+                {#if $selectedActivity.tags.find((id) => id === tagId)}
+                    <button
+                        class="btn btn-sm variant-ghost-secondary"
+                        on:click={() => removeActivityTag(tagId)}
+                        >Remove</button
+                    >
+                {:else}
+                    <button
+                        class="btn btn-sm variant-ghost-primary"
+                        on:click={() => setActivityTag(tagId, tag)}
+                        >Choose</button
+                    >
+                {/if}
             </div>
         {:else}
             <div class="self-center mt-2">Category is empty</div>
@@ -202,7 +228,7 @@
                 {:else}
                     <button
                         class={`btn btn-sm variant-ghost-primary`}
-                        on:click={() => addCategoryTag(tagId, tag)}
+                        on:click={() => addNonCategoryTag(tagId, tag)}
                         >Choose</button
                     >
                 {/if}
