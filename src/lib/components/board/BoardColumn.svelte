@@ -204,12 +204,14 @@
     class="flex flex-col flex-shrink-0 w-72 {$columnDragDisabled
         ? 'cursor-grab'
         : ''}"
-    on:mousedown={startDrag}
-    on:touchstart={startDrag}
 >
     <DebugLabel text={`ID ${columnId}`} />
     <DebugLabel text={`ORD ${column.ordinal}`} />
-    <div class="flex items-center flex-shrink-0 h-10 px-2">
+    <div
+        class="flex items-center flex-shrink-0 h-10 px-2"
+        on:mousedown={startDrag}
+        on:touchstart={startDrag}
+    >
         {#if $currentEditable !== null && $currentEditable.id === columnId && $currentEditable.field === ActiveField.ColumnName}
             <span
                 contenteditable="true"
@@ -267,7 +269,7 @@
     <div class="h-[70vh]">
         <!-- svelte-ignore missing-declaration -->
         <section
-            class="flex flex-col pb-2 overflow-auto max-h-full min-h-full {$hoverColumnId ===
+            class="flex flex-col pb-2 overflow-auto max-h-full min-h-full cursor-default {$hoverColumnId ===
             columnId
                 ? 'shadow-2xl rounded-md'
                 : ''}"

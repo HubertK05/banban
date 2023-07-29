@@ -88,7 +88,7 @@
 </script>
 
 <div
-    class="relative flex flex-col items-start p-4 mt-3 bg-white rounded-lg cursor-pointer bg-opacity-90 group hover:bg-opacity-100"
+    class="relative flex flex-col items-start p-4 mt-3 bg-white rounded-lg bg-opacity-90 group hover:bg-opacity-100"
     draggable="true"
 >
     <DebugLabel text={"ord: " + activity.ordinal} />
