@@ -27,12 +27,19 @@ static MIGRATOR: Migrator = sqlx::migrate!("../migrations");
 
 pub fn get_database_pool(config: &Config) -> DatabaseConnection {
     tauri::async_runtime::block_on(async {
+        std::fs::create_dir_all(app_data_dir(config).unwrap()).unwrap();
         let dir = app_data_dir(config)
             .unwrap()
             .join("database.sqlite3?mode=rwc");
         trace!("Database directory: {dir:?}");
         let dir = format!("sqlite:{}", dir.to_string_lossy());
-        let pool = SqlitePool::connect(&dir).await.unwrap();
+        let pool = match SqlitePool::connect(&dir).await {
+            Ok(c) => c,
+            Err(e) => {
+                std::fs::write(&dir, &[]).unwrap();
+                SqlitePool::connect(&dir).await.unwrap()
+            }
+        };
 
         MIGRATOR
             .run(&pool)
