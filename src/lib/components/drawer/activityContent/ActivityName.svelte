@@ -11,7 +11,7 @@
     let displayName = $selectedActivity.name;
     let isEditMode = false;
 
-    let inputName: string;
+    let inputName: string = "";
     let inputNode: HTMLInputElement;
 
     async function openEdit() {
@@ -48,19 +48,8 @@
             toastStore.trigger(toast);
             return;
         }
-        displayName = trimmedName;
-        invoke("update_activity_content", {
-            data: {
-                id: $selectedActivity.id,
-                name: trimmedName,
-                body: $selectedActivity.body,
-            },
-        });
-        $selectedActivity.name = displayName;
-        const activity = $activities.get($selectedActivity.id);
-        activity.name = displayName;
-        $selectedActivity = $selectedActivity;
-        $activities = $activities;
+
+        await sync(trimmedName);
         isEditMode = false;
     }
 
@@ -73,6 +62,22 @@
             await save();
         }
     }
+
+    async function sync(newName: string) {
+        invoke("update_activity_content", {
+            data: {
+                id: $selectedActivity.id,
+                name: newName,
+                body: $selectedActivity.body,
+            },
+        });
+        displayName = newName;
+        $selectedActivity.name = newName;
+        const activity = $activities.get($selectedActivity.id);
+        activity.name = $selectedActivity.name;
+        $selectedActivity = $selectedActivity;
+        $activities = $activities;
+    }
 </script>
 
 <div class="flex flex-row">
@@ -83,6 +88,7 @@
             bind:value={inputName}
             on:keypress={handleKeyPress}
             bind:this={inputNode}
+            placeholder="New activity name"
         />
         <button class="btn btn-sm variant-ghost-surface m-1" on:click={cancel}
             >Cancel</button
@@ -92,7 +98,7 @@
         >
     {:else}
         <div class="flex-1 p-2">
-            <div>Name: {displayName}</div>
+            <b>{displayName}</b>
         </div>
 
         <button class="btn btn-sm variant-ghost-warning m-1" on:click={openEdit}
