@@ -8,7 +8,8 @@ export const isDebug: Writable<boolean> = writable(false);
 export const previousDrawerTab: Writable<DrawerTab | null> = writable(null)
 export const currentEditable: Writable<Editable | null> = writable(null)
 export const selectedActivity: Writable<((Actv | OtherActv) & { id: number }) | null> = writable(null)
-export const columnDragDisabled: Writable<boolean> = writable(true)
+export const columnDragDisabled: Writable<boolean> = writable(true);
+export const hoverColumnId: Writable<null | number> = writable(null);
 
 export const columns: Writable<Map<number, Col>> = writable(data.columns)
 export const activities: Writable<Map<number, Actv>> = writable(data.activities);

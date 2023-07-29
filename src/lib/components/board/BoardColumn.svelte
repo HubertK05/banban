@@ -8,6 +8,7 @@
         activities,
         otherActivities,
         type Actv,
+        hoverColumnId,
     } from "../../stores";
     import { TRIGGERS, dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
@@ -127,9 +128,9 @@
         const trigger = e.detail.info.trigger;
         console.log(columnId, "trigger", trigger);
         if (trigger === TRIGGERS.DRAGGED_ENTERED) {
-            dropTargetClasses = ["bg-black"];
+            $hoverColumnId = columnId;
         } else if (trigger === TRIGGERS.DRAGGED_LEFT) {
-            dropTargetClasses = ["bg-transparent"];
+            //$hoverColumnId = null;
         }
         const activityId = Number(e.detail.info.id);
         e.detail.items.forEach(({ id, activity }, index) => {
@@ -149,7 +150,7 @@
             target: any;
         }
     ) {
-        dropTargetClasses = ["bg-transparent"];
+        $hoverColumnId = null;
         const activitiesIds = [];
         e.detail.items.forEach(({ id, activity, colId }, index) => {
             activity.ordinal = index;
@@ -170,7 +171,6 @@
             });
         }
     }
-    let dropTargetClasses: Array<string> = ["bg-transaprent"];
 </script>
 
 <div class="flex flex-col flex-shrink-0 w-72">
@@ -222,16 +222,15 @@
     <div class="h-96">
         <!-- svelte-ignore missing-declaration -->
         <section
-            class="flex flex-col pb-2 overflow-auto min-h-full bg-transaprent"
+            class="flex flex-col pb-2 overflow-auto min-h-full {$hoverColumnId ===
+            columnId
+                ? 'shadow-2xl rounded-md'
+                : ''}"
             use:dndzone={{
                 items: draggableActivities,
                 flipDurationMs,
                 type: "activities",
-                dropTargetStyle: {
-                    "box-shadow": `0px 0px 0px 4px rgba(164, 190, 224, 0.2)`,
-                    "border-radius": "0.25rem",
-                },
-                dropTargetClasses,
+                dropTargetStyle: {},
             }}
             on:consider={handleConsider}
             on:finalize={handleFinalize}
