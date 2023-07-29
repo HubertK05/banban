@@ -8,6 +8,7 @@
         selectedActivity,
         type Col,
         activities,
+        columnDragDisabled,
     } from "../../stores";
     import { invoke } from "@tauri-apps/api/tauri";
     import { dndzone, setDebugMode } from "svelte-dnd-action";
@@ -16,9 +17,11 @@
     import DebugButton from "../debug/DebugButton.svelte";
     import OtherActivitiesButton from "./OtherActivitiesButton.svelte";
     import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
+
     setDebugMode(false);
     const boardName = "Kanban";
     const flipDurationMs = 300;
+
     async function createColumn({
         currentTarget,
     }: MouseEvent & {
@@ -93,6 +96,7 @@
                 newOrd: index,
             },
         });
+        $columnDragDisabled = true;
     }
 </script>
 
@@ -113,6 +117,7 @@
                 flipDurationMs,
                 type: "columns",
                 dropTargetStyle: {},
+                dragDisabled: $columnDragDisabled,
             }}
             on:consider={handleConsider}
             on:finalize={handleFinalize}
@@ -121,6 +126,18 @@
                 return a.col.ordinal - b.col.ordinal;
             }) as { id, col } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
+                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <div
+                        class={`w-full text-center bg-gray-500 bg-opacity-20 rounded-full ${
+                            $columnDragDisabled
+                                ? "cursor-grab"
+                                : "cursor-grabbing"
+                        }`}
+                        on:mousedown={startDrag}
+                        on:touchstart={startDrag}
+                    >
+                        Drag here
+                    </div>
                     <BoardColumn column={col} columnId={id} />
                 </div>
             {/each}

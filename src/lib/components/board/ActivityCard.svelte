@@ -11,6 +11,8 @@
         selectedActivity,
         tags,
         type Actv,
+        type Col,
+        otherActivities,
     } from "../../stores";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import TagBadge from "./TagBadge.svelte";
@@ -27,34 +29,26 @@
     async function removeActivity() {
         await invoke("delete_activity", { id });
 
-        const column = $columns.get(activity.columnId);
-        const index = column.activities.findIndex((aId) => aId === id);
-        column.activities.splice(index, 1);
-        $columns.set(activity.columnId, column);
-        $activities.delete(id);
-        $activities = $activities;
-        $columns = $columns;
-    }
-
-    function handleNameClick() {
-        $currentEditable = { id, field: ActiveField.ActivityName };
-    }
-
-    function handleBodyClick() {
-        $currentEditable = { id, field: ActiveField.ActivityBody };
+        if (activity.columnId) {
+            const column = $columns.get(activity.columnId);
+            const index = column.activities.findIndex((aId) => aId === id);
+            column.activities.splice(index, 1);
+            $columns.set(activity.columnId, column);
+            $activities.delete(id);
+            $activities = $activities;
+            $columns = $columns;
+        } else {
+            $otherActivities.delete(id);
+            $activities.delete(id);
+            $activities = $activities;
+            $otherActivities = $otherActivities;
+        }
     }
 
     function handleEnterKey(e: KeyboardEvent) {
         if (e.key === "Enter") {
             $currentEditable = null;
         }
-    }
-
-    function createBody() {
-        const activity = $activities.get(id);
-        activity.body = "new body";
-        $activities.set(id, activity);
-        $activities = $activities;
     }
 
     function showRemoveModal() {
@@ -88,21 +82,23 @@
     draggable="true"
 >
     <DebugLabel text={"ord: " + activity.ordinal} />
-    <button
-        on:click={showDrawer}
-        class="absolute top-0 right-5 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"
-    >
-        <svg
-            class="w-4 h-4 fill-current"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
+    {#if activity.columnId}
+        <button
+            on:click={showDrawer}
+            class="absolute top-0 right-5 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"
         >
-            <path
-                d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
-            />
-        </svg>
-    </button>
+            <svg
+                class="w-4 h-4 fill-current"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+            >
+                <path
+                    d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                />
+            </svg>
+        </button>
+    {/if}
     <button
         on:click={showRemoveModal}
         class="absolute top-0 right-0 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"
