@@ -11,6 +11,10 @@
     import BoardDrawer from "./lib/components/drawer/BoardDrawer.svelte";
     import { onMount } from "svelte";
     import { invoke } from "@tauri-apps/api";
+
+    import { Toast, toastStore } from "@skeletonlabs/skeleton";
+    import type { ToastSettings } from "@skeletonlabs/skeleton";
+
     let tabSet: number = 0;
 
     onMount(async () => {
@@ -21,6 +25,7 @@
 <div style="display: contents" class="h-full overflow-hidden">
     <BoardDrawer />
     <Modal />
+    <Toast />
     <AppShell>
         <TabGroup>
             <Tab bind:group={tabSet} name="tab1" value={0}>Tab 1</Tab>
