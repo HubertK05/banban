@@ -27,22 +27,18 @@ static MIGRATOR: Migrator = sqlx::migrate!("../migrations");
 
 pub fn get_database_pool(config: &Config) -> DatabaseConnection {
     tauri::async_runtime::block_on(async {
-        let pool = match SqlitePool::connect("sqlite:../database.sqlite3?mode=rwc").await {
-            Ok(o) => o,
-            Err(e) => {
-                error!("{e}");
-                let dir = app_data_dir(config)
-                    .unwrap()
-                    .join("database.sqlite3?mode=rwc");
-                let dir = format!("sqlite:{}", dir.to_string_lossy());
-                SqlitePool::connect(&dir).await.unwrap()
-            }
-        };
+        let dir = app_data_dir(config)
+            .unwrap()
+            .join("database.sqlite3?mode=rwc");
+        trace!("Database directory: {dir:?}");
+        let dir = format!("sqlite:{}", dir.to_string_lossy());
+        let pool = SqlitePool::connect(&dir).await.unwrap();
+
         MIGRATOR
             .run(&pool)
             .await
             .expect("Failed to run database migrations");
-        
+
         SqlxSqliteConnector::from_sqlx_sqlite_pool(pool)
     })
 }
