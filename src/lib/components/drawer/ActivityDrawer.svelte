@@ -16,6 +16,7 @@
     import { invoke } from "@tauri-apps/api";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import SettingsButton from "../board/SettingsButton.svelte";
+    import ActivityContent from "./ActivityContent.svelte";
 
     let selectedCategoryId: number | null;
 
@@ -100,7 +101,7 @@
                         categoryId: selectedCategoryId,
                         tagName: $tags.get(activityTags[i]).name,
                     },
-                })
+                });
                 $selectedActivity.tags.splice(i, 1);
                 $selectedActivity = $selectedActivity;
                 $columns = $columns;
@@ -153,49 +154,11 @@
         }
         console.debug("a target tag does not exist in the current activity");
     }
-    
-    async function updateActivity() {
-        let name = inputActivityName;
-        if (name.trim().length === 0) {
-            name = $selectedActivity.name;
-        }
-
-        let body = inputActivityBody;
-        if (body.trim().length === 0) {
-            body = $selectedActivity.body;
-        }
-
-        let id = $selectedActivity.id;
-        invoke("update_activity_content", {
-            data: { id, name, body },
-        });
-
-        $selectedActivity.name = name;
-        $selectedActivity.body = body;
-        $activities.get(id).name = name;
-        $activities.get(id).body = body;
-        $activities = $activities;
-    }
 </script>
 
 <BackButton />
 <SettingsButton />
-<h2 class="h2">Content</h2>
-<table class="w-full">
-    <tr>
-      <td>Name</td>
-      <td class="w-full">
-        <input class="input indent-2" placeholder="Leave empty for no update" bind:value={inputActivityName} />
-      </td>
-    </tr>
-    <tr>
-      <td>Body</td>
-      <td>
-        <input class="input indent-2" placeholder="Leave empty for no update" bind:value={inputActivityBody} />
-      </td>
-    </tr>
-  </table>
-<button class="btn btn-sm variant-filled" on:click={updateActivity}>Update</button>
+<ActivityContent />
 <h2 class="h2">Categories</h2>
 <ListBox>
     {#each Array.from($categories.entries()).sort(([a, catA], [b, catB]) => {
@@ -231,8 +194,7 @@
                 {#if $selectedActivity.tags.find((id) => id === tagId)}
                     <button
                         class="btn btn-sm variant-ghost-secondary"
-                        on:click={() => removeActivityTag(tagId)}
-                        >Remove</button
+                        on:click={() => removeActivityTag(tagId)}>Remove</button
                     >
                 {:else}
                     <button

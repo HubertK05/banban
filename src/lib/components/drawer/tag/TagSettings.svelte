@@ -16,7 +16,6 @@
     export let categoryId: number | undefined;
 
     let inputTagName: string = "";
-    let inputTagOrdinal: string = "";
     let inputTagColor: string = tag.color;
 
     async function removeTag() {

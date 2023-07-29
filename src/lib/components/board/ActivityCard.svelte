@@ -117,16 +117,14 @@
     <div
         class="flex items-center h-6 px-3 text-lg font-semibold rounded-full outline-none variant-soft-tertiary"
     >
-        {activity.name}</div
-    >
+        {activity.name}
+    </div>
 
     <DebugLabel text={`ID ${id}`} />
 
     <div class="mb-3">
         {#if activity.body}
-            <h4
-                class="mt-3 text-sm font-medium"
-            >
+            <h4 class="mt-3 text-sm font-medium">
                 {activity.body ?? ""}
             </h4>
         {/if}
