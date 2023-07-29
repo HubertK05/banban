@@ -22,6 +22,7 @@
         drawerStore,
         type DrawerSettings,
     } from "@skeletonlabs/skeleton";
+    import SvelteMarkdown from "svelte-markdown";
 
     export let id: number;
     export let activity: Actv;
@@ -124,9 +125,15 @@
 
     <div class="mb-3">
         {#if activity.body}
-            <h4 class="mt-3 text-sm font-medium whitespace-pre-wrap">
-                {activity.body ?? ""}
-            </h4>
+            <div class="prose prose-sm mt-3 text-sm">
+                <SvelteMarkdown
+                    source={activity.body
+                        .split("\n")
+                        .slice(0, 5)
+                        .join("\n")
+                        .concat("\n\n...")}
+                />
+            </div>
         {/if}
     </div>
     <div class="flex flex-row flex-wrap">
