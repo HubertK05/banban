@@ -1,4 +1,5 @@
 <script lang="ts">
+    import SvelteMarkdon from "svelte-markdown";
     import { invoke } from "@tauri-apps/api";
     import { activities, selectedActivity } from "../../../stores";
     import {
@@ -84,6 +85,7 @@
 <div class="flex flex-row">
     {#if isEditMode}
         <textarea
+            rows="10"
             class="textarea p-1 m-1"
             bind:value={inputBody}
             placeholder="New activity body"
@@ -108,8 +110,8 @@
             >Create body</button
         >
     {:else}
-        <div class="flex-1 p-2">
-            <div class="whitespace-pre-wrap">{displayBody}</div>
+        <div class="flex-1 p-2 variant-outline rounded-md">
+            <div class="prose"><SvelteMarkdon source={displayBody} /></div>
         </div>
         <button class="btn btn-sm variant-ghost-warning m-1" on:click={openEdit}
             >Edit</button

@@ -71,7 +71,7 @@
         $selectedActivity = { ...activity, id, columnId: activity.columnId };
         const drawer: DrawerSettings = {
             id: DrawerTab.Activity,
-            width: "w-1/2",
+            width: "w-2/3",
         };
         drawerStore.open(drawer);
     }
