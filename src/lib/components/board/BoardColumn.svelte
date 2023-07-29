@@ -14,6 +14,7 @@
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
     import { ActiveField } from "../../interfaces/main";
+    import { modalStore, type ModalSettings } from "@skeletonlabs/skeleton";
 
     export let columnId: number;
     export let column: Col;
@@ -171,14 +172,31 @@
             });
         }
     }
+
+    function showRemoveModal() {
+        const body = `Are you sure? ${
+            column.activities.length > 0
+                ? `Activities (${column.activities.length}) will be moved to stash.`
+                : "Are you sure?"
+        })`;
+        const modal: ModalSettings = {
+            type: "confirm",
+            title: `Remove '${column.name}'`,
+            body,
+
+            response: (r: boolean) => {
+                if (r) {
+                    removeColumn();
+                }
+            },
+        };
+        modalStore.trigger(modal);
+    }
 </script>
 
 <div class="flex flex-col flex-shrink-0 w-72">
     <DebugLabel text={`ID ${columnId}`} />
     <DebugLabel text={`ORD ${column.ordinal}`} />
-    <button class="btn btn-sm variant-ghost-error" on:click={removeColumn}
-        >Remove column</button
-    >
     <div class="flex items-center flex-shrink-0 h-10 px-2">
         {#if $currentEditable !== null && $currentEditable.id === columnId && $currentEditable.field === ActiveField.ColumnName}
             <span
@@ -200,6 +218,20 @@
             class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30"
             >{draggableActivities.length}</span
         >
+        <button
+            on:click={showRemoveModal}
+            class="flex items-center justify-center w-6 h-6 ml-auto rounded hover:bg-error-hover-token"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="1em"
+                viewBox="0 0 448 512"
+            >
+                <path
+                    d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0H284.2c12.1 0 23.2 6.8 28.6 17.7L320 32h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 96 0 81.7 0 64S14.3 32 32 32h96l7.2-14.3zM32 128H416V448c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V128zm96 64c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16z"
+                /></svg
+            >
+        </button>
         <button
             on:click={createActivity}
             class="flex items-center justify-center w-6 h-6 ml-auto text-indigo-500 rounded hover:bg-indigo-500 hover:text-indigo-100"
