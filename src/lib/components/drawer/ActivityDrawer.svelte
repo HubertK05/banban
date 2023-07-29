@@ -54,7 +54,6 @@
                 for (let categoryTag of categoryTags) {
                     const index = $selectedActivity.tags.indexOf(categoryTag);
                     if (index !== -1) {
-                        console.debug("Swapping category tag");
                         await invoke("remove_tag_from_activity", {
                             data: {
                                 id: $selectedActivity.id,
@@ -76,7 +75,6 @@
                 }
             }
         }
-        console.debug("Adding a new category tag");
         await invoke("add_tag_to_activity", {
             data: {
                 id: $selectedActivity.id,
@@ -92,9 +90,7 @@
     async function removeActivityTag(tagId: number) {
         const activityTags: number[] = $selectedActivity.tags;
         for (let i = 0; i < activityTags.length; i++) {
-            console.debug(tagId, activityTags[i]);
             if (activityTags[i] === tagId) {
-                console.debug(`Removing tag ${tagId} from activity`);
                 await invoke("remove_tag_from_activity", {
                     data: {
                         id: $selectedActivity.id,
@@ -108,14 +104,12 @@
                 return;
             }
         }
-        console.warn(`No tag with id ${tagId} found in the activity`);
     }
 
     async function addNonCategoryTag(newTagId: number, tag: Tag) {
         const tags = $otherTags;
         for (let currentTagId of $selectedActivity.tags) {
             if (newTagId === currentTagId) {
-                console.debug("a target tag already exists in the activity");
                 return;
             }
         }
@@ -152,7 +146,6 @@
                 return;
             }
         }
-        console.debug("a target tag does not exist in the current activity");
     }
 </script>
 

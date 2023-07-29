@@ -16,12 +16,6 @@ export const categories: Writable<Map<number, Category>> = writable(new Map())
 export const tags: Writable<Map<number, Tag & { categoryId: number }>> = writable(new Map());
 export const otherTags: Writable<Map<number, Tag>> = writable(new Map())
 
-currentEditable.subscribe((editable) => {
-    if (editable !== null) {
-        console.info(`Current editable - ${editable.field} ID: ${editable.id}`)
-    }
-})
-
 export interface Col {
     name: string,
     ordinal: number

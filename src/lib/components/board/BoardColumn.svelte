@@ -128,7 +128,6 @@
         }
     ) {
         const trigger = e.detail.info.trigger;
-        console.log(columnId, "trigger", trigger);
         if (trigger === TRIGGERS.DRAGGED_ENTERED) {
             $hoverColumnId = columnId;
         } else if (trigger === TRIGGERS.DRAGGED_LEFT) {
@@ -178,7 +177,7 @@
         const body = column.activities.length > 0
             ? `${column.activities.length} ${column.activities.length === 1 ? "activity" : "activities"} will be moved to stash.`
             : "Are you sure?";
-            
+
         const modal: ModalSettings = {
             type: "confirm",
             title: `Remove '${column.name}'`,
