@@ -94,17 +94,6 @@
             },
         });
     }
-
-    function showDrawer() {
-        $previousDrawerTab = null;
-        let drawer: DrawerSettings = {
-            id: DrawerTab.OtherActivities,
-            width: "w-min",
-            bgBackdrop: "none",
-            // bgDrawer: 'none'
-        };
-        drawerStore.open(drawer);
-    }
 </script>
 
 <!-- {@debug $activities}
@@ -114,18 +103,7 @@
 >
     <div class="px-10 mt-6">
         <h1 class="text-2xl font-bold">{boardName}</h1>
-        <button on:click={showDrawer}>
-            <svg
-                class="w-4 h-4 fill-current"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-            >
-                <path
-                    d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
-                />
-            </svg>
-        </button>
+        <OtherActivitiesButton />
     </div>
     <div class="flex">
         <section

@@ -39,10 +39,13 @@
             data: { name, body, columnId },
         });
         const column = $columns.get(columnId);
-        const columnActivities: Map<number, Actv> = column.activities.reduce((acc, id) => {
-            acc.set(id, $activities.get(id));
-            return acc;
-        }, new Map());
+        const columnActivities: Map<number, Actv> = column.activities.reduce(
+            (acc, id) => {
+                acc.set(id, $activities.get(id));
+                return acc;
+            },
+            new Map()
+        );
         Array.from(columnActivities.entries()).forEach(([id, activity]) => {
             activity.ordinal += 1;
             $activities.set(id, activity);
@@ -170,7 +173,6 @@
     let dropTargetClasses: Array<string> = ["bg-transaprent"];
 </script>
 
-{dropTargetClasses}
 <div class="flex flex-col flex-shrink-0 w-72">
     <DebugLabel text={`ID ${columnId}`} />
     <DebugLabel text={`ORD ${column.ordinal}`} />
