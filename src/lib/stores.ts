@@ -2,8 +2,6 @@ import { writable, type Writable } from "svelte/store";
 import type { DrawerTab, Editable } from "./interfaces/main";
 import { invoke } from "@tauri-apps/api";
 
-
-const data = await fetchAll()
 export const isDebug: Writable<boolean> = writable(false);
 export const previousDrawerTab: Writable<DrawerTab | null> = writable(null)
 export const currentEditable: Writable<Editable | null> = writable(null)
@@ -11,12 +9,12 @@ export const selectedActivity: Writable<((Actv | OtherActv) & { id: number }) | 
 export const columnDragDisabled: Writable<boolean> = writable(true);
 export const hoverColumnId: Writable<null | number> = writable(null);
 
-export const columns: Writable<Map<number, Col>> = writable(data.columns)
-export const activities: Writable<Map<number, Actv>> = writable(data.activities);
-export const otherActivities: Writable<Map<number, OtherActv>> = writable(data.otherActivities)
-export const categories: Writable<Map<number, Category>> = writable(data.categories)
-export const tags: Writable<Map<number, Tag & { categoryId: number }>> = writable(data.categoryTags);
-export const otherTags: Writable<Map<number, Tag>> = writable(data.otherTags)
+export const columns: Writable<Map<number, Col>> = writable(new Map())
+export const activities: Writable<Map<number, Actv>> = writable(new Map());
+export const otherActivities: Writable<Map<number, OtherActv>> = writable(new Map())
+export const categories: Writable<Map<number, Category>> = writable(new Map())
+export const tags: Writable<Map<number, Tag & { categoryId: number }>> = writable(new Map());
+export const otherTags: Writable<Map<number, Tag>> = writable(new Map())
 
 currentEditable.subscribe((editable) => {
     if (editable !== null) {
@@ -76,34 +74,40 @@ export interface RawLoadData {
     otherTags: Record<number, Tag>
 }
 
-async function fetchAll() {
+export async function fetchAll() {
     const res = await invoke("fetch_all") as RawLoadData;
 
-    const columns = new Map();
+    const _columns = new Map();
     Object.entries(res.columns).forEach(([columnId, column]) => {
-        columns.set(Number(columnId), column)
+        _columns.set(Number(columnId), column)
     })
-    const activities = new Map()
+    const _activities = new Map()
     Object.entries(res.activities).forEach(([activityId, activity]) => {
-        activities.set(Number(activityId), activity)
+        _activities.set(Number(activityId), activity)
     })
-    const otherActivities = new Map()
+    const _otherActivities = new Map()
     Object.entries(res.otherActivities).forEach(([activityId, activity]) => {
-        otherActivities.set(Number(activityId), activity)
+        _otherActivities.set(Number(activityId), activity)
     })
-    const categories = new Map()
+    const _categories = new Map()
     Object.entries(res.categories).forEach(([categoryId, category]) => {
-        categories.set(Number(categoryId), category)
+        _categories.set(Number(categoryId), category)
     })
-    const categoryTags = new Map()
+    const _categoryTags = new Map()
     Object.entries(res.categoryTags).forEach(([tagId, tag]) => {
-        categoryTags.set(Number(tagId), tag)
+        _categoryTags.set(Number(tagId), tag)
     })
-    const otherTags = new Map()
+    const _otherTags = new Map()
     Object.entries(res.otherTags).forEach(([tagId, tag]) => {
-        otherTags.set(Number(tagId), tag)
+        _otherTags.set(Number(tagId), tag)
     })
-    const data: LoadData = { columns, activities, otherActivities, categories, categoryTags, otherTags }
-    console.debug(data)
-    return data
+    columns.set(_columns);
+    activities.set(_activities);
+    otherActivities.set(_otherActivities);
+    categories.set(_categories);
+    tags.set(_categoryTags);
+    otherTags.set(_otherTags);
 }
+
+
+

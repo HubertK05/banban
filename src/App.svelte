@@ -14,10 +14,12 @@
 
     import { Toast, toastStore } from "@skeletonlabs/skeleton";
     import type { ToastSettings } from "@skeletonlabs/skeleton";
+    import { fetchAll } from "./lib/stores";
 
     let tabSet: number = 0;
 
     onMount(async () => {
+        await fetchAll();
         await invoke("close_splashscreen");
     });
 </script>
