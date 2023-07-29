@@ -180,29 +180,35 @@
         {#each $categories.get(selectedCategoryId).tags as tagId (tagId)}
             {@const tag = $tags.get(tagId)}
             <div
-                class="flex flex-row space-x-6 items-center place-content-between m-2"
+                class="flex flex-row space-x-6 place-content-between m-2 bg-gray-400"
             >
-                <input
-                    class="input"
-                    type="color"
-                    value={tag.color}
-                    on:change={(e) => changeTagColor(e, tag, tagId)}
-                />
+                <div class="w-24 flex align-center justify-center">
+                    <input
+                        class="input"
+                        type="color"
+                        value={tag.color}
+                        on:change={(e) => changeTagColor(e, tag, tagId)}
+                    />
+                </div>
 
-                <TagBadge name={tag.name} color={tag.color} />
+                <div class="max-h-fit flex align-center justify-center">
+                    <TagBadge name={tag.name} color={tag.color} />
+                </div>
 
-                {#if $selectedActivity.tags.find((id) => id === tagId)}
-                    <button
-                        class="btn btn-sm variant-ghost-secondary"
-                        on:click={() => removeActivityTag(tagId)}>Remove</button
-                    >
-                {:else}
-                    <button
-                        class="btn btn-sm variant-ghost-primary"
-                        on:click={() => setActivityTag(tagId, tag)}
-                        >Choose</button
-                    >
-                {/if}
+                <div class="w-24 flex align-center justify-center">
+                    {#if $selectedActivity.tags.find((id) => id === tagId)}
+                        <button
+                            class="btn btn-sm variant-ghost-secondary"
+                            on:click={() => removeActivityTag(tagId)}>Remove</button
+                        >
+                    {:else}
+                        <button
+                            class="btn btn-sm variant-ghost-primary"
+                            on:click={() => setActivityTag(tagId, tag)}
+                            >Choose</button
+                        >
+                    {/if}
+                </div>
             </div>
         {:else}
             <div class="self-center mt-2">Category is empty</div>

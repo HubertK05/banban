@@ -53,7 +53,7 @@
         inputTagName = "";
     }
 
-    async function changeColor() {
+    async function changeColor(e) {
         await invoke("update_tag_color", {
             data: { categoryTagId: tagId, color: inputTagColor.slice(1) },
         });
@@ -73,17 +73,25 @@
     <DebugLabel text={"ID: " + tagId} />
     <DebugLabel text={"ORD: " + tag.ordinal} />
     <TagBadge name={tag.name} color={tag.color} />
-    <div class="mt-2">
-        <button class="btn btn-sm variant-filled" on:click={removeTag}
-            >Delete</button
-        >
-        <button class="btn btn-sm variant-filled" on:click={() => renameTag()}
-            >Rename</button
-        >
-        <input bind:value={inputTagName} placeholder="tag name" />
-        <button class="btn btn-sm variant-filled" on:click={changeColor}
-            >Change color</button
-        >
-        <input type="color" bind:value={inputTagColor} />
+    <div class="flex flex-row mt-2 place-content-between align-center bg-gray-300">
+        <div class="w-16">
+            <input
+                class="input"
+                type="color"
+                bind:value={inputTagColor}
+                on:change={(e) => changeColor(e)}
+            />
+        </div>
+
+        <div class="max-h-fit align-center justify-center bg-gray-500">
+            <div class="h-fit bg-gray-700">
+                <button class="btn btn-sm variant-filled" on:click={renameTag}>Rename</button>
+                <input class="input w-24 indent-2" bind:value={inputTagName} placeholder="tag name" />
+            </div>
+        </div>
+
+        <div class="w-16">
+            <button class="btn btn-sm variant-filled" on:click={removeTag}>Delete</button>
+        </div>
     </div>
 </div>
