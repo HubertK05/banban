@@ -10,8 +10,8 @@ const config = {
     extend: {},
   },
 
-  plugins: [
-    ...require('@skeletonlabs/skeleton/tailwind/skeleton.cjs')() // should be on the end of list
+  plugins: [require('@tailwindcss/typography'),
+  ...require('@skeletonlabs/skeleton/tailwind/skeleton.cjs')() // should be on the end of list
   ],
 };
 
