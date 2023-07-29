@@ -109,7 +109,7 @@
         >
     {:else}
         <div class="flex-1 p-2">
-            <p>{displayBody}</p>
+            <div class="whitespace-pre-wrap">{displayBody}</div>
         </div>
         <button class="btn btn-sm variant-ghost-warning m-1" on:click={openEdit}
             >Edit</button

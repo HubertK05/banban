@@ -124,7 +124,7 @@
 
     <div class="mb-3">
         {#if activity.body}
-            <h4 class="mt-3 text-sm font-medium">
+            <h4 class="mt-3 text-sm font-medium whitespace-pre-wrap">
                 {activity.body ?? ""}
             </h4>
         {/if}
