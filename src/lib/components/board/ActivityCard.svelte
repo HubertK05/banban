@@ -57,26 +57,6 @@
         $activities = $activities;
     }
 
-    async function updateActivity() {
-        console.debug(
-            "Called updateActivity function and this wasn't expected, call 911!"
-        );
-        invoke("update_activity_content", {
-            data: { id, name: activity.name, body: activity.body },
-        });
-        $activities.set(id, activity);
-        $activities = $activities;
-    }
-
-    //WARNING! update on every keystroke, should use `updateActivity` in the future
-
-    $: {
-        console.warn("updating activity", id, activity.name, activity.body);
-        // invoke("update_activity_content", {
-        //     data: { id, name: activity.name, body: activity.body },
-        // });
-    }
-
     function showRemoveModal() {
         const modal: ModalSettings = {
             type: "confirm",
@@ -138,60 +118,21 @@
         >
     </button>
 
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    {#if $currentEditable !== null && $currentEditable.id === id && $currentEditable.field === ActiveField.ActivityName}
-        <span
-            contenteditable="true"
-            on:change={updateActivity}
-            class="flex items-center h-6 px-3 text-lg font-semibold rounded-full outline-none variant-ghost-tertiary"
-            bind:innerText={activity.name}
-        />
-    {:else}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <span
-            contenteditable="false"
-            on:click={handleNameClick}
-            class="flex items-center h-6 px-3 text-lg font-semibold rounded-full outline-none variant-soft-tertiary"
-        >
-            {activity.name}</span
-        >
-    {/if}
+    <div
+        class="flex items-center h-6 px-3 text-lg font-semibold rounded-full outline-none variant-soft-tertiary"
+    >
+        {activity.name}</div
+    >
 
     <DebugLabel text={`ID ${id}`} />
 
     <div class="mb-3">
         {#if activity.body}
-            {#if $currentEditable !== null && $currentEditable.id === id && $currentEditable.field === ActiveField.ActivityBody}
-                <!-- svelte-ignore a11y-missing-content -->
-                <h4
-                    contenteditable="true"
-                    on:change={updateActivity}
-                    class="mt-3 text-sm font-medium outline-none"
-                    bind:innerText={activity.body}
-                />
-            {:else}
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <h4
-                    contenteditable="false"
-                    on:click={handleBodyClick}
-                    class="mt-3 text-sm font-medium"
-                >
-                    {activity.body ?? ""}
-                </h4>
-            {/if}
-        {:else}
-            <button
-                on:click={createBody}
-                class="bg-warning-hover-token rounded-md mt-3"
-                ><svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="1em"
-                    viewBox="0 0 512 512"
-                    ><path
-                        d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 7 505s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L421.7 220.3 291.7 90.3z"
-                    /></svg
-                ></button
+            <h4
+                class="mt-3 text-sm font-medium"
             >
+                {activity.body ?? ""}
+            </h4>
         {/if}
     </div>
     <div class="flex flex-row flex-wrap">
