@@ -98,6 +98,10 @@
         });
         $columnDragDisabled = true;
     }
+
+    function startDrag() {
+        $columnDragDisabled = false;
+    }
 </script>
 
 <!-- {@debug $activities}
