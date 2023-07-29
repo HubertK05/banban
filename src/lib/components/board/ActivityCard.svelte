@@ -124,11 +124,12 @@
         >
     </button>
 
-    <div
-        class="flex items-center h-6 px-3 text-lg font-semibold rounded-full outline-none variant-soft-tertiary"
+    <button
+        on:click={showDrawer}
+        class="flex items-center h-6 px-3 text-lg font-semibold rounded-full outline-none variant-soft-tertiary hover:underline"
     >
         {activity.name}
-    </div>
+    </button>
 
     <DebugLabel text={`ID ${id}`} />
 
