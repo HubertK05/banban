@@ -188,7 +188,6 @@
                 on:click={createColumn}
                 class="btn variant-ghost-tertiary h-96">+</button
             >
-            <DebugButton />
             <div class="flex-shrink-0 w-6" />
         </div>
     </div>
