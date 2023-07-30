@@ -40,16 +40,7 @@
         "resizable": true,
         "width": 800,
         "height": 600,
-        "visible": false
-      },
-      {
-        "fullscreen": false,
-        "resizable": true,
-        "width": 800,
-        "height": 600,
-        "decorations": false,
-        "url": "splashscreen.html",
-        "label": "splashscreen"
+        "visible": true
       }
     ]
   }

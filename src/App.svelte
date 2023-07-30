@@ -20,7 +20,6 @@
 
     onMount(async () => {
         await fetchAll();
-        await invoke("close_splashscreen");
     });
 </script>
 
