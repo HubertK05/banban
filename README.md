@@ -2,6 +2,8 @@
 
 A productivity app inspired by GitHub Projects Kanban built using [Tauri](https://tauri.app/) and [Svelte](https://svelte.dev/), with a [SQLite](https://www.sqlite.org/) database backend.
 
+![banban](https://github.com/HubertK05/banban/assets/47300834/0be8c257-95bb-42db-9db7-3c924b55a18e)
+
 ## Tracking progress in work made simple
 
 Banban is built with simplicity in mind. You can add, remove and modify your tasks to different columns. If you decide to change the category of a specific task, you can simply drag it. It is also possible to drag columns to change their order the same way.
