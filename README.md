@@ -1,6 +1,6 @@
 # Banban
 
-A productivity app inspired by GitHub Kanban built using [Tauri](https://tauri.app/) and Svelte, with a SQLite database backend.
+A productivity app inspired by GitHub Projects Kanban built using [Tauri](https://tauri.app/) and [Svelte](https://svelte.dev/), with a [SQLite](https://www.sqlite.org/) database backend.
 
 ## Tracking progress in work made simple
 
