@@ -1,22 +1,11 @@
-# Tauri + Svelte + Typescript
+# Banban
 
-This template should help get you started developing with Tauri, Svelte and TypeScript in Vite.
+A productivity app inspired by GitHub Kanban built using [Tauri](https://tauri.app/) and Svelte, with a SQLite database backend.
 
-## Recommended IDE Setup
+## Tracking progress in work made simple
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+Banban is built with simplicity in mind. You can add, remove and modify your tasks to different columns. If you decide to change the category of a specific task, you can simply drag it. It is also possible to drag columns to change their order the same way.
 
+Tasks can have different tags associated with them. There is a limit of one tag per category, but you may also add tags that do not belong to any category, and use them without any limits.
 
-## Database
-
-### Migrations
-```bash
-/banban$ sea-orm-cli migrate generate
-```
-```bash
-/banban$ sea-orm-cli migrate
-```
-### Entities
-```bash
-/banban$ sea-orm-cli generate entity -o entity/src/entities
-```
+When you remove a column, all the tasks in it are moved to a stash, from where you can drag tasks to an actual column.
