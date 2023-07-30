@@ -2,7 +2,7 @@
 
 A productivity app inspired by GitHub Projects Kanban built using [Tauri](https://tauri.app/) and [Svelte](https://svelte.dev/), with a [SQLite](https://www.sqlite.org/) database backend.
 
-![banban](https://github.com/HubertK05/banban/assets/47300834/0be8c257-95bb-42db-9db7-3c924b55a18e)
+![Kanban](https://github.com/HubertK05/banban/assets/47300834/17263579-f179-498d-ad0d-6e28d4611c55)
 
 ## Tracking progress in work made simple
 
@@ -12,17 +12,6 @@ Tasks can have different tags associated with them. There is a limit of one tag 
 
 When you remove a column, all the tasks in it are moved to a stash, from where you can drag tasks to an actual column.
 
-## Examples
+## Demo
 
-### Changing activity tags
-https://github.com/HubertK05/banban/assets/47300834/9bb45443-3b45-4da2-a78c-a11a88616e9f
-
-### Drag and drop tags
-https://github.com/HubertK05/banban/assets/47300834/fb38b1c4-8db5-4ee9-b52a-5836ccb9b431
-
-### Remove column and stash activities
-https://github.com/HubertK05/banban/assets/47300834/82186d31-666b-44fa-8d97-1084dc89ba32
-
-### Color picker  
-https://github.com/HubertK05/banban/assets/47300834/51d0e370-5e7f-4d1c-bd45-1807f72c85b5
-
+https://github.com/HubertK05/banban/assets/47300834/a6c059a7-7b6d-4b77-8840-82bce6f3bff9
