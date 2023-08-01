@@ -9,7 +9,7 @@
         type Tag,
     } from "../../../stores";
     import TagBadge from "../../board/TagBadge.svelte";
-  import DebugLabel from "../../debug/DebugLabel.svelte";
+    import DebugLabel from "../../debug/DebugLabel.svelte";
 
     export let tagId: number;
     export let tag: Tag;
@@ -47,9 +47,16 @@
         await invoke("update_tag_name", {
             data: { categoryTagId: tagId, tagName: inputTagName },
         });
-        const tag = $tags.get(tagId);
-        $tags.set(tagId, { ...tag, name: inputTagName });
-        $tags = $tags;
+        if (categoryId) {
+            const tag = $tags.get(tagId);
+            $tags.set(tagId, { ...tag, name: inputTagName });
+            $tags = $tags;
+        } else {
+            const tag = $otherTags.get(tagId);
+            $otherTags.set(tagId, { ...tag, name: inputTagName });
+            $otherTags = $otherTags;
+        }
+
         inputTagName = "";
     }
 
@@ -73,7 +80,9 @@
     <DebugLabel text={"ID: " + tagId} />
     <DebugLabel text={"ORD: " + tag.ordinal} />
     <TagBadge name={tag.name} color={tag.color} />
-    <div class="flex flex-row mt-2 place-content-between align-center bg-gray-300 p-1 rounded-md">
+    <div
+        class="flex flex-row mt-2 place-content-between align-center bg-gray-300 p-1 rounded-md"
+    >
         <div class="flex w-20 align-center justify-center">
             <input
                 class="input self-center"
@@ -84,12 +93,22 @@
         </div>
 
         <div class="flex max-h-fit align-center justify-center self-center">
-            <button class="btn btn-sm variant-filled self-center m-1" on:click={renameTag}>Rename</button>
-            <input class="input w-24 indent-2 self-center p-1 m-1" bind:value={inputTagName} placeholder="tag name" />
+            <button
+                class="btn btn-sm variant-filled self-center m-1"
+                on:click={renameTag}>Rename</button
+            >
+            <input
+                class="input w-24 indent-2 self-center p-1 m-1"
+                bind:value={inputTagName}
+                placeholder="tag name"
+            />
         </div>
 
         <div class="w-20 self-center">
-            <button class="btn btn-sm variant-filled self-center" on:click={removeTag}>Delete</button>
+            <button
+                class="btn btn-sm variant-filled self-center"
+                on:click={removeTag}>Delete</button
+            >
         </div>
     </div>
 </div>
