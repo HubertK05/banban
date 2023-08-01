@@ -77,14 +77,14 @@
         drawerStore.open(drawer);
     }
 
-    function bodyPreview() {
+    $: bodyPreview = () => {
         const elements = activity.body.split("\n");
         const out = elements.slice(0, 5).join("\n");
         if (elements.length > 5) {
             return out.concat("\n\n...");
         }
         return out;
-    }
+    };
 </script>
 
 <div
