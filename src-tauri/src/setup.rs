@@ -25,24 +25,43 @@ pub fn tracing() {
 
 static MIGRATOR: Migrator = sqlx::migrate!("../migrations");
 
+#[cfg(dev)]
 pub fn get_database_pool(config: &Config) -> DatabaseConnection {
+    trace!("Connecting to developer database");
     tauri::async_runtime::block_on(async {
-        let pool = match SqlitePool::connect("sqlite:../database.sqlite3?mode=rwc").await {
-            Ok(o) => o,
-            Err(e) => {
-                error!("{e}");
-                let dir = app_data_dir(config)
-                    .unwrap()
-                    .join("database.sqlite3?mode=rwc");
-                let dir = format!("sqlite:{}", dir.to_string_lossy());
-                SqlitePool::connect(&dir).await.unwrap()
-            }
-        };
+        let pool = SqlitePool::connect("sqlite:../database.sqlite3?mode=rwc")
+            .await
+            .unwrap();
+
         MIGRATOR
             .run(&pool)
             .await
             .expect("Failed to run database migrations");
-        
+
+        SqlxSqliteConnector::from_sqlx_sqlite_pool(pool)
+    })
+}
+
+#[cfg(not(dev))]
+pub fn get_database_pool(config: &Config) -> DatabaseConnection {
+    tauri::async_runtime::block_on(async {
+        let app_data_dir = app_data_dir(config).unwrap();
+        trace!("App data dir: {app_data_dir:?}");
+        std::fs::create_dir_all(&app_data_dir).unwrap();
+        let url = format!(
+            "sqlite:{}",
+            app_data_dir
+                .join("database.sqlite3?mode=rwc")
+                .to_string_lossy()
+        );
+        trace!("Connecting to production database");
+        let pool = SqlitePool::connect(&url).await.unwrap();
+
+        MIGRATOR
+            .run(&pool)
+            .await
+            .expect("Failed to run database migrations");
+
         SqlxSqliteConnector::from_sqlx_sqlite_pool(pool)
     })
 }
