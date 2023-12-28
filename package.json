@@ -19,7 +19,7 @@
     "@skeletonlabs/skeleton": "^1.10.0",
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
     "@tailwindcss/typography": "^0.5.9",
-    "@tauri-apps/cli": "^1.4.0",
+    "@tauri-apps/cli": "^1.5.6",
     "@tsconfig/svelte": "^5.0.0",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.24",
