@@ -23,22 +23,26 @@ async fn mock_interface_example() {
                 name: "test activity 1".to_string(),
                 body: Some("body once told me".to_string()),
                 column_id: Some(1),
+                ordinal: 0,
             },
             activities::Model {
                 id: 2,
                 name: "test activity 2".to_string(),
                 body: None,
                 column_id: None,
+                ordinal: 0,
             },
         ]])
         .append_query_results([vec![
             columns::Model {
                 id: 1,
                 name: "to do".to_string(),
+                ordinal: 0,
             },
             columns::Model {
                 id: 2,
                 name: "done".to_string(),
+                ordinal: 0,
             },
         ]])
         .into_connection();

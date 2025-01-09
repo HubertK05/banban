@@ -13,8 +13,9 @@ use entity::{
     columns::{self, Entity as Column, Model},
 };
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, DbErr, EntityTrait, IntoActiveModel,
-    PaginatorTrait, QueryFilter, QueryOrder, Set, TransactionTrait, Condition, sea_query::SimpleExpr,
+    sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DbConn,
+    DbErr, EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder, Set,
+    TransactionTrait,
 };
 
 pub struct Query;
@@ -136,12 +137,19 @@ impl Mutation {
 
     pub async fn delete_column_by_id(db: &DbConn, id: i32) -> Result<(), AppError> {
         let deleted_ordinal = Query::get_ordinal_from_id(db, id).await?;
-        let other_activity_count = Query::get_activity_count_in_column(db, None).await.context("failed to determine the count of other activities")?;
+        let other_activity_count = Query::get_activity_count_in_column(db, None)
+            .await
+            .context("failed to determine the count of other activities")?;
         let tr = db.begin().await.context("failed to begin transaction")?;
 
         activities::Entity::update_many()
             .filter(activities::Column::ColumnId.eq(id))
-            .col_expr(activities::Column::Ordinal, activities::Column::Ordinal.into_expr().add(other_activity_count))
+            .col_expr(
+                activities::Column::Ordinal,
+                activities::Column::Ordinal
+                    .into_expr()
+                    .add(other_activity_count),
+            )
             .exec(&tr)
             .await
             .context("failed to update activity ordinals")?;

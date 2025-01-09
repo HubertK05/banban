@@ -7,13 +7,17 @@ license = ""
 repository = ""
 edition = "2021"
 
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib", "lib"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.4", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "1.4", features = ["shell-open", "test"] }
+tauri = { version = "2", features = [ "test"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.103"
 dotenvy = "0.15.7"
@@ -23,8 +27,9 @@ time = "0.3.23"
 sea-orm = { version = "0.11.3", features = ["with-time", "sqlx-sqlite", "runtime-tokio-rustls", "sqlx", "mock"] }
 entity = { path = "../entity" }
 tracing = "0.1.37"
-tracing-subscriber = "0.3.17"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 sqlx = "0.6.3"
+tauri-plugin-shell = "2"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

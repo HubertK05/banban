@@ -10,6 +10,7 @@ async fn mock_interface_example() {
             name: "Test database".to_string(),
             body: None,
             column_id: None,
+            ordinal: 0,
         }]])
         .into_connection();
 
@@ -20,6 +21,7 @@ async fn mock_interface_example() {
             name: "Test database".to_owned(),
             body: None,
             column_id: None,
+            ordinal: 0,
         })
     );
 }

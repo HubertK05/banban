@@ -10,7 +10,7 @@
         activities,
         columnDragDisabled,
     } from "../../stores";
-    import { invoke } from "@tauri-apps/api/tauri";
+    import { invoke } from "@tauri-apps/api/core";
     import { dndzone, setDebugMode } from "svelte-dnd-action";
     import { DrawerTab, type Column } from "../../interfaces/main";
     import { flip } from "svelte/animate";

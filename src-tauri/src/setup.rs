@@ -1,6 +1,7 @@
 use sea_orm::{DatabaseConnection, SqlxSqliteConnector};
 use sqlx::migrate::Migrator;
 use sqlx::SqlitePool;
+#[cfg(not(dev))]
 use tauri::api::path::app_data_dir;
 use tauri::Config;
 use tracing_subscriber::prelude::*;
