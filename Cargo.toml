@@ -3,6 +3,8 @@ resolver = "2"
 members = [
   "src-tauri", "entity"
 ]
+
 [workspace.package]
 authors = ["you"]
 license = "MIT"
+repository = "https://github.com/HubertK05/banban"
