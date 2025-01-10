@@ -2,9 +2,9 @@
 name = "app"
 version = "0.0.0"
 description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
 edition = "2021"
 
 [lib]
