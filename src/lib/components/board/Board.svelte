@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import BoardColumn from "./BoardColumn.svelte";
     import {
         columns,
@@ -43,16 +45,19 @@
         }, 100);
     }
 
-    $: draggableColumns = Array.from($columns.entries())
-        .map(([id, col]) => {
-            return {
-                id,
-                col,
-            };
-        })
-        .sort((a, b) => {
-            return a.col.ordinal - b.col.ordinal;
-        });
+    let draggableColumns;
+    run(() => {
+        draggableColumns = Array.from($columns.entries())
+            .map(([id, col]) => {
+                return {
+                    id,
+                    col,
+                };
+            })
+            .sort((a, b) => {
+                return a.col.ordinal - b.col.ordinal;
+            });
+    });
 
     function handleConsider(
         e: CustomEvent<
@@ -123,22 +128,22 @@
                 dropTargetStyle: {},
                 dragDisabled: $columnDragDisabled,
             }}
-            on:consider={handleConsider}
-            on:finalize={handleFinalize}
+            onconsider={handleConsider}
+            onfinalize={handleFinalize}
         >
             {#each Array.from(draggableColumns).sort((a, b) => {
                 return a.col.ordinal - b.col.ordinal;
             }) as { id, col } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
                         class={`w-full h-4 text-center bg-gray-500 bg-opacity-20 rounded-full ${
                             $columnDragDisabled
                                 ? "cursor-grab"
                                 : "cursor-grabbing"
                         }`}
-                        on:mousedown={startDrag}
-                        on:touchstart={startDrag}
+                        onmousedown={startDrag}
+                        ontouchstart={startDrag}
                     >
                         <svg
                             class="block m-auto opacity-20"
@@ -185,11 +190,11 @@
         </section>
         <div class="flex flex-row space-x-6">
             <button
-                on:click={createColumn}
+                onclick={createColumn}
                 class="btn variant-ghost-tertiary h-96">+</button
             >
             <DebugButton />
-            <div class="flex-shrink-0 w-6" />
+            <div class="flex-shrink-0 w-6"></div>
         </div>
     </div>
 </div>

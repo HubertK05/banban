@@ -11,12 +11,16 @@
     import TagBadge from "../../board/TagBadge.svelte";
     import DebugLabel from "../../debug/DebugLabel.svelte";
 
-    export let tagId: number;
-    export let tag: Tag;
-    export let categoryId: number | undefined;
+    interface Props {
+        tagId: number;
+        tag: Tag;
+        categoryId: number | undefined;
+    }
 
-    let inputTagName: string = "";
-    let inputTagColor: string = tag.color;
+    let { tagId, tag, categoryId }: Props = $props();
+
+    let inputTagName: string = $state("");
+    let inputTagColor: string = $state(tag.color);
 
     async function removeTag() {
         await invoke("delete_tag", { categoryTagId: tagId });
@@ -88,14 +92,14 @@
                 class="input self-center"
                 type="color"
                 bind:value={inputTagColor}
-                on:change={changeColor}
+                onchange={changeColor}
             />
         </div>
 
         <div class="flex max-h-fit align-center justify-center self-center">
             <button
                 class="btn btn-sm variant-filled self-center m-1"
-                on:click={renameTag}>Rename</button
+                onclick={renameTag}>Rename</button
             >
             <input
                 class="input w-24 indent-2 self-center p-1 m-1"
@@ -107,7 +111,7 @@
         <div class="w-20 self-center">
             <button
                 class="btn btn-sm variant-filled self-center"
-                on:click={removeTag}>Delete</button
+                onclick={removeTag}>Delete</button
             >
         </div>
     </div>

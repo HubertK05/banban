@@ -2,7 +2,11 @@
     import { scale } from "svelte/transition";
     import { isDebug } from "../../stores";
 
-    export let text: string;
+    interface Props {
+        text: string;
+    }
+
+    let { text }: Props = $props();
 </script>
 
 {#if $isDebug}

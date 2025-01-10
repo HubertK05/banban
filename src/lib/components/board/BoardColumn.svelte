@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import { invoke } from "@tauri-apps/api/core";
     import ActivityCard from "./ActivityCard.svelte";
     import {
@@ -17,16 +19,20 @@
     import { ActiveField } from "../../interfaces/main";
     import { modalStore, type ModalSettings } from "@skeletonlabs/skeleton";
 
-    export let columnId: number;
-    export let column: Col;
+    interface Props {
+        columnId: number;
+        column: Col;
+    }
+
+    let { columnId, column = $bindable() }: Props = $props();
     const flipDurationMs = 125;
 
-    $: {
+    run(() => {
         // WARNING! Updates every key stroke
         invoke("rename_column", {
             data: { id: columnId, newName: column.name },
         });
-    }
+    });
 
     async function createActivity() {
         const name = "New activity";
@@ -107,14 +113,17 @@
         $otherActivities = $otherActivities;
     }
 
-    $: draggableActivities = Array.from(column.activities)
-        .map((id) => {
-            const activity = $activities.get(id);
-            return { activity, id, colId: columnId };
-        })
-        .sort((a, b) => {
-            return a.activity.ordinal - b.activity.ordinal;
-        });
+    let draggableActivities;
+    run(() => {
+        draggableActivities = Array.from(column.activities)
+            .map((id) => {
+                const activity = $activities.get(id);
+                return { activity, id, colId: columnId };
+            })
+            .sort((a, b) => {
+                return a.activity.ordinal - b.activity.ordinal;
+            });
+    });
 
     function handleConsider(
         e: CustomEvent<
@@ -198,7 +207,7 @@
     }
 </script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
     class="flex flex-col flex-shrink-0 w-72 {$columnDragDisabled
         ? 'cursor-grab'
@@ -208,21 +217,21 @@
     <DebugLabel text={`ORD ${column.ordinal}`} />
     <div
         class="flex items-center flex-shrink-0 h-10 px-2"
-        on:mousedown={startDrag}
-        on:touchstart={startDrag}
+        onmousedown={startDrag}
+        ontouchstart={startDrag}
     >
         {#if $currentEditable !== null && $currentEditable.id === columnId && $currentEditable.field === ActiveField.ColumnName}
             <span
                 contenteditable="true"
                 class="block text-sm font-semibold cursor-default"
                 bind:innerText={column.name}
-            />
+></span>
         {:else}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
             <span
                 contenteditable="false"
-                on:click={handleNameClick}
+                onclick={handleNameClick}
                 class="block text-sm font-semibold cursor-default"
                 >{column.name}</span
             >
@@ -233,7 +242,7 @@
             >{draggableActivities.length}</span
         >
         <button
-            on:click={showRemoveModal}
+            onclick={showRemoveModal}
             class="flex items-center justify-center w-6 h-6 ml-auto rounded hover:bg-error-hover-token"
         >
             <svg
@@ -247,7 +256,7 @@
             >
         </button>
         <button
-            on:click={createActivity}
+            onclick={createActivity}
             class="flex items-center justify-center w-6 h-6 ml-auto text-indigo-500 rounded hover:bg-indigo-500 hover:text-indigo-100"
         >
             <svg
@@ -266,7 +275,7 @@
         </button>
     </div>
     <div class="h-[70vh]">
-        <!-- svelte-ignore missing-declaration -->
+        <!-- svelte-ignore missing_declaration -->
         <section
             class="flex flex-col pb-2 overflow-auto max-h-full min-h-full cursor-default {$hoverColumnId ===
             columnId
@@ -278,8 +287,8 @@
                 type: "activities",
                 dropTargetStyle: {},
             }}
-            on:consider={handleConsider}
-            on:finalize={handleFinalize}
+            onconsider={handleConsider}
+            onfinalize={handleFinalize}
         >
             {#each draggableActivities as { id, activity } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>

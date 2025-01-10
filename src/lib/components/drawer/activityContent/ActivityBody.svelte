@@ -12,10 +12,10 @@
   } from "@skeletonlabs/skeleton";
   import { fly } from "svelte/transition";
 
-  let displayBody = $selectedActivity.body ?? "";
-  let isEditMode = false;
+  let displayBody = $state($selectedActivity.body ?? "");
+  let isEditMode = $state(false);
 
-  let inputBody: string = "";
+  let inputBody: string = $state("");
 
   function openEdit() {
     inputBody = displayBody;
@@ -83,63 +83,64 @@
     isEditMode = false;
   }
 
-  let tabSet = 0;
+  let tabSet = $state(0);
 </script>
 
 {#if isEditMode}
   <TabGroup>
     <Tab bind:group={tabSet} name="edit" value={0}>Edit</Tab>
     <Tab bind:group={tabSet} name="preview" value={1}>Preview</Tab>
-    <svelte:fragment slot="panel">
-      <div class="flex">
-        {#if tabSet === 0}
-          <textarea
-            rows="10"
-            class="textarea m-2"
-            bind:value={inputBody}
-            placeholder="New activity body"
-          />
-        {:else if tabSet === 1}
-          {#if inputBody.length > 0}
-            <div class="flex-1 p-2 variant-outline rounded-md">
-              <div class="prose">
-                <SvelteMarkdon source={inputBody} />
+    {#snippet panel()}
+      
+        <div class="flex">
+          {#if tabSet === 0}
+            <textarea
+              rows="10"
+              class="textarea m-2"
+              bind:value={inputBody}
+              placeholder="New activity body"
+></textarea>
+          {:else if tabSet === 1}
+            {#if inputBody.length > 0}
+              <div class="flex-1 p-2 variant-outline rounded-md">
+                <div class="prose">
+                  <SvelteMarkdon source={inputBody} />
+                </div>
               </div>
-            </div>
-          {:else}
-            <span>No content to preview</span>
+            {:else}
+              <span>No content to preview</span>
+            {/if}
           {/if}
-        {/if}
-      </div></svelte:fragment
-    >
+        </div>
+      {/snippet}
   </TabGroup>
 {/if}
 <div class="flex flex-row">
   {#if isEditMode}
     <div class="flex flex-row">
-      <button class="btn btn-sm variant-ghost-success m-1" on:click={save}
+      <button class="btn btn-sm variant-ghost-success m-1" onclick={save}
         >Save</button
       >
-      <button class="btn btn-sm variant-ghost-surface m-1" on:click={cancel}
+      <button class="btn btn-sm variant-ghost-surface m-1" onclick={cancel}
         >Cancel</button
       >
       {#if inputBody.length > 0}
         <button
           class="btn btn-sm variant-ghost-error m-1"
           transition:fly
-          on:click={clear}>Clear</button
+          onclick={clear}>Clear</button
         >
       {/if}
     </div>
   {:else if displayBody.length === 0}
-    <button class="btn btn-sm variant-ghost-warning m-1" on:click={openEdit}
+    <button class="btn btn-sm variant-ghost-warning m-1" onclick={openEdit}
       >Create body</button
     >
   {:else}
     <div class="flex-1 p-2 variant-outline rounded-md">
       <div class="prose"><SvelteMarkdon source={displayBody} /></div>
     </div>
-    <button class="btn btn-sm variant-ghost-warning m-1" on:click={openEdit}
+    <button class="btn btn-sm variant-ghost-warning m-1" onclick={openEdit}
       >Edit</button
     >
   {/if}

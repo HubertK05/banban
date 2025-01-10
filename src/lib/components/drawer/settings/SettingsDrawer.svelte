@@ -6,7 +6,7 @@
   import TagSettings from "../tag/TagSettings.svelte";
   import CategorySettings from "../tag/CategorySettings.svelte";
 
-  let categoryName: string = "";
+  let categoryName: string = $state("");
   async function createCategory() {
     const res: {
       id: number;
@@ -27,7 +27,7 @@
 <div class="flex flex-col">
   <CategorySettings />
   <input class="input p-2" bind:value={categoryName} />
-  <button on:click={createCategory} class="btn variant-ghost-primary"
+  <button onclick={createCategory} class="btn variant-ghost-primary"
     >Add new category</button
   >
 </div>

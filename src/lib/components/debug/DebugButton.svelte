@@ -4,7 +4,7 @@
 </script>
 
 <button
-    on:click={() => {
+    onclick={() => {
         $isDebug = !$isDebug;
     }}
     use:shortcut={{ control: true, key: "d" }}

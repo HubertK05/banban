@@ -3,7 +3,7 @@
     import { otherActivities, previousDrawerTab } from "../../stores";
     import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
 
-    $: isAvailable = $otherActivities.size !== 0;
+    let isAvailable = $derived($otherActivities.size !== 0);
 
     function openDrawer() {
         if (!isAvailable) return;
@@ -20,7 +20,7 @@
 
 <button
     class="btn variant-ghost-tertiary"
-    on:click={openDrawer}
+    onclick={openDrawer}
     disabled={!isAvailable}
     ><span>Stash</span><svg
         xmlns="http://www.w3.org/2000/svg"

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import { invoke } from "@tauri-apps/api/core";
     import {
         ActiveField,
@@ -19,19 +21,22 @@
 
     const flipDurationMs = 100;
 
-    $: draggableActivities = Array.from($otherActivities)
-        .map(([id, activity]) => {
-            return { activity, id, colId: null };
-        })
-        .sort((a, b) => {
-            return a.activity.ordinal - b.activity.ordinal;
-        });
+    let draggableActivities;
+    run(() => {
+        draggableActivities = Array.from($otherActivities)
+            .map(([id, activity]) => {
+                return { activity, id, colId: null };
+            })
+            .sort((a, b) => {
+                return a.activity.ordinal - b.activity.ordinal;
+            });
+    });
 
-    $: {
+    run(() => {
         if ($otherActivities.size === 0) {
             drawerStore.close();
         }
-    }
+    });
 
     function handleConsider(
         e: CustomEvent<
@@ -99,8 +104,8 @@
                     "border-radius": "0.25rem",
                 },
             }}
-            on:consider={handleConsider}
-            on:finalize={handleFinalize}
+            onconsider={handleConsider}
+            onfinalize={handleFinalize}
         >
             {#each Array.from(draggableActivities) as { id, activity } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>

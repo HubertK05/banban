@@ -24,8 +24,12 @@
     } from "@skeletonlabs/skeleton";
     import SvelteMarkdown from "svelte-markdown";
 
-    export let id: number;
-    export let activity: Actv;
+    interface Props {
+        id: number;
+        activity: Actv;
+    }
+
+    let { id, activity }: Props = $props();
 
     async function removeActivity() {
         await invoke("delete_activity", { id });
@@ -77,14 +81,14 @@
         drawerStore.open(drawer);
     }
 
-    $: bodyPreview = () => {
+    let bodyPreview = $derived(() => {
         const elements = activity.body.split("\n");
         const out = elements.slice(0, 5).join("\n");
         if (elements.length > 5) {
             return out.concat("\n\n...");
         }
         return out;
-    };
+    });
 </script>
 
 <div
@@ -94,7 +98,7 @@
     <DebugLabel text={"ord: " + activity.ordinal} />
     {#if activity.columnId}
         <button
-            on:click={showDrawer}
+            onclick={showDrawer}
             class="absolute top-0 right-5 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"
         >
             <svg
@@ -110,7 +114,7 @@
         </button>
     {/if}
     <button
-        on:click={showRemoveModal}
+        onclick={showRemoveModal}
         class="absolute top-0 right-0 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"
     >
         <svg
@@ -125,7 +129,7 @@
     </button>
 
     <button
-        on:click={showDrawer}
+        onclick={showDrawer}
         class="flex items-center h-6 px-3 text-lg font-semibold rounded-full outline-none variant-soft-tertiary hover:underline"
     >
         {activity.name}
@@ -157,6 +161,6 @@
     </div>
     <div
         class="flex items-center w-full mt-3 text-xs font-medium text-gray-400"
-    />
+></div>
 </div>
-<svelte:document on:keydown={handleEnterKey} />
+<svelte:document onkeydown={handleEnterKey} />

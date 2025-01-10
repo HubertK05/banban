@@ -8,11 +8,11 @@
   } from "@skeletonlabs/skeleton";
   import { tick } from "svelte";
 
-  let displayName = $selectedActivity.name;
-  let isEditMode = false;
+  let displayName = $state($selectedActivity.name);
+  let isEditMode = $state(false);
 
-  let inputName: string = "";
-  let inputNode: HTMLInputElement;
+  let inputName: string = $state("");
+  let inputNode: HTMLInputElement = $state();
 
   async function openEdit() {
     inputName = displayName;
@@ -86,14 +86,14 @@
       type="text"
       class="input p-1 m-1"
       bind:value={inputName}
-      on:keypress={handleKeyPress}
+      onkeypress={handleKeyPress}
       bind:this={inputNode}
       placeholder="New activity name"
     />
-    <button class="btn btn-sm variant-ghost-surface m-1" on:click={cancel}
+    <button class="btn btn-sm variant-ghost-surface m-1" onclick={cancel}
       >Cancel</button
     >
-    <button class="btn btn-sm variant-ghost-success m-1" on:click={save}
+    <button class="btn btn-sm variant-ghost-success m-1" onclick={save}
       >Save</button
     >
   {:else}
@@ -101,7 +101,7 @@
       <b>{displayName}</b>
     </div>
 
-    <button class="btn btn-sm variant-ghost-warning m-1" on:click={openEdit}
+    <button class="btn btn-sm variant-ghost-warning m-1" onclick={openEdit}
       >Edit</button
     >
   {/if}

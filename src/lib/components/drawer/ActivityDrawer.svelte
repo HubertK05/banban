@@ -18,7 +18,7 @@
   import SettingsButton from "../board/SettingsButton.svelte";
   import ActivityContent from "./activityContent/ActivityContent.svelte";
 
-  let selectedCategoryId: number | null;
+  let selectedCategoryId: number | null = $state();
 
   let inputActivityName: string = "";
   let inputActivityBody: string = "";
@@ -187,7 +187,7 @@
             class="input"
             type="color"
             value={tag.color}
-            on:change={(e) => changeTagColor(e, tag, tagId)}
+            onchange={(e) => changeTagColor(e, tag, tagId)}
           />
         </div>
 
@@ -199,12 +199,12 @@
           {#if $selectedActivity.tags.find((id) => id === tagId)}
             <button
               class="btn btn-sm variant-ghost-secondary self-center"
-              on:click={() => removeActivityTag(tagId)}>Remove</button
+              onclick={() => removeActivityTag(tagId)}>Remove</button
             >
           {:else}
             <button
               class="btn btn-sm variant-ghost-primary self-center"
-              on:click={() => setActivityTag(tagId, tag)}>Choose</button
+              onclick={() => setActivityTag(tagId, tag)}>Choose</button
             >
           {/if}
         </div>
@@ -226,7 +226,7 @@
             class="input"
             type="color"
             value={tag.color}
-            on:change={(e) => changeTagColor(e, tag, tagId)}
+            onchange={(e) => changeTagColor(e, tag, tagId)}
           />
         </div>
 
@@ -238,12 +238,12 @@
           {#if $selectedActivity.tags.find((id) => id === tagId)}
             <button
               class="btn btn-sm variant-ghost-secondary self-center"
-              on:click={() => removeNonCategoryTag(tagId, tag)}>Remove</button
+              onclick={() => removeNonCategoryTag(tagId, tag)}>Remove</button
             >
           {:else}
             <button
               class="btn btn-sm variant-ghost-primary self-center"
-              on:click={() => addNonCategoryTag(tagId, tag)}>Choose</button
+              onclick={() => addNonCategoryTag(tagId, tag)}>Choose</button
             >
           {/if}
         </div>

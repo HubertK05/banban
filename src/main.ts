@@ -13,8 +13,9 @@ import { storePopup } from '@skeletonlabs/skeleton';
 storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 			
 import App from "./App.svelte";
+import { mount } from "svelte";
 
-const app = new App({
+const app = mount(App, {
   target: document.getElementById("app"),
 });
 

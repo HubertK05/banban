@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import { invoke } from "@tauri-apps/api/core";
     import {
         categories,
@@ -19,27 +21,33 @@
 
     const flipDurationMs = 125;
 
-    $: idTags = Array.from($tags)
-        .map(([tagId, tag]) => {
-            return {
-                id: tagId,
-                tag,
-            };
-        })
-        .sort((a, b) => {
-            return a.tag.ordinal - b.tag.ordinal;
-        });
+    let idTags;
+    run(() => {
+        idTags = Array.from($tags)
+            .map(([tagId, tag]) => {
+                return {
+                    id: tagId,
+                    tag,
+                };
+            })
+            .sort((a, b) => {
+                return a.tag.ordinal - b.tag.ordinal;
+            });
+    });
 
-    $: idOtherTags = Array.from($otherTags)
-        .map(([tagId, tag]) => {
-            return {
-                id: tagId,
-                tag,
-            };
-        })
-        .sort((a, b) => {
-            return a.tag.ordinal - b.tag.ordinal;
-        });
+    let idOtherTags;
+    run(() => {
+        idOtherTags = Array.from($otherTags)
+            .map(([tagId, tag]) => {
+                return {
+                    id: tagId,
+                    tag,
+                };
+            })
+            .sort((a, b) => {
+                return a.tag.ordinal - b.tag.ordinal;
+            });
+    });
 
     async function createTag(tagName: string, categoryId?: number) {
         const res: {
@@ -154,10 +162,10 @@
         }
     }
 
-    let createTagForm = false;
-    let createCategoryId: number | undefined;
-    let createTagName: string = "";
-    let createTagNode: HTMLInputElement;
+    let createTagForm = $state(false);
+    let createCategoryId: number | undefined = $state();
+    let createTagName: string = $state("");
+    let createTagNode: HTMLInputElement = $state();
 </script>
 
 <h2 class="h2">Tag options</h2>
@@ -178,8 +186,8 @@
                     "border-radius": "0.25rem",
                 },
             }}
-            on:consider={handleConsider}
-            on:finalize={handleFinalize}
+            onconsider={handleConsider}
+            onfinalize={handleFinalize}
         >
             {#each idTags.filter((x) => x.tag.categoryId === categoryId) as { id, tag } (id)}
                 <TagSettings {tag} tagId={id} {categoryId} />
@@ -188,7 +196,7 @@
     {:else}
         <button
             class="btn variant-ghost-tertiary"
-            on:click={() => {
+            onclick={() => {
                 createCategoryId = categoryId;
                 createTagNode.focus();
             }}>Add new tag</button
@@ -213,8 +221,8 @@
                 "border-radius": "0.25rem",
             },
         }}
-        on:consider={handleConsider}
-        on:finalize={handleFinalize}
+        onconsider={handleConsider}
+        onfinalize={handleFinalize}
     >
         {#each idOtherTags.sort((a, b) => {
             return a.tag.ordinal - b.tag.ordinal;
@@ -225,7 +233,7 @@
 {:else}
     <button
         class="btn variant-ghost-tertiary"
-        on:click={() => {
+        onclick={() => {
             createCategoryId = null;
             createTagNode.focus();
         }}>Add new tag</button
@@ -257,7 +265,7 @@
         </ListBox>
     </div>
     <button
-        on:click={async () => {
+        onclick={async () => {
             createTagForm = false;
             await createTag(createTagName, createCategoryId);
             createTagName = "";
