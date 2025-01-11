@@ -26,7 +26,7 @@ importers:
         version: 1.10.0(svelte@4.0.5)
       '@sveltejs/vite-plugin-svelte':
         specifier: ^2.4.2
-        version: 2.4.2(svelte@4.0.5)(vite@4.4.4)
+        version: 2.4.2(svelte@4.0.5)(vite@4.5.5)
       '@tailwindcss/typography':
         specifier: ^0.5.9
         version: 0.5.9(tailwindcss@3.3.2)
@@ -67,8 +67,8 @@ importers:
         specifier: ^5.1.6
         version: 5.1.6
       vite:
-        specifier: ^4.4.4
-        version: 4.4.4
+        specifier: ^4.5.5
+        version: 4.5.5
 
 packages:
 
@@ -526,9 +526,11 @@ packages:
 
   glob@7.1.6:
     resolution: {integrity: sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
@@ -543,6 +545,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -649,6 +652,11 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanoid@3.3.8:
+    resolution: {integrity: sha512-WNLf5Sd8oZxOm+TzppcYk8gVOgP+l58xNy58D0nbUnOxOWRWvlcCV4kUF7ltmI6PsrLl/BgKEyS4mqsGChFN0w==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+
   node-releases@2.0.13:
     resolution: {integrity: sha512-uYr7J37ae/ORWdZeQ1xxMJe3NtdmqMC/JZK+geofDrkLUApKRHPd18/TxtBOJ4A0/+uUIliorNrfYV6s1b02eQ==}
 
@@ -687,6 +695,9 @@ packages:
 
   picocolors@1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
+
+  picocolors@1.1.1:
+    resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
   picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
@@ -745,8 +756,8 @@ packages:
     resolution: {integrity: sha512-M0RzbcI0sO/XJNucsGjvWU9ERWxb/ytp1w6dKtxTKgixdtQDq4rmx/g8W1hnaheq9jgwL/oyEdH5Bc4WwJKMqg==}
     engines: {node: ^10 || ^12 || >=14}
 
-  postcss@8.4.26:
-    resolution: {integrity: sha512-jrXHFF8iTloAenySjM/ob3gSj7pCu0Ji49hnjqzsgSRa50hkWCKD0HQ+gMNJkW38jBI68MpAAg7ZWwHwX8NMMw==}
+  postcss@8.4.49:
+    resolution: {integrity: sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA==}
     engines: {node: ^10 || ^12 || >=14}
 
   queue-microtask@1.2.3:
@@ -773,10 +784,11 @@ packages:
 
   rimraf@2.7.1:
     resolution: {integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
-  rollup@3.26.3:
-    resolution: {integrity: sha512-7Tin0C8l86TkpcMtXvQu6saWH93nhG3dGQ1/+l5V2TDMceTxO7kDiK6GzbfLWNNxqJXm591PcEZUozZm51ogwQ==}
+  rollup@3.29.5:
+    resolution: {integrity: sha512-GVsDdsbJzzy4S/v3dqWPJ7EfvZJfCHiDqe80IyrF59LYuP+e6U1LJoUqeuqRbwAWoMNoXivMNeNAOf5E22VA1w==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
 
@@ -796,6 +808,10 @@ packages:
 
   source-map-js@1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
+    engines: {node: '>=0.10.0'}
+
+  source-map-js@1.2.1:
+    resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
   strip-indent@3.0.0:
@@ -910,8 +926,8 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  vite@4.4.4:
-    resolution: {integrity: sha512-4mvsTxjkveWrKDJI70QmelfVqTm+ihFAb6+xf4sjEU2TmUCTlVX87tmg/QooPEMQb/lM9qGHT99ebqPziEd3wg==}
+  vite@4.5.5:
+    resolution: {integrity: sha512-ifW3Lb2sMdX+WU91s3R0FyQlAyLxOzCSCP37ujw0+r5POeHPwe6udWVIElKQq8gk3t7b8rkmvqC6IHBpCff4GQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -1070,26 +1086,26 @@ snapshots:
       esm-env: 1.0.0
       svelte: 4.0.5
 
-  '@sveltejs/vite-plugin-svelte-inspector@1.0.3(@sveltejs/vite-plugin-svelte@2.4.2(svelte@4.0.5)(vite@4.4.4))(svelte@4.0.5)(vite@4.4.4)':
+  '@sveltejs/vite-plugin-svelte-inspector@1.0.3(@sveltejs/vite-plugin-svelte@2.4.2(svelte@4.0.5)(vite@4.5.5))(svelte@4.0.5)(vite@4.5.5)':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 2.4.2(svelte@4.0.5)(vite@4.4.4)
+      '@sveltejs/vite-plugin-svelte': 2.4.2(svelte@4.0.5)(vite@4.5.5)
       debug: 4.3.4
       svelte: 4.0.5
-      vite: 4.4.4
+      vite: 4.5.5
     transitivePeerDependencies:
       - supports-color
 
-  '@sveltejs/vite-plugin-svelte@2.4.2(svelte@4.0.5)(vite@4.4.4)':
+  '@sveltejs/vite-plugin-svelte@2.4.2(svelte@4.0.5)(vite@4.5.5)':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 1.0.3(@sveltejs/vite-plugin-svelte@2.4.2(svelte@4.0.5)(vite@4.4.4))(svelte@4.0.5)(vite@4.4.4)
+      '@sveltejs/vite-plugin-svelte-inspector': 1.0.3(@sveltejs/vite-plugin-svelte@2.4.2(svelte@4.0.5)(vite@4.5.5))(svelte@4.0.5)(vite@4.5.5)
       debug: 4.3.4
       deepmerge: 4.3.1
       kleur: 4.1.5
       magic-string: 0.30.1
       svelte: 4.0.5
       svelte-hmr: 0.15.2(svelte@4.0.5)
-      vite: 4.4.4
-      vitefu: 0.2.4(vite@4.4.4)
+      vite: 4.5.5
+      vitefu: 0.2.4(vite@4.5.5)
     transitivePeerDependencies:
       - supports-color
 
@@ -1445,6 +1461,8 @@ snapshots:
 
   nanoid@3.3.6: {}
 
+  nanoid@3.3.8: {}
+
   node-releases@2.0.13: {}
 
   normalize-path@3.0.0: {}
@@ -1474,6 +1492,8 @@ snapshots:
       is-reference: 3.0.1
 
   picocolors@1.0.0: {}
+
+  picocolors@1.1.1: {}
 
   picomatch@2.3.1: {}
 
@@ -1523,11 +1543,11 @@ snapshots:
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
-  postcss@8.4.26:
+  postcss@8.4.49:
     dependencies:
-      nanoid: 3.3.6
-      picocolors: 1.0.0
-      source-map-js: 1.0.2
+      nanoid: 3.3.8
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
 
   queue-microtask@1.2.3: {}
 
@@ -1553,7 +1573,7 @@ snapshots:
     dependencies:
       glob: 7.2.3
 
-  rollup@3.26.3:
+  rollup@3.29.5:
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -1580,6 +1600,8 @@ snapshots:
       sander: 0.5.1
 
   source-map-js@1.0.2: {}
+
+  source-map-js@1.2.1: {}
 
   strip-indent@3.0.0:
     dependencies:
@@ -1716,17 +1738,17 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  vite@4.4.4:
+  vite@4.5.5:
     dependencies:
       esbuild: 0.18.14
-      postcss: 8.4.26
-      rollup: 3.26.3
+      postcss: 8.4.49
+      rollup: 3.29.5
     optionalDependencies:
       fsevents: 2.3.2
 
-  vitefu@0.2.4(vite@4.4.4):
+  vitefu@0.2.4(vite@4.5.5):
     optionalDependencies:
-      vite: 4.4.4
+      vite: 4.5.5
 
   wrappy@1.0.2: {}
 
