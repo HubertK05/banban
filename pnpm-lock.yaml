@@ -19,14 +19,14 @@ importers:
         version: 2.2.0
       svelte-dnd-action:
         specifier: ^0.9.24
-        version: 0.9.24(svelte@4.0.5)
+        version: 0.9.24(svelte@4.2.19)
     devDependencies:
       '@skeletonlabs/skeleton':
         specifier: ^1.10.0
-        version: 1.10.0(svelte@4.0.5)
+        version: 1.10.0(svelte@4.2.19)
       '@sveltejs/vite-plugin-svelte':
         specifier: ^2.4.2
-        version: 2.4.2(svelte@4.0.5)(vite@4.4.4)
+        version: 2.4.2(svelte@4.2.19)(vite@4.4.4)
       '@tailwindcss/typography':
         specifier: ^0.5.9
         version: 0.5.9(tailwindcss@3.3.2)
@@ -46,17 +46,17 @@ importers:
         specifier: ^4.0.1
         version: 4.0.1(postcss@8.4.24)
       svelte:
-        specifier: ^4.0.5
-        version: 4.0.5
+        specifier: ^4.2.19
+        version: 4.2.19
       svelte-check:
         specifier: ^3.4.6
-        version: 3.4.6(postcss-load-config@4.0.1(postcss@8.4.24))(postcss@8.4.24)(svelte@4.0.5)
+        version: 3.4.6(postcss-load-config@4.0.1(postcss@8.4.24))(postcss@8.4.24)(svelte@4.2.19)
       svelte-markdown:
         specifier: ^0.3.0
-        version: 0.3.0(svelte@4.0.5)
+        version: 0.3.0(svelte@4.2.19)
       svelte-preprocess:
         specifier: ^5.0.4
-        version: 5.0.4(postcss-load-config@4.0.1(postcss@8.4.24))(postcss@8.4.24)(svelte@4.0.5)(typescript@5.1.6)
+        version: 5.0.4(postcss-load-config@4.0.1(postcss@8.4.24))(postcss@8.4.24)(svelte@4.2.19)(typescript@5.1.6)
       tailwindcss:
         specifier: ^3.3.2
         version: 3.3.2
@@ -236,6 +236,9 @@ packages:
   '@jridgewell/sourcemap-codec@1.4.15':
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
 
+  '@jridgewell/sourcemap-codec@1.5.0':
+    resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
+
   '@jridgewell/trace-mapping@0.3.18':
     resolution: {integrity: sha512-w+niJYzMHdd7USdiH2U6869nqhD2nbfZXND5Yp93qIbEmnDNk7PD48o+YchRVpzMU7M6jVCbenTR7PA1FLQ9pA==}
 
@@ -384,8 +387,9 @@ packages:
     peerDependencies:
       postcss: ^8.1.0
 
-  axobject-query@3.2.1:
-    resolution: {integrity: sha512-jsyHu61e6N4Vbz/v18DHwWYKK0bSWLqn47eeDSKPB7m8tqMHF9YJ+mhIk2lVteyZrY8tnSj/jHOv4YiTCuCJgg==}
+  axobject-query@4.1.0:
+    resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
+    engines: {node: '>= 0.4'}
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -526,9 +530,11 @@ packages:
 
   glob@7.1.6:
     resolution: {integrity: sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
@@ -543,6 +549,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -603,6 +610,9 @@ packages:
   magic-string@0.30.1:
     resolution: {integrity: sha512-mbVKXPmS0z0G4XqFDCTllmDQ6coZzn94aMlb0o/A4HEHJCKcanlDZwYJgwnkmgD3jyWhUgj9VsPrfd972yPffA==}
     engines: {node: '>=12'}
+
+  magic-string@0.30.17:
+    resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
 
   marked@4.3.0:
     resolution: {integrity: sha512-PRsaiG84bK+AMvxziE/lCFss8juXjNaWzVbN5tXAm4XjeaS9NAHhop+PjQxz2A9h8Q4M/xGmzP8vqNwy6JeK0A==}
@@ -773,6 +783,7 @@ packages:
 
   rimraf@2.7.1:
     resolution: {integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rollup@3.26.3:
@@ -870,8 +881,8 @@ packages:
       typescript:
         optional: true
 
-  svelte@4.0.5:
-    resolution: {integrity: sha512-PHKPWP1wiWHBtsE57nCb8xiWB3Ht7/3Kvi3jac0XIxUM2rep8alO7YoAtgWeGD7++tFy46krilOrPW0mG3Dx+A==}
+  svelte@4.2.19:
+    resolution: {integrity: sha512-IY1rnGr6izd10B0A8LqsBfmlT5OILVuZ7XsI0vdGPEvuonFV7NYEUK4dAkm9Zg2q0Um92kYjTpS1CAP3Nh/KWw==}
     engines: {node: '>=16'}
 
   tailwindcss@3.3.2:
@@ -1048,6 +1059,8 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.4.15': {}
 
+  '@jridgewell/sourcemap-codec@1.5.0': {}
+
   '@jridgewell/trace-mapping@0.3.18':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.0
@@ -1065,29 +1078,29 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
 
-  '@skeletonlabs/skeleton@1.10.0(svelte@4.0.5)':
+  '@skeletonlabs/skeleton@1.10.0(svelte@4.2.19)':
     dependencies:
       esm-env: 1.0.0
-      svelte: 4.0.5
+      svelte: 4.2.19
 
-  '@sveltejs/vite-plugin-svelte-inspector@1.0.3(@sveltejs/vite-plugin-svelte@2.4.2(svelte@4.0.5)(vite@4.4.4))(svelte@4.0.5)(vite@4.4.4)':
+  '@sveltejs/vite-plugin-svelte-inspector@1.0.3(@sveltejs/vite-plugin-svelte@2.4.2(svelte@4.2.19)(vite@4.4.4))(svelte@4.2.19)(vite@4.4.4)':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 2.4.2(svelte@4.0.5)(vite@4.4.4)
+      '@sveltejs/vite-plugin-svelte': 2.4.2(svelte@4.2.19)(vite@4.4.4)
       debug: 4.3.4
-      svelte: 4.0.5
+      svelte: 4.2.19
       vite: 4.4.4
     transitivePeerDependencies:
       - supports-color
 
-  '@sveltejs/vite-plugin-svelte@2.4.2(svelte@4.0.5)(vite@4.4.4)':
+  '@sveltejs/vite-plugin-svelte@2.4.2(svelte@4.2.19)(vite@4.4.4)':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 1.0.3(@sveltejs/vite-plugin-svelte@2.4.2(svelte@4.0.5)(vite@4.4.4))(svelte@4.0.5)(vite@4.4.4)
+      '@sveltejs/vite-plugin-svelte-inspector': 1.0.3(@sveltejs/vite-plugin-svelte@2.4.2(svelte@4.2.19)(vite@4.4.4))(svelte@4.2.19)(vite@4.4.4)
       debug: 4.3.4
       deepmerge: 4.3.1
       kleur: 4.1.5
       magic-string: 0.30.1
-      svelte: 4.0.5
-      svelte-hmr: 0.15.2(svelte@4.0.5)
+      svelte: 4.2.19
+      svelte-hmr: 0.15.2(svelte@4.2.19)
       vite: 4.4.4
       vitefu: 0.2.4(vite@4.4.4)
     transitivePeerDependencies:
@@ -1183,9 +1196,7 @@ snapshots:
       postcss: 8.4.24
       postcss-value-parser: 4.2.0
 
-  axobject-query@3.2.1:
-    dependencies:
-      dequal: 2.0.3
+  axobject-query@4.1.0: {}
 
   balanced-match@1.0.2: {}
 
@@ -1410,6 +1421,10 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.4.15
 
+  magic-string@0.30.17:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.0
+
   marked@4.3.0: {}
 
   mdn-data@2.0.30: {}
@@ -1597,7 +1612,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-check@3.4.6(postcss-load-config@4.0.1(postcss@8.4.24))(postcss@8.4.24)(svelte@4.0.5):
+  svelte-check@3.4.6(postcss-load-config@4.0.1(postcss@8.4.24))(postcss@8.4.24)(svelte@4.2.19):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.18
       chokidar: 3.5.3
@@ -1605,8 +1620,8 @@ snapshots:
       import-fresh: 3.3.0
       picocolors: 1.0.0
       sade: 1.8.1
-      svelte: 4.0.5
-      svelte-preprocess: 5.0.4(postcss-load-config@4.0.1(postcss@8.4.24))(postcss@8.4.24)(svelte@4.0.5)(typescript@5.1.6)
+      svelte: 4.2.19
+      svelte-preprocess: 5.0.4(postcss-load-config@4.0.1(postcss@8.4.24))(postcss@8.4.24)(svelte@4.2.19)(typescript@5.1.6)
       typescript: 5.1.6
     transitivePeerDependencies:
       - '@babel/core'
@@ -1619,47 +1634,48 @@ snapshots:
       - stylus
       - sugarss
 
-  svelte-dnd-action@0.9.24(svelte@4.0.5):
+  svelte-dnd-action@0.9.24(svelte@4.2.19):
     dependencies:
-      svelte: 4.0.5
+      svelte: 4.2.19
 
-  svelte-hmr@0.15.2(svelte@4.0.5):
+  svelte-hmr@0.15.2(svelte@4.2.19):
     dependencies:
-      svelte: 4.0.5
+      svelte: 4.2.19
 
-  svelte-markdown@0.3.0(svelte@4.0.5):
+  svelte-markdown@0.3.0(svelte@4.2.19):
     dependencies:
       '@types/marked': 4.3.1
       marked: 4.3.0
-      svelte: 4.0.5
+      svelte: 4.2.19
 
-  svelte-preprocess@5.0.4(postcss-load-config@4.0.1(postcss@8.4.24))(postcss@8.4.24)(svelte@4.0.5)(typescript@5.1.6):
+  svelte-preprocess@5.0.4(postcss-load-config@4.0.1(postcss@8.4.24))(postcss@8.4.24)(svelte@4.2.19)(typescript@5.1.6):
     dependencies:
       '@types/pug': 2.0.6
       detect-indent: 6.1.0
       magic-string: 0.27.0
       sorcery: 0.11.0
       strip-indent: 3.0.0
-      svelte: 4.0.5
+      svelte: 4.2.19
     optionalDependencies:
       postcss: 8.4.24
       postcss-load-config: 4.0.1(postcss@8.4.24)
       typescript: 5.1.6
 
-  svelte@4.0.5:
+  svelte@4.2.19:
     dependencies:
       '@ampproject/remapping': 2.2.1
       '@jridgewell/sourcemap-codec': 1.4.15
       '@jridgewell/trace-mapping': 0.3.18
+      '@types/estree': 1.0.1
       acorn: 8.10.0
       aria-query: 5.3.0
-      axobject-query: 3.2.1
+      axobject-query: 4.1.0
       code-red: 1.0.3
       css-tree: 2.3.1
       estree-walker: 3.0.3
       is-reference: 3.0.1
       locate-character: 3.0.0
-      magic-string: 0.30.1
+      magic-string: 0.30.17
       periscopic: 3.1.0
 
   tailwindcss@3.3.2:
