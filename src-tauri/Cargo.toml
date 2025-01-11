@@ -19,14 +19,14 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 tauri = { version = "2", features = [ "test"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.103"
+serde_json = "1.0.135"
 dotenvy = "0.15.7"
-anyhow = "1.0.72"
-thiserror = "1.0.43"
-time = "0.3.23"
+anyhow = "1.0.95"
+thiserror = "2.0.11"
+time = "0.3.37"
 sea-orm = { version = "0.11.3", features = ["with-time", "sqlx-sqlite", "runtime-tokio-rustls", "sqlx", "mock"] }
 entity = { path = "../entity" }
-tracing = "0.1.37"
+tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 sqlx = "0.6.3"
 tauri-plugin-shell = "2"
@@ -37,4 +37,4 @@ tauri-plugin-shell = "2"
 custom-protocol = ["tauri/custom-protocol"]
 
 [dev-dependencies]
-tokio = { version = "1.29.1", features = ["rt", "test-util", "macros"] }
+tokio = { version = "1.43.0", features = ["rt", "test-util", "macros"] }
