@@ -113,7 +113,7 @@
         $otherActivities = $otherActivities;
     }
 
-    let draggableActivities;
+    let draggableActivities: any[] = $state([]);
     run(() => {
         draggableActivities = Array.from(column.activities)
             .map((id) => {
