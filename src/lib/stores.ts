@@ -111,11 +111,11 @@ export async function fetchAll() {
 
     Object.entries(res.categories).forEach(([categoryId, category]) => {
         console.log(categoryId);
-        categoriesRune.set(Number(categoryId), {...category, ord: category.ordinal})
+        categoriesRune[+categoryId] = {...category, ord: category.ordinal}
     })
     
     Object.entries(res.categoryTags).forEach(([tagId, tag]) => {
-        categoryTagsRune.set(Number(tagId), {...tag, ord: tag.ordinal})
+        categoryTagsRune[+tagId] = {...tag, ord: tag.ordinal}
     })
 }
 
