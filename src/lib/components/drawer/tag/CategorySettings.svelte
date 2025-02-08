@@ -28,22 +28,11 @@
                 const tag = categoryTagsRune.get(tagId);
                 console.assert(tag !== undefined, "Category tag not found");
                 return {id: tagId, tag: {...tag!, categoryId}};
+            }).sort((idTagA, idTagB) => {
+                return idTagA.tag.ord - idTagB.tag.ord;
             });
         })
     );
-
-    // run(() => {
-    //     idTags = Array.from($tags)
-    //         .map(([tagId, tag]) => {
-    //             return {
-    //                 id: tagId,
-    //                 tag,
-    //             };
-    //         })
-    //         .sort((a, b) => {
-    //             return a.tag.ordinal - b.tag.ordinal;
-    //         });
-    // });
 
     let idOtherTags;
     run(() => {
