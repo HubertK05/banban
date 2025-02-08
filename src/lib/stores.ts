@@ -1,6 +1,7 @@
 import { writable, type Writable } from "svelte/store";
 import type { DrawerTab, Editable } from "./interfaces/main";
 import { invoke } from "@tauri-apps/api/core";
+import { categoriesRune, categoryTagsRune } from "./shared.svelte";
 
 export const isDebug: Writable<boolean> = writable(false);
 export const previousDrawerTab: Writable<DrawerTab | null> = writable(null)
@@ -107,6 +108,15 @@ export async function fetchAll() {
     categories.set(_categories);
     tags.set(_categoryTags);
     otherTags.set(_otherTags);
+
+    Object.entries(res.categories).forEach(([categoryId, category]) => {
+        console.log(categoryId);
+        categoriesRune.set(Number(categoryId), {...category, ord: category.ordinal})
+    })
+    
+    Object.entries(res.categoryTags).forEach(([tagId, tag]) => {
+        categoryTagsRune.set(Number(tagId), {...tag, ord: tag.ordinal})
+    })
 }
 
 

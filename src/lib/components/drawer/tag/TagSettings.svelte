@@ -6,10 +6,10 @@
         columns,
         otherTags,
         tags,
-        type Tag,
     } from "../../../stores";
     import TagBadge from "../../board/TagBadge.svelte";
     import DebugLabel from "../../debug/DebugLabel.svelte";
+  import type { Tag } from "../../../interfaces/main";
 
     interface Props {
         tagId: number;
@@ -82,7 +82,7 @@
 
 <div class="flex flex-col p-2">
     <DebugLabel text={"ID: " + tagId} />
-    <DebugLabel text={"ORD: " + tag.ordinal} />
+    <DebugLabel text={"ORD: " + tag.ord} />
     <TagBadge name={tag.name} color={tag.color} />
     <div
         class="flex flex-row mt-2 place-content-between align-center bg-gray-300 p-1 rounded-md"

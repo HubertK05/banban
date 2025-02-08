@@ -7,7 +7,6 @@
         columns,
         otherTags,
         tags,
-        type Tag,
     } from "../../../stores";
     import {
         ListBox,
@@ -18,22 +17,33 @@
     import DebugLabel from "../../debug/DebugLabel.svelte";
     import { dndzone, TRIGGERS } from "svelte-dnd-action";
     import TagBadge from "../../board/TagBadge.svelte";
+  import { categoriesRune, categoryTagsRune } from '../../../shared.svelte';
+  import type { Tag } from '../../../interfaces/main';
 
     const flipDurationMs = 125;
 
-    let idTags;
-    run(() => {
-        idTags = Array.from($tags)
-            .map(([tagId, tag]) => {
-                return {
-                    id: tagId,
-                    tag,
-                };
-            })
-            .sort((a, b) => {
-                return a.tag.ordinal - b.tag.ordinal;
+    let idTags: { id: number, tag: Tag & { categoryId: number } }[][] = $state(
+        Array.from(categoriesRune).map(([categoryId, category]) => {
+            return category.tags.map(tagId => {
+                const tag = categoryTagsRune.get(tagId);
+                console.assert(tag !== undefined, "Category tag not found");
+                return {id: tagId, tag: {...tag!, categoryId}};
             });
-    });
+        })
+    );
+
+    // run(() => {
+    //     idTags = Array.from($tags)
+    //         .map(([tagId, tag]) => {
+    //             return {
+    //                 id: tagId,
+    //                 tag,
+    //             };
+    //         })
+    //         .sort((a, b) => {
+    //             return a.tag.ordinal - b.tag.ordinal;
+    //         });
+    // });
 
     let idOtherTags;
     run(() => {
@@ -81,75 +91,71 @@
     }
 
     function handleConsider(
-        e: CustomEvent<
-            DndEvent<{
-                id: number;
-                tag: Tag & { categoryId: number };
-            }>
-        > & {
-            target: any;
-        }
+        e: DndEvent<{
+            id: number;
+            tag: Tag & { categoryId: number };
+        }>,
+        categoryId: number,
+        categoryIdx: number,
     ) {
-        const selectedTagId: number = Number(e.detail.info.id);
-        const categoryId = $tags.get(selectedTagId)?.categoryId;
-
         if (categoryId) {
-            e.detail.items.forEach(({ id, tag }, index) => {
-                tag.ordinal = index;
+            e.items.forEach(({ id, tag }, index) => {
+                tag.ord = index;
             });
 
-            idTags = idTags.filter((x) => x.tag.categoryId !== categoryId);
-
-            e.detail.items.forEach((item) => {
-                idTags.push(item);
-            });
+            idTags[categoryIdx] = e.items
         } else {
-            e.detail.items.forEach(({ id, tag }, index) => {
-                tag.ordinal = index;
+            e.items.forEach(({ id, tag }, index) => {
+                tag.ord = index;
             });
-            idOtherTags = e.detail.items;
+            idOtherTags = e.items;
         }
     }
 
     async function handleFinalize(
-        e: CustomEvent<
-            DndEvent<{
-                id: number;
-                tag: Tag & { categoryId: number };
-            }>
-        > & {
-            target: any;
-        }
+        e: DndEvent<{
+            id: number;
+            tag: Tag & { categoryId: number };
+        }>,
+        categoryId: number,
+        categoryIdx: number,
     ) {
-        const selectedTagId: number = Number(e.detail.info.id);
-        const selectedTag = e.detail.items.find((x) => x.id === selectedTagId);
-        const newOrdinal = e.detail.items.findIndex(
+        const selectedTagId: number = Number(e.info.id);
+        const selectedTag = e.items.find((x) => x.id === selectedTagId);
+        console.assert(selectedTag !== undefined, "Selected tag on finalize not found");
+        if (selectedTag === undefined) return;
+        const newOrdinal = e.items.findIndex(
             (x) => x.id === selectedTagId
         );
-        const oldOrdinal = selectedTag.tag.ordinal;
+        const oldOrdinal = selectedTag.tag.ord;
         await invoke("update_tag_ordinal", {
             data: { categoryTagId: selectedTagId, newOrd: newOrdinal },
         });
 
         if (selectedTag.tag.categoryId) {
-            e.detail.items.forEach((x, idx) => {
+            e.items.forEach((x, idx) => {
                 $tags.get(x.id).ordinal = idx;
             });
             const currCategory = $categories.get(selectedTag.tag.categoryId);
+            console.assert(currCategory !== undefined, "Current category on finalize not found");
+            if (currCategory === undefined) return;
 
-            $tags.set(selectedTagId, selectedTag.tag);
+            $tags.set(selectedTagId, {...selectedTag.tag, ordinal: selectedTag.tag.ord, color: selectedTag.tag.color!});
             $tags = $tags;
             $categories.set(selectedTag.tag.categoryId, {
                 ...currCategory,
-                tags: idTags
-                    .filter(
-                        (x) => x.tag.categoryId === selectedTag.tag.categoryId
-                    )
-                    .map((x) => {
-                        return x.id;
-                    }),
+                tags: idTags[categoryIdx].map(x => x.id),
             });
             $categories = $categories;
+
+            const reorderedTags = e.items.map((x, idx) => {
+                return {id: x.id, tag: {...x.tag, ord: idx}};
+            });
+            idTags[categoryIdx] = reorderedTags;
+            reorderedTags.forEach(tag => {
+                categoryTagsRune.set(tag.id, tag.tag);
+            });
+            categoriesRune.set(categoryId, {...currCategory, ord: currCategory.ordinal, tags: reorderedTags.map(x => x.id) })
         } else {
             idOtherTags.forEach((item, idx) => {
                 $otherTags.get(item.id).ordinal = idx;
@@ -170,15 +176,15 @@
 
 <h2 class="h2">Tag options</h2>
 
-{#each Array.from($categories).sort(([shit1, catA], [shit2, catB]) => {
-    return catA.ordinal - catB.ordinal;
-}) as [categoryId, category]}
+{#each Array.from(categoriesRune).sort(([shit1, catA], [shit2, catB]) => {
+    return catA.ord - catB.ord;
+}) as [categoryId, category], categoryIdx}
     <p>{category.name}</p>
     {#if category.tags.length !== 0}
         <section
             class="flex flex-col pb-2 overflow-auto min-h-full bg-transaprent"
             use:dndzone={{
-                items: idTags.filter((x) => x.tag.categoryId === categoryId),
+                items: idTags[categoryIdx],
                 flipDurationMs,
                 type: `tags ${categoryId}`,
                 dropTargetStyle: {
@@ -186,10 +192,10 @@
                     "border-radius": "0.25rem",
                 },
             }}
-            onconsider={handleConsider}
-            onfinalize={handleFinalize}
+            onconsider={e => handleConsider(e.detail, categoryId, categoryIdx)}
+            onfinalize={async e => handleFinalize(e.detail, categoryId, categoryIdx)}
         >
-            {#each idTags.filter((x) => x.tag.categoryId === categoryId) as { id, tag } (id)}
+            {#each idTags[categoryIdx] as { id, tag } (id)}
                 <TagSettings {tag} tagId={id} {categoryId} />
             {/each}
         </section>
