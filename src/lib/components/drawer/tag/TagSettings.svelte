@@ -10,6 +10,7 @@
     import TagBadge from "../../board/TagBadge.svelte";
     import DebugLabel from "../../debug/DebugLabel.svelte";
   import type { Tag } from "../../../interfaces/main";
+  import { categoriesRune, categoryTagsRune } from "../../../shared.svelte";
 
     interface Props {
         tagId: number;
@@ -40,6 +41,8 @@
             $tags = $tags;
             $categories = $categories;
             $columns = $columns;
+
+            delete categoryTagsRune[tagId]
         } else {
             $otherTags.delete(tagId);
             $otherTags = $otherTags;

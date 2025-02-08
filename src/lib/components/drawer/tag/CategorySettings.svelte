@@ -22,8 +22,14 @@
 
     const flipDurationMs = 125;
 
-    let idTags: { id: number, tag: Tag & { categoryId: number } }[][] = $derived(
-        Object.entries(categoriesRune).map(([categoryId, category]) => {
+    let idTags: { id: number, tag: Tag & { categoryId: number } }[][] = $state([]);
+    updateIdTags();
+    
+    // we need both reactivity and functioning drag and drop at once.
+    // $derived() rune on idTags confuses the drag and drop library.
+    // $state() without explicit update is non-reactive.
+    function updateIdTags() {
+        idTags = Object.entries(categoriesRune).map(([categoryId, category]) => {
             return category.tags.map(tagId => {
                 const tag = categoryTagsRune[tagId];
                 console.assert(tag !== undefined, "Category tag not found");
@@ -32,7 +38,7 @@
                 return idTagA.tag.ord - idTagB.tag.ord;
             });
         })
-    );
+    }
 
     let idOtherTags;
     run(() => {
@@ -82,6 +88,9 @@
             runeCategory.tags.push(res.id)
             categoriesRune[categoryId] = runeCategory;
             console.log($state.snapshot(categoriesRune));
+
+            // TODO: creating new tags sometimes results in non-reactive update of idTags.
+            updateIdTags();
         } else {
             $otherTags.set(res.id, {
                 name: res.tagName,
