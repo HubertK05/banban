@@ -1,9 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { Category, Tag } from "./interfaces/main";
+import type { Activity, Category, Column, Tag } from "./interfaces/main";
+import type { Actv } from "./stores";
 
 export const categoriesRune: Record<number, Category> = $state({});
 export const categoryTagsRune: Record<number, Tag & { categoryId: number }> = $state({});
 export const otherTagsRune: Record<number, Tag> = $state({});
+export const activitiesRune: Record<number, Activity> = $state({});
 
 class IdTags {
     // we need both reactivity and functioning drag and drop at once.
@@ -32,6 +34,21 @@ class IdOtherTags {
             .map(([id, tag]) => { return {id: +id, tag}; })
             .sort((idTagA, idTagB) => {
                 return idTagA.tag.ord - idTagB.tag.ord;
+            });
+    }
+}
+
+export class DraggableActivities {
+    inner: { id: number, colId: number, activity: Activity }[] = $state([])
+
+    update = (column: Column, colId: number) => {
+        this.inner = Array.from(column.activities)
+            .map(id => {
+                const activity = activitiesRune[id];
+                return { activity, id, colId };
+            })
+            .sort((a, b) => {
+                return a.activity.ordinal - b.activity.ordinal;
             });
     }
 }

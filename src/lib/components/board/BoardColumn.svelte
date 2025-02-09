@@ -18,6 +18,7 @@
     import { flip } from "svelte/animate";
     import { ActiveField } from "../../interfaces/main";
     import { modalStore, type ModalSettings } from "@skeletonlabs/skeleton";
+  import { DraggableActivities } from '../../shared.svelte';
 
     interface Props {
         columnId: number;
@@ -113,17 +114,8 @@
         $otherActivities = $otherActivities;
     }
 
-    let draggableActivities: any[] = $state([]);
-    run(() => {
-        draggableActivities = Array.from(column.activities)
-            .map((id) => {
-                const activity = $activities.get(id);
-                return { activity, id, colId: columnId };
-            })
-            .sort((a, b) => {
-                return a.activity.ordinal - b.activity.ordinal;
-            });
-    });
+    const draggableActivities = new DraggableActivities();
+    draggableActivities.update({...column, ord: column.ordinal}, columnId)
 
     function handleConsider(
         e: CustomEvent<
@@ -147,7 +139,7 @@
         e.detail.items.forEach(({ id, activity }, index) => {
             activity.ordinal = index;
         });
-        draggableActivities = e.detail.items;
+        draggableActivities.inner = e.detail.items;
     }
 
     async function handleFinalize(
@@ -181,6 +173,7 @@
                 data: { id: activityId, columnId, newOrd: index },
             });
         }
+        draggableActivities.inner = e.detail.items;
     }
 
     function showRemoveModal() {
@@ -215,6 +208,7 @@
 >
     <DebugLabel text={`ID ${columnId}`} />
     <DebugLabel text={`ORD ${column.ordinal}`} />
+    <!-- svelte-ignore a11y_consider_explicit_label -->
     <div
         class="flex items-center flex-shrink-0 h-10 px-2"
         onmousedown={startDrag}
@@ -239,8 +233,9 @@
 
         <span
             class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30 cursor-default"
-            >{draggableActivities.length}</span
+            >{draggableActivities.inner.length}</span
         >
+        <!-- svelte-ignore a11y_consider_explicit_label -->
         <button
             onclick={showRemoveModal}
             class="flex items-center justify-center w-6 h-6 ml-auto rounded hover:bg-error-hover-token"
@@ -275,14 +270,13 @@
         </button>
     </div>
     <div class="h-[70vh]">
-        <!-- svelte-ignore missing_declaration -->
         <section
             class="flex flex-col pb-2 overflow-auto max-h-full min-h-full cursor-default {$hoverColumnId ===
             columnId
                 ? 'shadow-2xl rounded-md'
                 : ''}"
             use:dndzone={{
-                items: draggableActivities,
+                items: draggableActivities.inner,
                 flipDurationMs,
                 type: "activities",
                 dropTargetStyle: {},
@@ -290,9 +284,9 @@
             onconsider={handleConsider}
             onfinalize={handleFinalize}
         >
-            {#each draggableActivities as { id, activity } (id)}
+            {#each draggableActivities.inner as { id, activity, colId } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
-                    <ActivityCard {activity} {id} />
+                    <ActivityCard activity={{...activity, columnId: colId}} {id} />
                 </div>
             {/each}
         </section>

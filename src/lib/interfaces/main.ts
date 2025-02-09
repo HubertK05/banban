@@ -28,7 +28,7 @@ export type Activities = Map<number, Activity>
 
 export interface Column {
     name: string,
-    activities: Map<number, Activity>,
+    activities: number[],
     ord: number
 }
 
