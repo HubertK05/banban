@@ -64,6 +64,7 @@
                 name: res.tagName,
                 ord: res.ordinal,
                 color: res.color,
+                categoryId,
             };
 
             const runeCategory = categoriesRune[categoryId]
