@@ -6,7 +6,6 @@
         columns,
         currentEditable,
         isDebug,
-        otherTags,
         previousDrawerTab,
         selectedActivity,
         type Actv,
@@ -22,7 +21,7 @@
         type DrawerSettings,
     } from "@skeletonlabs/skeleton";
     import SvelteMarkdown from "svelte-markdown";
-  import { categoryTagsRune } from "../../shared.svelte";
+  import { categoryTagsRune, otherTagsRune } from "../../shared.svelte";
 
     interface Props {
         id: number;
@@ -151,7 +150,7 @@
             {#if tag}
                 <TagBadge name={tag.name} color={tag.color} />
             {:else}
-                {@const nonCategoryTag = $otherTags.get(tagId)}
+                {@const nonCategoryTag = otherTagsRune[tagId]}
                 <TagBadge
                     name={nonCategoryTag.name}
                     color={nonCategoryTag.color}

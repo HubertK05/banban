@@ -3,12 +3,11 @@
     import {
         activities,
         columns,
-        otherTags,
     } from "../../../stores";
     import TagBadge from "../../board/TagBadge.svelte";
     import DebugLabel from "../../debug/DebugLabel.svelte";
   import type { Tag } from "../../../interfaces/main";
-  import { categoriesRune, categoryTagsRune, changeCategoryTagColor, idTags } from "../../../shared.svelte";
+  import { categoriesRune, categoryTagsRune, changeCategoryTagColor, changeOtherTagColor, idOtherTags, idTags, otherTagsRune } from "../../../shared.svelte";
 
     interface Props {
         tagId: number;
@@ -40,9 +39,8 @@
             delete categoryTagsRune[tagId];
             idTags.update();
         } else {
-            $otherTags.delete(tagId);
-            $otherTags = $otherTags;
-            $columns = $columns;
+            delete otherTagsRune[tagId];
+            idOtherTags.update();
         }
     }
 
@@ -56,9 +54,10 @@
             categoryTagsRune[tagId] = runeTag;
             idTags.update()
         } else {
-            const tag = $otherTags.get(tagId);
-            $otherTags.set(tagId, { ...tag, name: inputTagName });
-            $otherTags = $otherTags;
+            const runeTag = otherTagsRune[tagId]
+            runeTag.name = inputTagName;
+            otherTagsRune[tagId] = runeTag;
+            idOtherTags.update();
         }
 
         inputTagName = "";
@@ -69,10 +68,8 @@
             changeCategoryTagColor(inputTagColor, tagId);
             idTags.update();
         } else {
-            // changeOtherTagColor();
-            const tag = $otherTags.get(tagId);
-            $otherTags.set(tagId, { ...tag, color: inputTagColor });
-            $otherTags = $otherTags;
+            changeOtherTagColor(inputTagColor, tagId);
+            idOtherTags.update();
         }
     }    
 </script>

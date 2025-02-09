@@ -2,9 +2,7 @@
   import { ListBox, ListBoxItem, drawerStore } from "@skeletonlabs/skeleton";
   import {
     columns,
-    otherTags,
     selectedActivity,
-    type Tag,
   } from "../../stores";
   import TagBadge from "../board/TagBadge.svelte";
   import BackButton from "./BackButton.svelte";
@@ -13,7 +11,7 @@
   import DebugLabel from "../debug/DebugLabel.svelte";
   import SettingsButton from "../board/SettingsButton.svelte";
   import ActivityContent from "./activityContent/ActivityContent.svelte";
-  import { categoriesRune, categoryTagsRune, changeCategoryTagColor } from "../../shared.svelte";
+  import { categoriesRune, categoryTagsRune, changeCategoryTagColor, changeOtherTagColor, otherTagsRune } from "../../shared.svelte";
 
   let selectedCategoryId: number | null = $state();
 
@@ -25,14 +23,13 @@
     tagId: number,
   ) {
     if (selectedCategoryId === null) {
-        $otherTags.set(tagId, { ...tag, color: newColor });
-        $otherTags = $otherTags;
+        changeOtherTagColor(newColor, tagId);
     } else {
         changeCategoryTagColor(newColor, tagId);
     }
   }
 
-  async function setActivityTag(newTagId: number, tag: Tag) {
+  async function setActivityTag(newTagId: number, tagName: string) {
       console.assert(selectedCategoryId !== null, "Selected category id is null (in setActivityTag)");
       if (selectedCategoryId === null) return
     const categoryTags = categoriesRune[selectedCategoryId].tags;
@@ -53,7 +50,7 @@
               data: {
                 id: $selectedActivity.id,
                 categoryId: selectedCategoryId,
-                tagName: tag.name,
+                tagName,
               },
             });
             $selectedActivity.tags[index] = newTagId;
@@ -69,7 +66,7 @@
       data: {
         id: $selectedActivity.id,
         categoryId: selectedCategoryId,
-        tagName: tag.name,
+        tagName,
       },
     });
     $selectedActivity.tags.push(newTagId);
@@ -99,8 +96,7 @@
     console.warn(`No tag with id ${tagId} found in the activity`);
   }
 
-  async function addNonCategoryTag(newTagId: number, tag: Tag) {
-    const tags = $otherTags;
+  async function addNonCategoryTag(newTagId: number, tagName: string) {
     for (let currentTagId of $selectedActivity.tags) {
       if (newTagId === currentTagId) {
         console.debug("a target tag already exists in the activity");
@@ -111,7 +107,7 @@
       data: {
         id: $selectedActivity.id,
         categoryId: selectedCategoryId,
-        tagName: tag.name,
+        tagName,
       },
     });
     $selectedActivity.tags.push(newTagId);
@@ -119,15 +115,14 @@
     $columns = $columns;
   }
 
-  async function removeNonCategoryTag(tagId: number, tag: Tag) {
-    const tags = $otherTags;
+  async function removeNonCategoryTag(tagId: number) {
     for (let currentTagId of $selectedActivity.tags) {
       if (tagId === currentTagId) {
         await invoke("remove_tag_from_activity", {
           data: {
             id: $selectedActivity.id,
             categoryId: selectedCategoryId,
-            tagName: tags.get(currentTagId).name,
+            tagName: otherTagsRune[currentTagId].name,
           },
         });
         let a = $selectedActivity.tags;
@@ -192,7 +187,7 @@
           {:else}
             <button
               class="btn btn-sm variant-ghost-primary self-center"
-              onclick={() => setActivityTag(tagId, tag)}>Choose</button
+              onclick={() => setActivityTag(tagId, tag.name)}>Choose</button
             >
           {/if}
         </div>
@@ -204,8 +199,8 @@
 {/if}
 {#if selectedCategoryId === null}
   <div class="flex flex-col">
-    {#each $otherTags as [tagId, storeTag] (tagId)}
-      {@const tag = $otherTags.get(tagId)}
+    {#each Object.entries(otherTagsRune) as [tagId, storeTag] (tagId)}
+      {@const tag = otherTagsRune[+tagId]}
       <div
         class="flex flex-row space-x-6 items-center place-content-between m-2 bg-gray-300 p-1 rounded"
       >
@@ -214,7 +209,7 @@
             class="input"
             type="color"
             value={tag.color}
-            onchange={(e) => changeTagColor(e, tag, tagId)}
+            onchange={(e) => changeTagColor(e.currentTarget.value, +tagId)}
           />
         </div>
 
@@ -223,15 +218,15 @@
         </div>
 
         <div class="w-20 flex align-center justify-center self-center">
-          {#if $selectedActivity.tags.find((id) => id === tagId)}
+          {#if $selectedActivity.tags.find((id) => id === +tagId)}
             <button
               class="btn btn-sm variant-ghost-secondary self-center"
-              onclick={() => removeNonCategoryTag(tagId, tag)}>Remove</button
+              onclick={() => removeNonCategoryTag(+tagId)}>Remove</button
             >
           {:else}
             <button
               class="btn btn-sm variant-ghost-primary self-center"
-              onclick={() => addNonCategoryTag(tagId, tag)}>Choose</button
+              onclick={() => addNonCategoryTag(+tagId, tag.name)}>Choose</button
             >
           {/if}
         </div>

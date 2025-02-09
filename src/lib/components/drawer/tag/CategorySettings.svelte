@@ -1,10 +1,5 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { invoke } from "@tauri-apps/api/core";
-    import {
-        otherTags,
-    } from "../../../stores";
     import {
         ListBox,
         ListBoxItem,
@@ -14,26 +9,13 @@
     import DebugLabel from "../../debug/DebugLabel.svelte";
     import { dndzone, TRIGGERS } from "svelte-dnd-action";
     import TagBadge from "../../board/TagBadge.svelte";
-  import { categoriesRune, categoryTagsRune, idTags } from '../../../shared.svelte';
+  import { categoriesRune, categoryTagsRune, idOtherTags, idTags, otherTagsRune } from '../../../shared.svelte';
   import type { Tag } from '../../../interfaces/main';
 
     const flipDurationMs = 125;
 
     idTags.update();
-
-    let idOtherTags;
-    run(() => {
-        idOtherTags = Array.from($otherTags)
-            .map(([tagId, tag]) => {
-                return {
-                    id: tagId,
-                    tag,
-                };
-            })
-            .sort((a, b) => {
-                return a.tag.ordinal - b.tag.ordinal;
-            });
-    });
+    idOtherTags.update();
 
     async function createTag(tagName: string, categoryId?: number) {
         const res: {
@@ -59,18 +41,19 @@
             categoriesRune[categoryId] = runeCategory;
             console.log($state.snapshot(categoriesRune));
 
-            // TODO: creating new tags sometimes results in non-reactive update of idTags.
             idTags.update();
         } else {
-            $otherTags.set(res.id, {
+            otherTagsRune[res.id] = {
                 name: res.tagName,
-                ordinal: res.ordinal,
+                ord: res.ordinal,
                 color: res.color,
-            });
-            $otherTags = $otherTags;
+            };
+
+            idOtherTags.update();
         }
     }
 
+    // TODO: remove repetitions in code, also leave one of categoryId and categoryIdx
     function handleConsider(
         e: DndEvent<{
             id: number;
@@ -79,18 +62,11 @@
         categoryId: number,
         categoryIdx: number,
     ) {
-        if (categoryId) {
-            e.items.forEach(({ id, tag }, index) => {
-                tag.ord = index;
-            });
+        e.items.forEach(({ id, tag }, index) => {
+            tag.ord = index;
+        });
 
-            idTags.inner[categoryIdx] = e.items
-        } else {
-            e.items.forEach(({ id, tag }, index) => {
-                tag.ord = index;
-            });
-            idOtherTags = e.items;
-        }
+        idTags.inner[categoryIdx] = e.items
     }
 
     async function handleFinalize(
@@ -113,25 +89,44 @@
             data: { categoryTagId: selectedTagId, newOrd: newOrdinal },
         });
 
-        if (categoryId) {
-            const reorderedTags = e.items.map((x, idx) => {
-                return {id: x.id, tag: {...x.tag, ord: idx}};
-            });
-            idTags.inner[categoryIdx] = reorderedTags;
-            reorderedTags.forEach(tag => {
-                categoryTagsRune[tag.id] = tag.tag;
-            });
-            categoriesRune[categoryId] = {...currCategory, ord: currCategory.ordinal, tags: reorderedTags.map(x => x.id) }
-        } else {
-            idOtherTags.forEach((item, idx) => {
-                $otherTags.get(item.id).ordinal = idx;
-            });
-            $otherTags.set(selectedTagId, {
-                ...selectedTag.tag,
-                ordinal: newOrdinal,
-            });
-            $otherTags = $otherTags;
-        }
+        const reorderedTags = e.items.map((x, idx) => {
+            return {id: x.id, tag: {...x.tag, ord: idx}};
+        });
+        idTags.inner[categoryIdx] = reorderedTags;
+        reorderedTags.forEach(tag => {
+            categoryTagsRune[tag.id] = tag.tag;
+        });
+        categoriesRune[categoryId] = {...categoriesRune[categoryId], tags: reorderedTags.map(x => x.id) }
+    }
+
+    function otherTagsConsider(
+        e: DndEvent<{ id: number; tag: Tag }>,
+    ) {
+        e.items.forEach(({ id, tag }, index) => {
+            tag.ord = index;
+        });
+        idOtherTags.inner = e.items;
+    }
+
+    async function otherTagsFinalize(
+        e: DndEvent<{ id: number; tag: Tag }>,
+    ) {
+        const selectedTagId: number = Number(e.info.id);
+        const selectedTag = e.items.find((x) => x.id === selectedTagId);
+        console.assert(selectedTag !== undefined, "Selected tag on finalize not found");
+        if (selectedTag === undefined) return;
+
+        const newOrdinal = e.items.findIndex(
+            (x) => x.id === selectedTagId
+        );
+        await invoke("update_tag_ordinal", {
+            data: { categoryTagId: selectedTagId, newOrd: newOrdinal },
+        });
+
+        e.items.forEach((tag, idx) => {
+            otherTagsRune[tag.id].ord = idx
+        });
+        idOtherTags.update();
     }
 
     let createTagForm = $state(false);
@@ -181,11 +176,11 @@
 
 <hr class="m-2" />
 <p>Other</p>
-{#if $otherTags.size !== 0}
+{#if Object.entries(otherTagsRune).length !== 0}
     <section
         class="flex flex-col pb-2 overflow-auto min-h-full bg-transaprent"
         use:dndzone={{
-            items: idOtherTags,
+            items: idOtherTags.inner,
             flipDurationMs,
             type: `otherTags`,
             dropTargetStyle: {
@@ -193,12 +188,10 @@
                 "border-radius": "0.25rem",
             },
         }}
-        onconsider={handleConsider}
-        onfinalize={handleFinalize}
+        onconsider={e => otherTagsConsider(e.detail)}
+        onfinalize={async e => otherTagsFinalize(e.detail)}
     >
-        {#each idOtherTags.sort((a, b) => {
-            return a.tag.ordinal - b.tag.ordinal;
-        }) as { id, tag } (id)}
+        {#each idOtherTags.inner as { id, tag } (id)}
             <TagSettings {tag} tagId={id} categoryId={undefined} />
         {/each}
     </section>
@@ -232,7 +225,7 @@
             <ListBoxItem
                 bind:group={createCategoryId}
                 value={null}
-                name="categoryId">Other - {$otherTags.size}</ListBoxItem
+                name="categoryId">Other - {Object.entries(otherTagsRune).length}</ListBoxItem
             >
         </ListBox>
     </div>
