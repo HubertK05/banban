@@ -9,7 +9,6 @@
         otherTags,
         previousDrawerTab,
         selectedActivity,
-        tags,
         type Actv,
         type Col,
         otherActivities,
@@ -23,6 +22,7 @@
         type DrawerSettings,
     } from "@skeletonlabs/skeleton";
     import SvelteMarkdown from "svelte-markdown";
+  import { categoryTagsRune } from "../../shared.svelte";
 
     interface Props {
         id: number;
@@ -147,7 +147,7 @@
     <div class="flex flex-row flex-wrap">
         {#each activity.tags as tagId}
             <DebugLabel text={"ID: " + tagId} />
-            {@const tag = $tags.get(tagId)}
+            {@const tag = categoryTagsRune[tagId]}
             {#if tag}
                 <TagBadge name={tag.name} color={tag.color} />
             {:else}

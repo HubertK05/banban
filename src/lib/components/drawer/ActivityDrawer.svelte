@@ -1,14 +1,10 @@
 <script lang="ts">
   import { ListBox, ListBoxItem, drawerStore } from "@skeletonlabs/skeleton";
   import {
-    categories,
     columns,
     otherTags,
-    previousDrawerTab,
     selectedActivity,
-    tags,
     type Tag,
-    activities,
   } from "../../stores";
   import TagBadge from "../board/TagBadge.svelte";
   import BackButton from "./BackButton.svelte";

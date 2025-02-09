@@ -13,8 +13,6 @@ export const hoverColumnId: Writable<null | number> = writable(null);
 export const columns: Writable<Map<number, Col>> = writable(new Map())
 export const activities: Writable<Map<number, Actv>> = writable(new Map());
 export const otherActivities: Writable<Map<number, OtherActv>> = writable(new Map())
-export const categories: Writable<Map<number, Category>> = writable(new Map())
-export const tags: Writable<Map<number, Tag & { categoryId: number }>> = writable(new Map());
 export const otherTags: Writable<Map<number, Tag>> = writable(new Map())
 
 currentEditable.subscribe((editable) => {
@@ -90,14 +88,6 @@ export async function fetchAll() {
     Object.entries(res.otherActivities).forEach(([activityId, activity]) => {
         _otherActivities.set(Number(activityId), activity)
     })
-    const _categories = new Map()
-    Object.entries(res.categories).forEach(([categoryId, category]) => {
-        _categories.set(Number(categoryId), category)
-    })
-    const _categoryTags = new Map()
-    Object.entries(res.categoryTags).forEach(([tagId, tag]) => {
-        _categoryTags.set(Number(tagId), tag)
-    })
     const _otherTags = new Map()
     Object.entries(res.otherTags).forEach(([tagId, tag]) => {
         _otherTags.set(Number(tagId), tag)
@@ -105,8 +95,6 @@ export async function fetchAll() {
     columns.set(_columns);
     activities.set(_activities);
     otherActivities.set(_otherActivities);
-    categories.set(_categories);
-    tags.set(_categoryTags);
     otherTags.set(_otherTags);
 
     const categoryIds: Record<number, number> = {};

@@ -3,10 +3,7 @@
 
     import { invoke } from "@tauri-apps/api/core";
     import {
-        categories,
-        columns,
         otherTags,
-        tags,
     } from "../../../stores";
     import {
         ListBox,
@@ -48,18 +45,6 @@
         } = await invoke("create_tag", { data: { tagName, categoryId } });
 
         if (categoryId !== undefined && categoryId !== null) {
-            $tags.set(res.id, {
-                name: res.tagName,
-                ordinal: res.ordinal,
-                color: res.color,
-                categoryId,
-            });
-            const category = $categories.get(categoryId);
-            category.tags.push(res.id);
-            $categories.set(categoryId, category);
-            $tags = $tags;
-            $categories = $categories;
-
             categoryTagsRune[res.id] = {
                 name: res.tagName,
                 ord: res.ordinal,
@@ -129,21 +114,6 @@
         });
 
         if (categoryId) {
-            e.items.forEach((x, idx) => {
-                $tags.get(x.id).ordinal = idx;
-            });
-            const currCategory = $categories.get(categoryId);
-            console.assert(currCategory !== undefined, "Current category on finalize not found");
-            if (currCategory === undefined) return;
-
-            $tags.set(selectedTagId, {...selectedTag.tag, ordinal: selectedTag.tag.ord, color: selectedTag.tag.color!});
-            $tags = $tags;
-            $categories.set(categoryId, {
-                ...currCategory,
-                tags: idTags.inner[categoryIdx].map(x => x.id),
-            });
-            $categories = $categories;
-
             const reorderedTags = e.items.map((x, idx) => {
                 return {id: x.id, tag: {...x.tag, ord: idx}};
             });

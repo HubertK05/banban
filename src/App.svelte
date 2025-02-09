@@ -19,8 +19,8 @@
   let tabSet: number = 0;
 
   onMount(async () => {
-    await fetchAll();
-    await invoke("close_splashscreen");
+      await fetchAll();
+      await invoke("close_splashscreen");
   });
 </script>
 

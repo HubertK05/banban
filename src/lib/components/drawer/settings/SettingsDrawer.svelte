@@ -1,6 +1,6 @@
 <script lang="ts">
   import { drawerStore } from "@skeletonlabs/skeleton";
-  import { categories, previousDrawerTab } from "../../../stores";
+  import { previousDrawerTab } from "../../../stores";
   import BackButton from "../BackButton.svelte";
   import { invoke } from "@tauri-apps/api/core";
   import TagSettings from "../tag/TagSettings.svelte";
@@ -14,13 +14,6 @@
       name: string;
       ordinal: number;
     } = await invoke("create_category", { name: categoryName });
-    $categories.set(res.id, {
-      name: res.name,
-      tags: [],
-      ordinal: res.ordinal,
-    });
-    categoryName = "";
-    $categories = $categories;
 
     categoriesRune[res.id] = {
       name: res.name,

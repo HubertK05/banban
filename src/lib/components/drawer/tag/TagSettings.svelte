@@ -2,10 +2,8 @@
     import { invoke } from "@tauri-apps/api/core";
     import {
         activities,
-        categories,
         columns,
         otherTags,
-        tags,
     } from "../../../stores";
     import TagBadge from "../../board/TagBadge.svelte";
     import DebugLabel from "../../debug/DebugLabel.svelte";
@@ -34,12 +32,6 @@
             $columns.set(columnId, column);
         });
         if (categoryId !== undefined && categoryId !== null) {
-            $tags.delete(tagId);
-            const category = $categories.get(categoryId);
-            category.tags = category.tags.filter((id) => id !== tagId);
-            $categories.set(categoryId, category);
-            $tags = $tags;
-            $categories = $categories;
             $columns = $columns;
 
             const runeCategory = categoriesRune[categoryId];
@@ -59,10 +51,6 @@
             data: { categoryTagId: tagId, tagName: inputTagName },
         });
         if (categoryId) {
-            const tag = $tags.get(tagId);
-            $tags.set(tagId, { ...tag, name: inputTagName });
-            $tags = $tags;
-
             const runeTag = categoryTagsRune[tagId]
             runeTag.name = inputTagName;
             categoryTagsRune[tagId] = runeTag;
