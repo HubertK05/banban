@@ -17,28 +17,12 @@
     import DebugLabel from "../../debug/DebugLabel.svelte";
     import { dndzone, TRIGGERS } from "svelte-dnd-action";
     import TagBadge from "../../board/TagBadge.svelte";
-  import { categoriesRune, categoryTagsRune } from '../../../shared.svelte';
+  import { categoriesRune, categoryTagsRune, idTags } from '../../../shared.svelte';
   import type { Tag } from '../../../interfaces/main';
 
     const flipDurationMs = 125;
 
-    let idTags: { id: number, tag: Tag & { categoryId: number } }[][] = $state([]);
-    updateIdTags();
-    
-    // we need both reactivity and functioning drag and drop at once.
-    // $derived() rune on idTags confuses the drag and drop library.
-    // $state() without explicit update is non-reactive.
-    function updateIdTags() {
-        idTags = Object.entries(categoriesRune).map(([categoryId, category]) => {
-            return category.tags.map(tagId => {
-                const tag = categoryTagsRune[tagId];
-                console.assert(tag !== undefined, "Category tag not found");
-                return {id: tagId, tag: {...tag!, categoryId: +categoryId}};
-            }).sort((idTagA, idTagB) => {
-                return idTagA.tag.ord - idTagB.tag.ord;
-            });
-        })
-    }
+    idTags.update();
 
     let idOtherTags;
     run(() => {
@@ -90,7 +74,7 @@
             console.log($state.snapshot(categoriesRune));
 
             // TODO: creating new tags sometimes results in non-reactive update of idTags.
-            updateIdTags();
+            idTags.update();
         } else {
             $otherTags.set(res.id, {
                 name: res.tagName,
@@ -114,7 +98,7 @@
                 tag.ord = index;
             });
 
-            idTags[categoryIdx] = e.items
+            idTags.inner[categoryIdx] = e.items
         } else {
             e.items.forEach(({ id, tag }, index) => {
                 tag.ord = index;
@@ -155,14 +139,14 @@
             $tags = $tags;
             $categories.set(categoryId, {
                 ...currCategory,
-                tags: idTags[categoryIdx].map(x => x.id),
+                tags: idTags.inner[categoryIdx].map(x => x.id),
             });
             $categories = $categories;
 
             const reorderedTags = e.items.map((x, idx) => {
                 return {id: x.id, tag: {...x.tag, ord: idx}};
             });
-            idTags[categoryIdx] = reorderedTags;
+            idTags.inner[categoryIdx] = reorderedTags;
             reorderedTags.forEach(tag => {
                 categoryTagsRune[tag.id] = tag.tag;
             });
@@ -195,7 +179,7 @@
         <section
             class="flex flex-col pb-2 overflow-auto min-h-full bg-transaprent"
             use:dndzone={{
-                items: idTags[categoryIdx],
+                items: idTags.inner[categoryIdx],
                 flipDurationMs,
                 type: `tags ${categoryId}`,
                 dropTargetStyle: {
@@ -206,7 +190,7 @@
             onconsider={e => handleConsider(e.detail, +categoryId, categoryIdx)}
             onfinalize={async e => handleFinalize(e.detail, +categoryId, categoryIdx)}
         >
-            {#each idTags[categoryIdx] as { id, tag } (id)}
+            {#each idTags.inner[categoryIdx] as { id, tag } (id)}
                 <TagSettings {tag} tagId={id} categoryId={+categoryId} />
             {/each}
         </section>

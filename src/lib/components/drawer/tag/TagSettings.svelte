@@ -10,7 +10,7 @@
     import TagBadge from "../../board/TagBadge.svelte";
     import DebugLabel from "../../debug/DebugLabel.svelte";
   import type { Tag } from "../../../interfaces/main";
-  import { categoriesRune, categoryTagsRune } from "../../../shared.svelte";
+  import { categoriesRune, categoryTagsRune, idTags } from "../../../shared.svelte";
 
     interface Props {
         tagId: number;
@@ -42,7 +42,11 @@
             $categories = $categories;
             $columns = $columns;
 
-            delete categoryTagsRune[tagId]
+            const runeCategory = categoriesRune[categoryId];
+            runeCategory.tags = runeCategory.tags.filter(id => id !== tagId);
+            categoriesRune[categoryId] = runeCategory;
+            delete categoryTagsRune[tagId];
+            idTags.update();
         } else {
             $otherTags.delete(tagId);
             $otherTags = $otherTags;
