@@ -17,6 +17,7 @@
   import DebugLabel from "../debug/DebugLabel.svelte";
   import SettingsButton from "../board/SettingsButton.svelte";
   import ActivityContent from "./activityContent/ActivityContent.svelte";
+  import { categoriesRune, categoryTagsRune, changeCategoryTagColor } from "../../shared.svelte";
 
   let selectedCategoryId: number | null = $state();
 
@@ -24,31 +25,21 @@
   let inputActivityBody: string = "";
 
   async function changeTagColor(
-    e: Event & {
-      currentTarget: EventTarget & HTMLInputElement;
-    },
-    tag: Tag,
-    tagId: number
+    newColor: string,
+    tagId: number,
   ) {
-    const newColor = e.currentTarget.value;
-    await invoke("update_tag_color", {
-      data: { categoryTagId: tagId, color: newColor.slice(1) },
-    });
-    if (selectedCategoryId == null) {
-      $otherTags.set(tagId, { ...tag, color: newColor });
-      $otherTags = $otherTags;
+    if (selectedCategoryId === null) {
+        $otherTags.set(tagId, { ...tag, color: newColor });
+        $otherTags = $otherTags;
     } else {
-      $tags.set(tagId, {
-        ...tag,
-        color: newColor,
-        categoryId: selectedCategoryId,
-      });
-      $tags = $tags;
+        changeCategoryTagColor(newColor, tagId);
     }
   }
 
   async function setActivityTag(newTagId: number, tag: Tag) {
-    const categoryTags = $categories.get(selectedCategoryId).tags;
+      console.assert(selectedCategoryId !== null, "Selected category id is null (in setActivityTag)");
+      if (selectedCategoryId === null) return
+    const categoryTags = categoriesRune[selectedCategoryId].tags;
     for (let currentTagId of $selectedActivity.tags) {
       if (categoryTags.includes(currentTagId)) {
         for (let categoryTag of categoryTags) {
@@ -59,7 +50,7 @@
               data: {
                 id: $selectedActivity.id,
                 categoryId: selectedCategoryId,
-                tagName: $tags.get(currentTagId).name,
+                tagName: categoryTagsRune[currentTagId].name,
               },
             });
             await invoke("add_tag_to_activity", {
@@ -70,6 +61,7 @@
               },
             });
             $selectedActivity.tags[index] = newTagId;
+            $selectedActivity = $selectedActivity;
             $columns = $columns;
             return;
           }
@@ -99,7 +91,7 @@
           data: {
             id: $selectedActivity.id,
             categoryId: selectedCategoryId,
-            tagName: $tags.get(activityTags[i]).name,
+            tagName: categoryTagsRune[activityTags[i]].name,
           },
         });
         $selectedActivity.tags.splice(i, 1);
@@ -161,14 +153,14 @@
 <ActivityContent />
 <h2 class="h2">Categories</h2>
 <ListBox>
-  {#each Array.from($categories.entries()).sort(([a, catA], [b, catB]) => {
-    return catA.ordinal - catB.ordinal;
+  {#each Object.entries(categoriesRune).sort(([a, catA], [b, catB]) => {
+    return catA.ord - catB.ord;
   }) as [categoryId, category]}
     <DebugLabel text={"ID: " + categoryId} />
     <ListBoxItem
       bind:group={selectedCategoryId}
       name={category.name}
-      value={categoryId}>{category.name}</ListBoxItem
+      value={+categoryId}>{category.name}</ListBoxItem
     >
   {/each}
   <ListBoxItem bind:group={selectedCategoryId} name="Other" value={null}
@@ -177,8 +169,8 @@
 </ListBox>
 {#if selectedCategoryId}
   <div class="flex flex-col">
-    {#each $categories.get(selectedCategoryId).tags as tagId (tagId)}
-      {@const tag = $tags.get(tagId)}
+    {#each categoriesRune[selectedCategoryId].tags as tagId (tagId)}
+      {@const tag = categoryTagsRune[tagId]}
       <div
         class="flex flex-row space-x-6 place-content-between m-2 bg-gray-300 p-1 rounded"
       >
@@ -187,7 +179,7 @@
             class="input"
             type="color"
             value={tag.color}
-            onchange={(e) => changeTagColor(e, tag, tagId)}
+            onchange={(e) => changeTagColor(e.currentTarget.value, tagId)}
           />
         </div>
 

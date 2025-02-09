@@ -10,7 +10,7 @@
     import TagBadge from "../../board/TagBadge.svelte";
     import DebugLabel from "../../debug/DebugLabel.svelte";
   import type { Tag } from "../../../interfaces/main";
-  import { categoriesRune, categoryTagsRune, idTags } from "../../../shared.svelte";
+  import { categoriesRune, categoryTagsRune, changeCategoryTagColor, idTags } from "../../../shared.svelte";
 
     interface Props {
         tagId: number;
@@ -62,6 +62,11 @@
             const tag = $tags.get(tagId);
             $tags.set(tagId, { ...tag, name: inputTagName });
             $tags = $tags;
+
+            const runeTag = categoryTagsRune[tagId]
+            runeTag.name = inputTagName;
+            categoryTagsRune[tagId] = runeTag;
+            idTags.update()
         } else {
             const tag = $otherTags.get(tagId);
             $otherTags.set(tagId, { ...tag, name: inputTagName });
@@ -72,19 +77,16 @@
     }
 
     async function changeColor() {
-        await invoke("update_tag_color", {
-            data: { categoryTagId: tagId, color: inputTagColor.slice(1) },
-        });
         if (categoryId) {
-            const tag = $tags.get(tagId);
-            $tags.set(tagId, { ...tag, color: inputTagColor });
-            $tags = $tags;
+            changeCategoryTagColor(inputTagColor, tagId);
+            idTags.update();
         } else {
+            // changeOtherTagColor();
             const tag = $otherTags.get(tagId);
             $otherTags.set(tagId, { ...tag, color: inputTagColor });
             $otherTags = $otherTags;
         }
-    }
+    }    
 </script>
 
 <div class="flex flex-col p-2">

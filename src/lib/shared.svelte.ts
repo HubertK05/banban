@@ -1,5 +1,7 @@
+import { invoke } from "@tauri-apps/api/core";
 import type { Category, Tag } from "./interfaces/main";
 import { SvelteMap } from 'svelte/reactivity';
+import { otherTags } from "./stores";
 
 export const categoriesRune: Record<number, Category> = $state({});
 export const categoryTagsRune: Record<number, Tag & { categoryId: number }> = $state({});
@@ -24,3 +26,26 @@ class IdTags {
 }
 
 export const idTags = new IdTags();
+
+export async function changeCategoryTagColor(
+    newColor: string,
+    tagId: number,
+) {
+    const tag = categoryTagsRune[tagId];
+    await invoke("update_tag_color", {
+        data: { categoryTagId: tagId, color: newColor.slice(1) },
+    });
+    tag.color = newColor;
+    categoryTagsRune[tagId] = tag;
+}
+
+// export async function changeOtherTagColor(
+//     newColor: string,
+//     tagId: number,
+// ) {
+//     const tag = otherTagsRune[tagId];
+//     await invoke("update_tag_color", {
+//         data: { categoryTagId: tagId, color: newColor.slice(1) },
+//     });
+//     otherTagsRune[tagId] = {...tag, color: newColor};
+// }

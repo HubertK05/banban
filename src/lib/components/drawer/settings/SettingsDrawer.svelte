@@ -5,6 +5,7 @@
   import { invoke } from "@tauri-apps/api/core";
   import TagSettings from "../tag/TagSettings.svelte";
   import CategorySettings from "../tag/CategorySettings.svelte";
+  import { categoriesRune } from "../../../shared.svelte";
 
   let categoryName: string = $state("");
   async function createCategory() {
@@ -20,6 +21,12 @@
     });
     categoryName = "";
     $categories = $categories;
+
+    categoriesRune[res.id] = {
+      name: res.name,
+      tags: [],
+      ord: res.ordinal,
+    }
   }
 </script>
 
