@@ -7,6 +7,7 @@
     type ToastSettings,
   } from "@skeletonlabs/skeleton";
   import { tick } from "svelte";
+  import { activitiesRune } from "../../../shared.svelte";
 
   let displayName = $state($selectedActivity.name);
   let isEditMode = $state(false);

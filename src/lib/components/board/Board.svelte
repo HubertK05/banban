@@ -16,11 +16,13 @@
     import DebugButton from "../debug/DebugButton.svelte";
     import OtherActivitiesButton from "./OtherActivitiesButton.svelte";
     import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
-  import { columnsRune } from '../../shared.svelte';
+  import { columnsRune, draggableColumns } from '../../shared.svelte';
 
     setDebugMode(false);
     const boardName = "Kanban";
     const flipDurationMs = 300;
+
+    draggableColumns.update();
 
     async function createColumn({
         currentTarget,
@@ -44,53 +46,32 @@
         }, 100);
     }
 
-    let draggableColumns: { id: number, col: Column }[];
-    run(() => {
-        draggableColumns = Object.entries(columnsRune)
-            .map(([id, col]) => {
-                return {
-                    id: +id,
-                    col,
-                };
-            })
-            .sort((a, b) => {
-                return a.col.ord - b.col.ord;
-            });
-    });
-
     function handleConsider(
-        e: CustomEvent<
-            DndEvent<{
-                id: number;
-                col: Column;
-            }>
-        > & {
-            target: any;
-        }
+        e: DndEvent<{
+            id: number;
+            column: Column;
+        }>
     ) {
-        e.detail.items.forEach(({ id, col }, index) => {
-            col.ord = index;
+        e.items.forEach(({ id, column }, index) => {
+            column.ord = index;
         });
-        draggableColumns = e.detail.items;
+        draggableColumns.inner = e.items;
     }
+    
     async function handleFinalize(
-        e: CustomEvent<
-            DndEvent<{
-                id: number;
-                col: Column;
-            }>
-        > & {
-            target: any;
-        }
+        e: DndEvent<{
+            id: number;
+            column: Column;
+        }>
     ) {
-        e.detail.items.forEach(({ id, col }, index) => {
+        e.items.forEach(({ id, column }, index) => {
             const c = columnsRune[id];
             c.ord = index;
             columnsRune[id] = c;
         });
 
-        const draggedColumnId = Number(e.detail.info.id);
-        const index = e.detail.items.findIndex(
+        const draggedColumnId = +e.info.id;
+        const index = e.items.findIndex(
             ({ id }) => id === draggedColumnId
         );
         await invoke("update_column_ordinal", {
@@ -100,6 +81,7 @@
             },
         });
         $columnDragDisabled = true;
+        draggableColumns.inner = e.items
     }
 
     function startDrag() {
@@ -118,18 +100,16 @@
         <section
             class="flex flex-row px-10 mt-4 space-x-6 w-max"
             use:dndzone={{
-                items: draggableColumns,
+                items: draggableColumns.inner,
                 flipDurationMs,
                 type: "columns",
                 dropTargetStyle: {},
                 dragDisabled: $columnDragDisabled,
             }}
-            onconsider={handleConsider}
-            onfinalize={handleFinalize}
+            onconsider={e => handleConsider(e.detail)}
+            onfinalize={e => handleFinalize(e.detail)}
         >
-            {#each Array.from(draggableColumns).sort((a, b) => {
-                return a.col.ord - b.col.ord;
-            }) as { id, col } (id)}
+            {#each draggableColumns.inner as { id, column } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
@@ -151,7 +131,7 @@
                             /></svg
                         >
                     </div>
-                    <BoardColumn column={col} columnId={+id} />
+                    <BoardColumn {column} columnId={id} />
                 </div>
             {:else}
                 <div class="flex flex-col">

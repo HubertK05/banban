@@ -38,26 +38,21 @@ class IdOtherTags {
     }
 }
 
-export class DraggableActivities {
-    inner: Record<number, { id: number, colId: number, activity: Activity }[]> = $state([])
+export class DraggableColumns {
+    inner: { id: number, column: Column }[] = $state([])
 
     update = () => {
-        Object.entries(columnsRune).forEach(([colId, column]) => {
-            this.inner[+colId] = Array.from(column.activities)
-                .map(id => {
-                    const activity = activitiesRune[id];
-                    return { activity, id, colId: +colId };
-                })
-                .sort((a, b) => {
-                    return a.activity.ordinal - b.activity.ordinal;
-                });
-        })
+        this.inner = Object.entries(columnsRune)
+            .map(([id, column]) => { return { id: +id, column }; })
+            .sort((colA, colB) => {
+                return colA.column.ord - colB.column.ord;
+            });
     }
 }
 
 export const idTags = new IdTags();
 export const idOtherTags = new IdOtherTags();
-export const draggableActivities = new DraggableActivities();
+export const draggableColumns = new DraggableColumns();
 
 export async function changeCategoryTagColor(
     newColor: string,

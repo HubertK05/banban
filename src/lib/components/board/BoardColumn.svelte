@@ -15,7 +15,7 @@
     import { flip } from "svelte/animate";
     import { ActiveField, type Activity, type Column } from "../../interfaces/main";
     import { modalStore, type ModalSettings } from "@skeletonlabs/skeleton";
-  import { activitiesRune, columnsRune, draggableActivities, DraggableActivities } from '../../shared.svelte';
+  import { activitiesRune, columnsRune } from '../../shared.svelte';
 
     interface Props {
         columnId: number;
@@ -25,14 +25,26 @@
     let { columnId, column = $bindable() }: Props = $props();
     const flipDurationMs = 125;
 
-    draggableActivities.update()
+    let draggableActivities: { id: number, colId: number, activity: Activity }[] = $state(
+        column.activities.map(activityId => {
+            return { id: activityId, colId: columnId, activity: activitiesRune[activityId] };
+        })
+    )
 
-    run(() => {
-        // WARNING! Updates every key stroke
-        invoke("rename_column", {
-            data: { id: columnId, newName: column.name },
+    function updateDraggable() {
+        draggableActivities = column.activities.map(activityId => {
+            return { id: activityId, colId: columnId, activity: activitiesRune[activityId] };
+        })
+    }
+    
+    if (+columnId) {
+        run(() => {
+            // WARNING! Updates every key stroke
+            invoke("rename_column", {
+                data: { id: columnId, newName: column.name },
+            });
         });
-    });
+    }
 
     async function createActivity() {
         const name = "New activity";
@@ -68,7 +80,8 @@
         };
         columnsRune[columnId] = column;
 
-        draggableActivities.update();
+        // draggableActivities.update();
+        updateDraggable();
     }
 
     function handleNameClick() {
@@ -121,7 +134,7 @@
         e.items.forEach(({ id, activity }, index) => {
             activity.ordinal = index;
         });
-        draggableActivities.inner[columnId] = e.items;
+        draggableActivities = e.items;
     }
 
     async function handleFinalize(
@@ -151,7 +164,7 @@
                 data: { id: activityId, columnId, newOrd: index },
             });
         }
-        draggableActivities.inner[columnId] = e.items;
+        draggableActivities = e.items;
     }
 
     function showRemoveModal() {
@@ -211,7 +224,7 @@
 
         <span
             class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30 cursor-default"
-            >{draggableActivities.inner[columnId].length}</span
+            >{column.activities.length}</span
         >
         <!-- svelte-ignore a11y_consider_explicit_label -->
         <button
@@ -254,7 +267,7 @@
                 ? 'shadow-2xl rounded-md'
                 : ''}"
             use:dndzone={{
-                items: draggableActivities.inner[columnId],
+                items: draggableActivities,
                 flipDurationMs,
                 type: "activities",
                 dropTargetStyle: {},
@@ -262,7 +275,7 @@
             onconsider={e => handleConsider(e.detail)}
             onfinalize={e => handleFinalize(e.detail)}
         >
-            {#each draggableActivities.inner[columnId] as { id, activity, colId } (id)}
+            {#each draggableActivities as { id, activity, colId } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
                     <ActivityCard activity={{...activity, columnId: colId}} {id} />
                 </div>

@@ -18,7 +18,7 @@
         type DrawerSettings,
     } from "@skeletonlabs/skeleton";
     import SvelteMarkdown from "svelte-markdown";
-  import { activitiesRune, categoryTagsRune, columnsRune, draggableActivities, otherTagsRune } from "../../shared.svelte";
+  import { activitiesRune, categoryTagsRune, columnsRune, draggableColumns, otherTagsRune } from "../../shared.svelte";
 
     interface Props {
         id: number;
@@ -31,13 +31,12 @@
         await invoke("delete_activity", { id });
 
         if (activity.columnId) {
-            const column = columnsRune[activity.columnId];
-            const index = column.activities.findIndex((aId) => aId === id);
-            column.activities.splice(index, 1);
-            columnsRune[activity.columnId] = column;
-
+            // TODO: fix reactivity
+            const runeColumn = columnsRune[activity.columnId]
+            runeColumn.activities = runeColumn.activities.filter(aId => aId !== id)
+            columnsRune[activity.columnId] = runeColumn;
             delete activitiesRune[id];
-            draggableActivities.update();
+            draggableColumns.update();
         } else {
             $otherActivities.delete(id);
             $otherActivities = $otherActivities;
