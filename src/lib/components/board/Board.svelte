@@ -3,12 +3,10 @@
 
     import BoardColumn from "./BoardColumn.svelte";
     import {
-        columns,
         currentEditable,
         isDebug,
         previousDrawerTab,
         selectedActivity,
-        type Col,
         columnDragDisabled,
     } from "../../stores";
     import { invoke } from "@tauri-apps/api/core";
@@ -18,6 +16,7 @@
     import DebugButton from "../debug/DebugButton.svelte";
     import OtherActivitiesButton from "./OtherActivitiesButton.svelte";
     import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
+  import { columnsRune } from '../../shared.svelte';
 
     setDebugMode(false);
     const boardName = "Kanban";
@@ -33,8 +32,9 @@
             "create_column",
             { name }
         );
-        $columns.set(res.id, { name, activities: [], ordinal: $columns.size });
-        $columns = $columns;
+
+        columnsRune[res.id] = { name, activities: [], ord: Object.entries(columnsRune).length };
+
         setTimeout(() => {
             currentTarget.scrollIntoView({
                 behavior: "smooth",
@@ -44,17 +44,17 @@
         }, 100);
     }
 
-    let draggableColumns;
+    let draggableColumns: { id: number, col: Column }[];
     run(() => {
-        draggableColumns = Array.from($columns.entries())
+        draggableColumns = Object.entries(columnsRune)
             .map(([id, col]) => {
                 return {
-                    id,
+                    id: +id,
                     col,
                 };
             })
             .sort((a, b) => {
-                return a.col.ordinal - b.col.ordinal;
+                return a.col.ord - b.col.ord;
             });
     });
 
@@ -62,14 +62,14 @@
         e: CustomEvent<
             DndEvent<{
                 id: number;
-                col: Col;
+                col: Column;
             }>
         > & {
             target: any;
         }
     ) {
         e.detail.items.forEach(({ id, col }, index) => {
-            col.ordinal = index;
+            col.ord = index;
         });
         draggableColumns = e.detail.items;
     }
@@ -77,18 +77,17 @@
         e: CustomEvent<
             DndEvent<{
                 id: number;
-                col: Col;
+                col: Column;
             }>
         > & {
             target: any;
         }
     ) {
         e.detail.items.forEach(({ id, col }, index) => {
-            const c = $columns.get(id);
-            c.ordinal = index;
-            $columns.set(id, c);
+            const c = columnsRune[id];
+            c.ord = index;
+            columnsRune[id] = c;
         });
-        $columns = $columns;
 
         const draggedColumnId = Number(e.detail.info.id);
         const index = e.detail.items.findIndex(
@@ -129,7 +128,7 @@
             onfinalize={handleFinalize}
         >
             {#each Array.from(draggableColumns).sort((a, b) => {
-                return a.col.ordinal - b.col.ordinal;
+                return a.col.ord - b.col.ord;
             }) as { id, col } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -152,7 +151,7 @@
                             /></svg
                         >
                     </div>
-                    <BoardColumn column={col} columnId={id} />
+                    <BoardColumn column={col} columnId={+id} />
                 </div>
             {:else}
                 <div class="flex flex-col">

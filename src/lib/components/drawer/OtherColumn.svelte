@@ -5,7 +5,6 @@
     import {
         ActiveField,
         type Activity,
-        type Column,
     } from "../../interfaces/main";
     import ActivityCard from "../board/ActivityCard.svelte";
     import { otherActivities } from "../../stores";

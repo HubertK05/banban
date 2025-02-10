@@ -2,7 +2,6 @@
     import { invoke } from "@tauri-apps/api/core";
     import { ActiveField, DrawerTab } from "../../interfaces/main";
     import {
-        columns,
         currentEditable,
         isDebug,
         previousDrawerTab,
@@ -19,7 +18,7 @@
         type DrawerSettings,
     } from "@skeletonlabs/skeleton";
     import SvelteMarkdown from "svelte-markdown";
-  import { activitiesRune, categoryTagsRune, otherTagsRune } from "../../shared.svelte";
+  import { activitiesRune, categoryTagsRune, columnsRune, draggableActivities, otherTagsRune } from "../../shared.svelte";
 
     interface Props {
         id: number;
@@ -32,13 +31,13 @@
         await invoke("delete_activity", { id });
 
         if (activity.columnId) {
-            const column = $columns.get(activity.columnId);
+            const column = columnsRune[activity.columnId];
             const index = column.activities.findIndex((aId) => aId === id);
             column.activities.splice(index, 1);
-            $columns.set(activity.columnId, column);
-            $columns = $columns;
+            columnsRune[activity.columnId] = column;
 
             delete activitiesRune[id];
+            draggableActivities.update();
         } else {
             $otherActivities.delete(id);
             $otherActivities = $otherActivities;

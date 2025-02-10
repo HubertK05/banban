@@ -1,7 +1,6 @@
 <script lang="ts">
   import { ListBox, ListBoxItem, drawerStore } from "@skeletonlabs/skeleton";
   import {
-    columns,
     selectedActivity,
   } from "../../stores";
   import TagBadge from "../board/TagBadge.svelte";
@@ -55,7 +54,6 @@
             });
             $selectedActivity.tags[index] = newTagId;
             $selectedActivity = $selectedActivity;
-            $columns = $columns;
             return;
           }
         }
@@ -71,7 +69,6 @@
     });
     $selectedActivity.tags.push(newTagId);
     $selectedActivity = $selectedActivity;
-    $columns = $columns;
   }
 
   async function removeActivityTag(tagId: number) {
@@ -89,7 +86,6 @@
         });
         $selectedActivity.tags.splice(i, 1);
         $selectedActivity = $selectedActivity;
-        $columns = $columns;
         return;
       }
     }
@@ -112,7 +108,6 @@
     });
     $selectedActivity.tags.push(newTagId);
     $selectedActivity = $selectedActivity;
-    $columns = $columns;
   }
 
   async function removeNonCategoryTag(tagId: number) {
@@ -131,7 +126,6 @@
           1
         );
         $selectedActivity.tags = a;
-        $columns = $columns;
         return;
       }
     }

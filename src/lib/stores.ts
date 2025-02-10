@@ -10,7 +10,6 @@ export const selectedActivity: Writable<((Actv | OtherActv) & { id: number }) | 
 export const columnDragDisabled: Writable<boolean> = writable(true);
 export const hoverColumnId: Writable<null | number> = writable(null);
 
-export const columns: Writable<Map<number, Col>> = writable(new Map())
 export const otherActivities: Writable<Map<number, OtherActv>> = writable(new Map())
 
 currentEditable.subscribe((editable) => {
@@ -74,15 +73,10 @@ export interface RawLoadData {
 export async function fetchAll() {
     const res = await invoke("fetch_all") as RawLoadData;
 
-    const _columns = new Map();
-    Object.entries(res.columns).forEach(([columnId, column]) => {
-        _columns.set(Number(columnId), column)
-    })
     const _otherActivities = new Map()
     Object.entries(res.otherActivities).forEach(([activityId, activity]) => {
         _otherActivities.set(Number(activityId), activity)
     })
-    columns.set(_columns);
     otherActivities.set(_otherActivities);
 
     const categoryIds: Record<number, number> = {};

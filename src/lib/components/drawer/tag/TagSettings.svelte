@@ -1,10 +1,9 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
-    import { columns } from "../../../stores";
     import TagBadge from "../../board/TagBadge.svelte";
     import DebugLabel from "../../debug/DebugLabel.svelte";
   import type { Tag } from "../../../interfaces/main";
-  import { activitiesRune, categoriesRune, categoryTagsRune, changeCategoryTagColor, changeOtherTagColor, idOtherTags, idTags, otherTagsRune } from "../../../shared.svelte";
+  import { activitiesRune, categoriesRune, categoryTagsRune, changeCategoryTagColor, changeOtherTagColor, columnsRune, idOtherTags, idTags, otherTagsRune } from "../../../shared.svelte";
 
     interface Props {
         tagId: number;
@@ -19,17 +18,15 @@
 
     async function removeTag() {
         await invoke("delete_tag", { categoryTagId: tagId });
-        $columns.forEach((column, columnId) => {
+        Object.entries(columnsRune).forEach(([colId, column]) => {
             column.activities.map((activityId) => {
                 const runeActivity = activitiesRune[activityId];
                 runeActivity.tags = runeActivity.tags.filter((id) => id !== tagId);
                 activitiesRune[activityId] = runeActivity;
             });
-            $columns.set(columnId, column);
+            columnsRune[+colId] = column;
         });
         if (categoryId !== undefined && categoryId !== null) {
-            $columns = $columns;
-
             const runeCategory = categoriesRune[categoryId];
             runeCategory.tags = runeCategory.tags.filter(id => id !== tagId);
             categoriesRune[categoryId] = runeCategory;
