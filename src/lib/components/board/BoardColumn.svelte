@@ -5,7 +5,6 @@
     import ActivityCard from "./ActivityCard.svelte";
     import {
         currentEditable,
-        otherActivities,
         type Actv,
         hoverColumnId,
         columnDragDisabled,
@@ -15,7 +14,7 @@
     import { flip } from "svelte/animate";
     import { ActiveField, type Activity, type Column } from "../../interfaces/main";
     import { modalStore, type ModalSettings } from "@skeletonlabs/skeleton";
-  import { activitiesRune, columnsRune } from '../../shared.svelte';
+  import { activitiesRune, columnsRune, draggableColumns, otherActivitiesRune } from '../../shared.svelte';
 
     interface Props {
         columnId: number;
@@ -71,7 +70,9 @@
             activity.ordinal += 1;
             activitiesRune[id] = activity;
         });
+        console.log("before:", $state.snapshot(column.activities));
         column.activities.push(res.id);
+        console.log("after:", $state.snapshot(column.activities));
         activitiesRune[res.id] = {
             name,
             body,
@@ -100,6 +101,7 @@
                 columnsRune[+colId] = column;
             }
         });
+        console.log($state.snapshot(column.activities));
         let columnActivities: Array<[number, Activity]> = Array.from(
             column.activities
         ).map((activityId) => [activityId, activitiesRune[activityId]]);
@@ -113,12 +115,12 @@
             }
         );
         sortedColumnActivities.forEach(([activityId, activity]) => {
-            activity.ordinal = $otherActivities.size;
-            $otherActivities.set(activityId, activity);
+            activity.ordinal = Object.entries(otherActivitiesRune.inner).length;
+            otherActivitiesRune.inner[activityId] = activity;
         });
 
         delete columnsRune[columnId];
-        $otherActivities = $otherActivities;
+        draggableColumns.update();
     }
 
     function handleConsider(
@@ -165,6 +167,7 @@
             });
         }
         draggableActivities = e.items;
+        draggableColumns.update();
     }
 
     function showRemoveModal() {
@@ -277,7 +280,7 @@
         >
             {#each draggableActivities as { id, activity, colId } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
-                    <ActivityCard activity={{...activity, columnId: colId}} {id} />
+                    <ActivityCard activity={{...activity}} {id} columnId={colId} />
                 </div>
             {/each}
         </section>

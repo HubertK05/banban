@@ -44,6 +44,8 @@
                 inline: "center",
             });
         }, 100);
+
+        draggableColumns.update();
     }
 
     function handleConsider(

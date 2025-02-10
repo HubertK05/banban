@@ -1,13 +1,11 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
-    import { ActiveField, DrawerTab } from "../../interfaces/main";
+    import { ActiveField, DrawerTab, type Activity } from "../../interfaces/main";
     import {
         currentEditable,
         isDebug,
         previousDrawerTab,
         selectedActivity,
-        type Actv,
-        otherActivities,
     } from "../../stores";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import TagBadge from "./TagBadge.svelte";
@@ -18,29 +16,28 @@
         type DrawerSettings,
     } from "@skeletonlabs/skeleton";
     import SvelteMarkdown from "svelte-markdown";
-  import { activitiesRune, categoryTagsRune, columnsRune, draggableColumns, otherTagsRune } from "../../shared.svelte";
+  import { activitiesRune, categoryTagsRune, columnsRune, draggableColumns, otherActivitiesRune, otherTagsRune } from "../../shared.svelte";
 
     interface Props {
         id: number;
-        activity: Actv;
+        activity: Activity;
+        columnId?: number;
     }
 
-    let { id, activity }: Props = $props();
+    let { id, activity, columnId }: Props = $props();
 
     async function removeActivity() {
         await invoke("delete_activity", { id });
 
-        if (activity.columnId) {
+        if (columnId) {
             // TODO: fix reactivity
-            const runeColumn = columnsRune[activity.columnId]
+            const runeColumn = columnsRune[columnId]
             runeColumn.activities = runeColumn.activities.filter(aId => aId !== id)
-            columnsRune[activity.columnId] = runeColumn;
+            columnsRune[columnId] = runeColumn;
             delete activitiesRune[id];
             draggableColumns.update();
         } else {
-            $otherActivities.delete(id);
-            $otherActivities = $otherActivities;
-
+            delete otherActivitiesRune.inner[id]
             delete activitiesRune[id];
         }
     }
@@ -68,7 +65,7 @@
 
     function showDrawer() {
         $previousDrawerTab = null;
-        $selectedActivity = { ...activity, id, columnId: activity.columnId };
+        $selectedActivity = { ...activity, id, columnId: columnId };
         const drawer: DrawerSettings = {
             id: DrawerTab.Activity,
             width: "w-2/3",
@@ -91,7 +88,7 @@
     draggable="true"
 >
     <DebugLabel text={"ord: " + activity.ordinal} />
-    {#if activity.columnId}
+    {#if columnId}
         <!-- svelte-ignore a11y_consider_explicit_label -->
         <button
             onclick={showDrawer}

@@ -1,7 +1,7 @@
 import { writable, type Writable } from "svelte/store";
 import type { DrawerTab, Editable } from "./interfaces/main";
 import { invoke } from "@tauri-apps/api/core";
-import { activitiesRune, categoriesRune, categoryTagsRune, columnsRune, draggableColumns, otherTagsRune } from "./shared.svelte";
+import { activitiesRune, categoriesRune, categoryTagsRune, columnsRune, draggableColumns, otherActivitiesRune, otherTagsRune } from "./shared.svelte";
 
 export const isDebug: Writable<boolean> = writable(false);
 export const previousDrawerTab: Writable<DrawerTab | null> = writable(null)
@@ -9,8 +9,6 @@ export const currentEditable: Writable<Editable | null> = writable(null)
 export const selectedActivity: Writable<((Actv | OtherActv) & { id: number }) | null> = writable(null)
 export const columnDragDisabled: Writable<boolean> = writable(true);
 export const hoverColumnId: Writable<null | number> = writable(null);
-
-export const otherActivities: Writable<Map<number, OtherActv>> = writable(new Map())
 
 currentEditable.subscribe((editable) => {
     if (editable !== null) {
@@ -72,13 +70,6 @@ export interface RawLoadData {
 
 export async function fetchAll() {
     const res = await invoke("fetch_all") as RawLoadData;
-
-    const _otherActivities = new Map()
-    Object.entries(res.otherActivities).forEach(([activityId, activity]) => {
-        _otherActivities.set(Number(activityId), activity)
-    })
-    otherActivities.set(_otherActivities);
-
     const categoryIds: Record<number, number> = {};
 
     Object.entries(res.categories).forEach(([categoryId, category]) => {
@@ -105,6 +96,10 @@ export async function fetchAll() {
     Object.entries(res.activities).forEach(([activityId, activity]) => {
         activitiesRune[+activityId] = activity
     })
+
+    Object.entries(res.otherActivities).forEach(([activityId, activity]) => {
+        otherActivitiesRune.inner[+activityId] = activity
+    });
 }
 
 

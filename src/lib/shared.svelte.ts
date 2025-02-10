@@ -6,6 +6,7 @@ export const categoryTagsRune: Record<number, Tag & { categoryId: number }> = $s
 export const otherTagsRune: Record<number, Tag> = $state({});
 export const activitiesRune: Record<number, Activity> = $state({});
 export const columnsRune: Record<number, Column> = $state({});
+export const otherActivitiesRune: { inner: Record<number, Activity> } = $state({inner: {}});
 
 class IdTags {
     // we need both reactivity and functioning drag and drop at once.
