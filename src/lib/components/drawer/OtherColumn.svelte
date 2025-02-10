@@ -8,12 +8,7 @@
         type Column,
     } from "../../interfaces/main";
     import ActivityCard from "../board/ActivityCard.svelte";
-    import {
-        activities,
-        columns,
-        currentEditable,
-        otherActivities,
-    } from "../../stores";
+    import { otherActivities } from "../../stores";
     import { dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";

@@ -1,13 +1,10 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
-    import {
-        activities,
-        columns,
-    } from "../../../stores";
+    import { columns } from "../../../stores";
     import TagBadge from "../../board/TagBadge.svelte";
     import DebugLabel from "../../debug/DebugLabel.svelte";
   import type { Tag } from "../../../interfaces/main";
-  import { categoriesRune, categoryTagsRune, changeCategoryTagColor, changeOtherTagColor, idOtherTags, idTags, otherTagsRune } from "../../../shared.svelte";
+  import { activitiesRune, categoriesRune, categoryTagsRune, changeCategoryTagColor, changeOtherTagColor, idOtherTags, idTags, otherTagsRune } from "../../../shared.svelte";
 
     interface Props {
         tagId: number;
@@ -24,9 +21,9 @@
         await invoke("delete_tag", { categoryTagId: tagId });
         $columns.forEach((column, columnId) => {
             column.activities.map((activityId) => {
-                const activity = $activities.get(activityId);
-                activity.tags = activity.tags.filter((id) => id !== tagId);
-                $activities.set(activityId, activity);
+                const runeActivity = activitiesRune[activityId];
+                runeActivity.tags = runeActivity.tags.filter((id) => id !== tagId);
+                activitiesRune[activityId] = runeActivity;
             });
             $columns.set(columnId, column);
         });

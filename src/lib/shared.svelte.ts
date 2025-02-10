@@ -1,11 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { Activity, Category, Column, Tag } from "./interfaces/main";
-import type { Actv } from "./stores";
 
 export const categoriesRune: Record<number, Category> = $state({});
 export const categoryTagsRune: Record<number, Tag & { categoryId: number }> = $state({});
 export const otherTagsRune: Record<number, Tag> = $state({});
 export const activitiesRune: Record<number, Activity> = $state({});
+export const columnsRune: Record<number, Column> = $state({});
 
 class IdTags {
     // we need both reactivity and functioning drag and drop at once.

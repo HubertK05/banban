@@ -9,7 +9,6 @@
         previousDrawerTab,
         selectedActivity,
         type Col,
-        activities,
         columnDragDisabled,
     } from "../../stores";
     import { invoke } from "@tauri-apps/api/core";
@@ -109,8 +108,6 @@
     }
 </script>
 
-<!-- {@debug $activities}
-{@debug $columns} -->
 <div
     class="flex flex-col w-screen h-screen overflow-auto text-gray-700 bg-gradient-to-tr from-blue-200 via-indigo-200 to-pink-200"
 >

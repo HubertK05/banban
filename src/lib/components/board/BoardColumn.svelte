@@ -7,7 +7,6 @@
         columns,
         currentEditable,
         type Col,
-        activities,
         otherActivities,
         type Actv,
         hoverColumnId,
@@ -16,9 +15,9 @@
     import { TRIGGERS, dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
-    import { ActiveField } from "../../interfaces/main";
+    import { ActiveField, type Activity } from "../../interfaces/main";
     import { modalStore, type ModalSettings } from "@skeletonlabs/skeleton";
-  import { DraggableActivities } from '../../shared.svelte';
+  import { activitiesRune, columnsRune, DraggableActivities } from '../../shared.svelte';
 
     interface Props {
         columnId: number;
@@ -38,7 +37,7 @@
     async function createActivity() {
         const name = "New activity";
         const body = "";
-        const tags = [];
+        const tags: number[] = [];
         const res: {
             id: number;
             name: string;
@@ -51,26 +50,26 @@
         const column = $columns.get(columnId);
         const columnActivities: Map<number, Actv> = column.activities.reduce(
             (acc, id) => {
-                acc.set(id, $activities.get(id));
+                acc.set(id, activitiesRune[id]);
                 return acc;
             },
             new Map()
         );
         Array.from(columnActivities.entries()).forEach(([id, activity]) => {
             activity.ordinal += 1;
-            $activities.set(id, activity);
+            activitiesRune[id] = activity;
         });
         column.activities.push(res.id);
-        $activities.set(res.id, {
+        activitiesRune[res.id] = {
             name,
             body,
             tags,
             ordinal: res.ordinal,
-            columnId: columnId,
-        });
+        };
         $columns.set(columnId, column);
-        $activities = $activities;
         $columns = $columns;
+
+        draggableActivities.update(column, columnId);
     }
 
     function handleNameClick() {
@@ -89,11 +88,11 @@
                 $columns.set(colId, column);
             }
         });
-        let columnActivities: Array<[number, Actv]> = Array.from(
+        let columnActivities: Array<[number, Activity]> = Array.from(
             column.activities
-        ).map((activityId) => [activityId, $activities.get(activityId)]);
+        ).map((activityId) => [activityId, activitiesRune[activityId]]);
         column.activities.forEach((activityId) => {
-            $activities.delete(activityId);
+            delete activitiesRune[activityId]
         });
         column.activities = [];
         let sortedColumnActivities = columnActivities.sort(
@@ -102,14 +101,11 @@
             }
         );
         sortedColumnActivities.forEach(([activityId, activity]) => {
-            // let activity = $activities.get(activityId);
             activity.ordinal = $otherActivities.size;
             $otherActivities.set(activityId, activity);
         });
 
         $columns.delete(columnId);
-        $activities = $activities;
-
         $columns = $columns;
         $otherActivities = $otherActivities;
     }
@@ -118,62 +114,54 @@
     draggableActivities.update({...column, ord: column.ordinal}, columnId)
 
     function handleConsider(
-        e: CustomEvent<
-            DndEvent<{
-                id: number;
-                activity: Actv;
-                colId: number;
-            }>
-        > & {
-            target: any;
-        }
+        e: DndEvent<{
+            id: number;
+            activity: Activity;
+            colId: number;
+        }>
     ) {
-        const trigger = e.detail.info.trigger;
-        console.log(columnId, "trigger", trigger);
-        if (trigger === TRIGGERS.DRAGGED_ENTERED) {
+        if (e.info.trigger === TRIGGERS.DRAGGED_ENTERED) {
             $hoverColumnId = columnId;
-        } else if (trigger === TRIGGERS.DRAGGED_LEFT) {
-            //$hoverColumnId = null;
         }
-        const activityId = Number(e.detail.info.id);
-        e.detail.items.forEach(({ id, activity }, index) => {
+        e.items.forEach(({ id, activity }, index) => {
             activity.ordinal = index;
         });
-        draggableActivities.inner = e.detail.items;
+        draggableActivities.inner = e.items;
     }
 
     async function handleFinalize(
-        e: CustomEvent<
-            DndEvent<{
-                id: number;
-                activity: Actv;
-                colId: number;
-            }>
-        > & {
-            target: any;
-        }
+        e: DndEvent<{
+            id: number;
+            activity: Activity;
+            colId: number;
+        }>
     ) {
         $hoverColumnId = null;
-        const activitiesIds = [];
-        e.detail.items.forEach(({ id, activity, colId }, index) => {
+        const activitiesIds: number[] = [];
+        e.items.forEach(({ id, activity, colId }, index) => {
             activity.ordinal = index;
-            $activities.set(id, activity);
+            activitiesRune[id] = activity;
             activitiesIds.push(id);
         });
         $columns.set(columnId, {
             ...$columns.get(columnId),
             activities: activitiesIds,
         });
-        $activities = $activities;
+
+        columnsRune[columnId] = {
+            ...columnsRune[columnId],
+            activities: activitiesIds,
+        }
         $columns = $columns;
-        const activityId = Number(e.detail.info.id);
-        const index = e.detail.items.findIndex(({ id }) => id === activityId);
+
+        const activityId = +e.info.id;
+        const index = e.items.findIndex(({ id }) => id === activityId);
         if (index !== -1) {
             await invoke("update_activity_column", {
                 data: { id: activityId, columnId, newOrd: index },
             });
         }
-        draggableActivities.inner = e.detail.items;
+        draggableActivities.inner = e.items;
     }
 
     function showRemoveModal() {
@@ -281,8 +269,8 @@
                 type: "activities",
                 dropTargetStyle: {},
             }}
-            onconsider={handleConsider}
-            onfinalize={handleFinalize}
+            onconsider={e => handleConsider(e.detail)}
+            onfinalize={e => handleFinalize(e.detail)}
         >
             {#each draggableActivities.inner as { id, activity, colId } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>

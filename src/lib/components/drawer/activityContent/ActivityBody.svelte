@@ -1,7 +1,7 @@
 <script lang="ts">
   import SvelteMarkdon from "svelte-markdown";
   import { invoke } from "@tauri-apps/api/core";
-  import { activities, selectedActivity } from "../../../stores";
+  import { selectedActivity } from "../../../stores";
   import {
     modalStore,
     toastStore,
@@ -11,6 +11,7 @@
     Tab,
   } from "@skeletonlabs/skeleton";
   import { fly } from "svelte/transition";
+  import { activitiesRune } from "../../../shared.svelte";
 
   let displayBody = $state($selectedActivity.body ?? "");
   let isEditMode = $state(false);
@@ -59,10 +60,11 @@
     });
     displayBody = newBody ?? "";
     $selectedActivity.body = newBody;
-    const activity = $activities.get($selectedActivity.id);
-    activity.body = $selectedActivity.body;
     $selectedActivity = $selectedActivity;
-    $activities = $activities;
+
+    const runeActivity = activitiesRune[$selectedActivity.id];
+    runeActivity.body = $selectedActivity.body;
+    activitiesRune[$selectedActivity.id] = runeActivity;
   }
 
   function clear() {

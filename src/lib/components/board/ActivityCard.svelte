@@ -2,14 +2,12 @@
     import { invoke } from "@tauri-apps/api/core";
     import { ActiveField, DrawerTab } from "../../interfaces/main";
     import {
-        activities,
         columns,
         currentEditable,
         isDebug,
         previousDrawerTab,
         selectedActivity,
         type Actv,
-        type Col,
         otherActivities,
     } from "../../stores";
     import DebugLabel from "../debug/DebugLabel.svelte";
@@ -21,7 +19,7 @@
         type DrawerSettings,
     } from "@skeletonlabs/skeleton";
     import SvelteMarkdown from "svelte-markdown";
-  import { categoryTagsRune, otherTagsRune } from "../../shared.svelte";
+  import { activitiesRune, categoryTagsRune, otherTagsRune } from "../../shared.svelte";
 
     interface Props {
         id: number;
@@ -38,14 +36,14 @@
             const index = column.activities.findIndex((aId) => aId === id);
             column.activities.splice(index, 1);
             $columns.set(activity.columnId, column);
-            $activities.delete(id);
-            $activities = $activities;
             $columns = $columns;
+
+            delete activitiesRune[id];
         } else {
             $otherActivities.delete(id);
-            $activities.delete(id);
-            $activities = $activities;
             $otherActivities = $otherActivities;
+
+            delete activitiesRune[id];
         }
     }
 
@@ -96,6 +94,7 @@
 >
     <DebugLabel text={"ord: " + activity.ordinal} />
     {#if activity.columnId}
+        <!-- svelte-ignore a11y_consider_explicit_label -->
         <button
             onclick={showDrawer}
             class="absolute top-0 right-5 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"
@@ -112,6 +111,7 @@
             </svg>
         </button>
     {/if}
+    <!-- svelte-ignore a11y_consider_explicit_label -->
     <button
         onclick={showRemoveModal}
         class="absolute top-0 right-0 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"

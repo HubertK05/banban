@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
-  import { activities, selectedActivity } from "../../../stores";
+  import { selectedActivity } from "../../../stores";
   import {
     modalStore,
     toastStore,
@@ -73,10 +73,11 @@
     });
     displayName = newName;
     $selectedActivity.name = newName;
-    const activity = $activities.get($selectedActivity.id);
-    activity.name = $selectedActivity.name;
     $selectedActivity = $selectedActivity;
-    $activities = $activities;
+
+    const runeActivity = activitiesRune[$selectedActivity.id];
+    runeActivity.name = $selectedActivity.name;
+    activitiesRune[$selectedActivity.id] = runeActivity;
   }
 </script>
 
