@@ -7,9 +7,18 @@
   import DebugLabel from "../debug/DebugLabel.svelte";
   import SettingsButton from "../board/SettingsButton.svelte";
   import ActivityContent from "./activityContent/ActivityContent.svelte";
-  import { appState, categoriesRune, categoryTagsRune, changeCategoryTagColor, changeOtherTagColor, otherTagsRune } from "../../shared.svelte";
+  import { activitiesRune, appState, categoriesRune, categoryTagsRune, changeCategoryTagColor, changeOtherTagColor, otherTagsRune } from "../../shared.svelte";
+  import type { Activity } from "../../interfaces/main";
 
-  let selectedCategoryId: number | null = $state();
+    interface Props {
+        activityId: number,
+    }
+
+    let { activityId }: Props = $props()
+    console.assert(activitiesRune[activityId] !== undefined, "Selected activity is undefined")
+    let selectedActivity: Activity = $derived(activitiesRune[activityId])
+
+  let selectedCategoryId: number | null = $state(null);
 
   let inputActivityName: string = "";
   let inputActivityBody: string = "";
@@ -29,28 +38,27 @@
       console.assert(selectedCategoryId !== null, "Selected category id is null (in setActivityTag)");
       if (selectedCategoryId === null) return
     const categoryTags = categoriesRune[selectedCategoryId].tags;
-    for (let currentTagId of appState.selectedActivity.tags) {
+    for (let currentTagId of selectedActivity.tags) {
       if (categoryTags.includes(currentTagId)) {
         for (let categoryTag of categoryTags) {
-          const index = appState.selectedActivity.tags.indexOf(categoryTag);
+          const index = selectedActivity.tags.indexOf(categoryTag);
           if (index !== -1) {
             console.debug("Swapping category tag");
             await invoke("remove_tag_from_activity", {
               data: {
-                id: appState.selectedActivity.id,
+                id: activityId,
                 categoryId: selectedCategoryId,
                 tagName: categoryTagsRune[currentTagId].name,
               },
             });
             await invoke("add_tag_to_activity", {
               data: {
-                id: appState.selectedActivity.id,
+                id: activityId,
                 categoryId: selectedCategoryId,
                 tagName,
               },
             });
-            appState.selectedActivity.tags[index] = newTagId;
-            appState.selectedActivity = appState.selectedActivity;
+            activitiesRune[activityId].tags[index] = newTagId;
             return;
           }
         }
@@ -59,30 +67,28 @@
     console.debug("Adding a new category tag");
     await invoke("add_tag_to_activity", {
       data: {
-        id: appState.selectedActivity.id,
+        id: activityId,
         categoryId: selectedCategoryId,
         tagName,
       },
     });
-    appState.selectedActivity.tags.push(newTagId);
-    appState.selectedActivity = appState.selectedActivity;
+    activitiesRune[activityId].tags.push(newTagId);
   }
 
   async function removeActivityTag(tagId: number) {
-    const activityTags: number[] = appState.selectedActivity.tags;
+    const activityTags: number[] = selectedActivity.tags;
     for (let i = 0; i < activityTags.length; i++) {
       console.debug(tagId, activityTags[i]);
       if (activityTags[i] === tagId) {
         console.debug(`Removing tag ${tagId} from activity`);
         await invoke("remove_tag_from_activity", {
           data: {
-            id: appState.selectedActivity.id,
+            id: activityId,
             categoryId: selectedCategoryId,
             tagName: categoryTagsRune[activityTags[i]].name,
           },
         });
-        appState.selectedActivity.tags.splice(i, 1);
-        appState.selectedActivity = appState.selectedActivity;
+        activitiesRune[activityId].tags.splice(i, 1);
         return;
       }
     }
@@ -90,7 +96,7 @@
   }
 
   async function addNonCategoryTag(newTagId: number, tagName: string) {
-    for (let currentTagId of appState.selectedActivity.tags) {
+    for (let currentTagId of selectedActivity.tags) {
       if (newTagId === currentTagId) {
         console.debug("a target tag already exists in the activity");
         return;
@@ -98,31 +104,25 @@
     }
     await invoke("add_tag_to_activity", {
       data: {
-        id: appState.selectedActivity.id,
+        id: activityId,
         categoryId: selectedCategoryId,
         tagName,
       },
     });
-    appState.selectedActivity.tags.push(newTagId);
-    appState.selectedActivity = appState.selectedActivity;
+    activitiesRune[activityId].tags.push(newTagId);
   }
 
   async function removeNonCategoryTag(tagId: number) {
-    for (let currentTagId of appState.selectedActivity.tags) {
+    for (let currentTagId of selectedActivity.tags) {
       if (tagId === currentTagId) {
         await invoke("remove_tag_from_activity", {
           data: {
-            id: appState.selectedActivity.id,
+            id: activityId,
             categoryId: selectedCategoryId,
             tagName: otherTagsRune[currentTagId].name,
           },
         });
-        let a = appState.selectedActivity.tags;
-        a.splice(
-          appState.selectedActivity.tags.findIndex((x) => x === currentTagId),
-          1
-        );
-        appState.selectedActivity.tags = a;
+        activitiesRune[activityId].tags = activitiesRune[activityId].tags.filter(x => x !== currentTagId)
         return;
       }
     }
@@ -132,7 +132,7 @@
 
 <BackButton />
 <SettingsButton />
-<ActivityContent />
+<ActivityContent {activityId} />
 <h2 class="h2">Categories</h2>
 <ListBox>
   {#each Object.entries(categoriesRune).sort(([a, catA], [b, catB]) => {
@@ -170,7 +170,7 @@
         </div>
 
         <div class="w-20 flex align-center justify-center self-center">
-          {#if appState.selectedActivity.tags.find((id) => id === tagId)}
+          {#if selectedActivity.tags.find((id) => id === tagId)}
             <button
               class="btn btn-sm variant-ghost-secondary self-center"
               onclick={() => removeActivityTag(tagId)}>Remove</button
@@ -209,7 +209,7 @@
         </div>
 
         <div class="w-20 flex align-center justify-center self-center">
-          {#if appState.selectedActivity.tags.find((id) => id === +tagId)}
+          {#if selectedActivity.tags.find((id) => id === +tagId)}
             <button
               class="btn btn-sm variant-ghost-secondary self-center"
               onclick={() => removeNonCategoryTag(+tagId)}>Remove</button

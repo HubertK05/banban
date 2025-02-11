@@ -59,7 +59,7 @@
 
     function showDrawer() {
         appState.previousDrawerTab = null;
-        appState.selectedActivity = { ...activity, id };
+        appState.selectedActivity = id;
         const drawer: DrawerSettings = {
             id: DrawerTab.Activity,
             width: "w-2/3",
@@ -68,6 +68,7 @@
     }
 
     let bodyPreview = $derived(() => {
+        if (!activity.body) return "";
         const elements = activity.body.split("\n");
         const out = elements.slice(0, 5).join("\n");
         if (elements.length > 5) {

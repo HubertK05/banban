@@ -8,17 +8,24 @@
   import { tick } from "svelte";
   import { activitiesRune, appState } from "../../../shared.svelte";
 
-  let displayName = $state(appState.selectedActivity.name);
-  let isEditMode = $state(false);
+  interface Props {
+    activityId: number,
+  }
 
+  const { activityId }: Props = $props();
+  console.assert(activitiesRune[activityId] !== undefined, "Selected activity is undefined")
+  const selectedActivity = $derived(activitiesRune[activityId]);
+  let displayName = $derived(selectedActivity.name);
+  
+  let isEditMode = $state(false);
   let inputName: string = $state("");
-  let inputNode: HTMLInputElement = $state();
+  let inputNode: HTMLInputElement | undefined = $state();
 
   async function openEdit() {
     inputName = displayName;
     isEditMode = true;
     await tick();
-    inputNode.focus();
+    inputNode?.focus();
   }
 
   async function save() {
@@ -66,18 +73,12 @@
   async function sync(newName: string) {
     invoke("update_activity_content", {
       data: {
-        id: appState.selectedActivity.id,
+        id: activityId,
         name: newName,
-        body: appState.selectedActivity.body,
+        body: selectedActivity.body,
       },
     });
-    displayName = newName;
-    appState.selectedActivity.name = newName;
-    appState.selectedActivity = appState.selectedActivity;
-
-    const runeActivity = activitiesRune[appState.selectedActivity.id];
-    runeActivity.name = appState.selectedActivity.name;
-    activitiesRune[appState.selectedActivity.id] = runeActivity;
+    activitiesRune[activityId].name = newName;
   }
 </script>
 

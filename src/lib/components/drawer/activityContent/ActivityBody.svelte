@@ -12,9 +12,16 @@
   import { fly } from "svelte/transition";
   import { activitiesRune, appState } from "../../../shared.svelte";
 
-  let displayBody = $state(appState.selectedActivity.body ?? "");
-  let isEditMode = $state(false);
+  interface Props {
+    activityId: number,
+  }
 
+  let { activityId }: Props = $props();
+  console.assert(activitiesRune[activityId] !== undefined, "Selected activity is undefined");
+  const selectedActivity = $derived(activitiesRune[activityId]);
+  let displayBody = $derived(selectedActivity.body ?? "");
+  
+  let isEditMode = $state(false);
   let inputBody: string = $state("");
 
   function openEdit() {
@@ -26,7 +33,7 @@
     const trimmedBody = inputBody.trim();
     if (trimmedBody.length === 0) {
       await sync();
-      displayBody = "";
+      activitiesRune[activityId].body = "";
       isEditMode = false;
       return;
     }
@@ -52,18 +59,12 @@
   async function sync(newBody?: string) {
     await invoke("update_activity_content", {
       data: {
-        id: appState.selectedActivity.id,
-        name: appState.selectedActivity.name,
+        id: activityId,
+        name: selectedActivity.name,
         body: newBody,
       },
     });
-    displayBody = newBody ?? "";
-    appState.selectedActivity.body = newBody;
-    appState.selectedActivity = appState.selectedActivity;
-
-    const runeActivity = activitiesRune[appState.selectedActivity.id];
-    runeActivity.body = appState.selectedActivity.body;
-    activitiesRune[appState.selectedActivity.id] = runeActivity;
+    activitiesRune[activityId].body = newBody ?? "";
   }
 
   function clear() {
@@ -92,7 +93,6 @@
     <Tab bind:group={tabSet} name="edit" value={0}>Edit</Tab>
     <Tab bind:group={tabSet} name="preview" value={1}>Preview</Tab>
     {#snippet panel()}
-      
         <div class="flex">
           {#if tabSet === 0}
             <textarea

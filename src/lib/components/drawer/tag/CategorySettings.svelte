@@ -132,7 +132,7 @@
     let createTagForm = $state(false);
     let createCategoryId: number | undefined = $state();
     let createTagName: string = $state("");
-    let createTagNode: HTMLInputElement = $state();
+    let createTagNode: HTMLInputElement | undefined = $state();
 </script>
 
 <h2 class="h2">Tag options</h2>
@@ -165,7 +165,7 @@
             class="btn variant-ghost-tertiary"
             onclick={() => {
                 createCategoryId = +categoryId;
-                createTagNode.focus();
+                createTagNode?.focus();
             }}>Add new tag</button
         >
     {/if}
@@ -200,7 +200,7 @@
         class="btn variant-ghost-tertiary"
         onclick={() => {
             createCategoryId = undefined;
-            createTagNode.focus();
+            createTagNode?.focus();
         }}>Add new tag</button
     >
 {/if}

@@ -38,7 +38,7 @@ export type NonColumnActivities = Map<number, Activity>
 
 export interface Tag {
     name: string;
-    color?: string
+    color: string
     ord: number
 }
 
@@ -76,7 +76,7 @@ export interface AppState {
     isDebug: boolean,
     previousDrawerTab: DrawerTab | null,
     currentEditable: Editable | null,
-    selectedActivity: (Activity & { id: number }) | null,
+    selectedActivity: number | null,
     columnDragDisabled: boolean,
     hoverColumnId: null | number,
 }
