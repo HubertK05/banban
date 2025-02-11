@@ -1,6 +1,6 @@
 <script lang="ts">
     import { DrawerTab } from "../../interfaces";
-  import { appState } from "../../shared.svelte";
+    import { appState } from "../../shared.svelte";
     import { drawerStore } from "@skeletonlabs/skeleton";
 
     function openSettingsDrawer() {

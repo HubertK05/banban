@@ -1,27 +1,24 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
+    import { run } from "svelte/legacy";
 
     import { invoke } from "@tauri-apps/api/core";
-    import {
-        ActiveField,
-        type Activity,
-    } from "../../interfaces";
+    import { ActiveField, type Activity } from "../../interfaces";
     import ActivityCard from "../board/ActivityCard.svelte";
     import { dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
     import { drawerStore } from "@skeletonlabs/skeleton";
-  import { idOtherTags, otherActivitiesRune } from '../../shared.svelte';
+    import { idOtherTags, otherActivitiesRune } from "../../shared.svelte";
 
     const flipDurationMs = 100;
 
-    let draggableActivities: { id: number, activity: Activity }[] = $state([])
+    let draggableActivities: { id: number; activity: Activity }[] = $state([]);
     updateDraggable();
 
     function updateDraggable() {
         draggableActivities = Object.entries(otherActivitiesRune.inner).map(([activityId, activity]) => {
             return { id: +activityId, activity };
-        })
+        });
     }
 
     run(() => {
@@ -38,7 +35,7 @@
             }>
         > & {
             target: any;
-        }
+        },
     ) {
         e.detail.items.forEach(({ id, activity }, index) => {
             activity.ordinal = index;
@@ -54,7 +51,7 @@
             }>
         > & {
             target: any;
-        }
+        },
     ) {
         e.detail.items.forEach(({ id, activity }, index) => {
             activity.ordinal = index;
@@ -68,9 +65,9 @@
             });
         }
         const activityRecord: Record<number, Activity> = {};
-        e.detail.items.map(({id, activity}) => {
+        e.detail.items.map(({ id, activity }) => {
             activityRecord[id] = activity;
-        })
+        });
         otherActivitiesRune.inner = activityRecord;
     }
 </script>

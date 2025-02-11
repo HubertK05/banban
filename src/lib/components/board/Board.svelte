@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
+    import { run } from "svelte/legacy";
 
     import BoardColumn from "./BoardColumn.svelte";
     import { invoke } from "@tauri-apps/api/core";
@@ -9,7 +9,7 @@
     import DebugButton from "../debug/DebugButton.svelte";
     import OtherActivitiesButton from "./OtherActivitiesButton.svelte";
     import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
-  import { appState, columnsRune, draggableColumns } from '../../shared.svelte';
+    import { appState, columnsRune, draggableColumns } from "../../shared.svelte";
 
     setDebugMode(false);
     const boardName = "Kanban";
@@ -23,10 +23,7 @@
         currentTarget: EventTarget & HTMLButtonElement;
     }) {
         const name = "New column";
-        const res: { id: number; name: string; ordinal: number } = await invoke(
-            "create_column",
-            { name }
-        );
+        const res: { id: number; name: string; ordinal: number } = await invoke("create_column", { name });
 
         columnsRune[res.id] = { name, activities: [], ord: Object.entries(columnsRune).length };
 
@@ -45,19 +42,19 @@
         e: DndEvent<{
             id: number;
             column: Column;
-        }>
+        }>,
     ) {
         e.items.forEach(({ id, column }, index) => {
             column.ord = index;
         });
         draggableColumns.inner = e.items;
     }
-    
+
     async function handleFinalize(
         e: DndEvent<{
             id: number;
             column: Column;
-        }>
+        }>,
     ) {
         e.items.forEach(({ id, column }, index) => {
             const c = columnsRune[id];
@@ -66,9 +63,7 @@
         });
 
         const draggedColumnId = +e.info.id;
-        const index = e.items.findIndex(
-            ({ id }) => id === draggedColumnId
-        );
+        const index = e.items.findIndex(({ id }) => id === draggedColumnId);
         await invoke("update_column_ordinal", {
             data: {
                 columnId: draggedColumnId,
@@ -76,7 +71,7 @@
             },
         });
         appState.columnDragDisabled = true;
-        draggableColumns.inner = e.items
+        draggableColumns.inner = e.items;
     }
 
     function startDrag() {
@@ -101,17 +96,15 @@
                 dropTargetStyle: {},
                 dragDisabled: appState.columnDragDisabled,
             }}
-            onconsider={e => handleConsider(e.detail)}
-            onfinalize={e => handleFinalize(e.detail)}
+            onconsider={(e) => handleConsider(e.detail)}
+            onfinalize={(e) => handleFinalize(e.detail)}
         >
             {#each draggableColumns.inner as { id, column } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
                         class={`w-full h-4 text-center bg-gray-500 bg-opacity-20 rounded-full ${
-                            appState.columnDragDisabled
-                                ? "cursor-grab"
-                                : "cursor-grabbing"
+                            appState.columnDragDisabled ? "cursor-grab" : "cursor-grabbing"
                         }`}
                         onmousedown={startDrag}
                         ontouchstart={startDrag}
@@ -160,10 +153,7 @@
             {/each}
         </section>
         <div class="flex flex-row space-x-6">
-            <button
-                onclick={createColumn}
-                class="btn variant-ghost-tertiary h-96">+</button
-            >
+            <button onclick={createColumn} class="btn variant-ghost-tertiary h-96">+</button>
             <DebugButton />
             <div class="flex-shrink-0 w-6"></div>
         </div>

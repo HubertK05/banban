@@ -7,6 +7,6 @@
 
 <h2 class="h2">Content</h2>
 <div class="flex flex-col place-content-center">
-    <ActivityName {activityId}/>
-    <ActivityBody {activityId}/>
+    <ActivityName {activityId} />
+    <ActivityBody {activityId} />
 </div>

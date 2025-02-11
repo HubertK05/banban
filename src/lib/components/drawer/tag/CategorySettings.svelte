@@ -1,16 +1,12 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
-    import {
-        ListBox,
-        ListBoxItem,
-        type ModalComponent,
-    } from "@skeletonlabs/skeleton";
+    import { ListBox, ListBoxItem, type ModalComponent } from "@skeletonlabs/skeleton";
     import TagSettings from "./TagSettings.svelte";
     import DebugLabel from "../../debug/DebugLabel.svelte";
     import { dndzone, TRIGGERS } from "svelte-dnd-action";
     import TagBadge from "../../board/TagBadge.svelte";
-  import { categoriesRune, categoryTagsRune, idOtherTags, idTags, otherTagsRune } from '../../../shared.svelte';
-  import type { Tag } from '../../../interfaces';
+    import { categoriesRune, categoryTagsRune, idOtherTags, idTags, otherTagsRune } from "../../../shared.svelte";
+    import type { Tag } from "../../../interfaces";
 
     const flipDurationMs = 125;
 
@@ -34,10 +30,10 @@
                 categoryId,
             };
 
-            const runeCategory = categoriesRune[categoryId]
-            console.assert(runeCategory !== undefined, "Category's tag ids is undefined")
+            const runeCategory = categoriesRune[categoryId];
+            console.assert(runeCategory !== undefined, "Category's tag ids is undefined");
             if (runeCategory === undefined) return;
-            runeCategory.tags.push(res.id)
+            runeCategory.tags.push(res.id);
             categoriesRune[categoryId] = runeCategory;
             console.log($state.snapshot(categoriesRune));
 
@@ -66,7 +62,7 @@
             tag.ord = index;
         });
 
-        idTags.inner[categoryIdx] = e.items
+        idTags.inner[categoryIdx] = e.items;
     }
 
     async function handleFinalize(
@@ -82,49 +78,41 @@
         console.assert(selectedTag !== undefined, "Selected tag on finalize not found");
         if (selectedTag === undefined) return;
 
-        const newOrdinal = e.items.findIndex(
-            (x) => x.id === selectedTagId
-        );
+        const newOrdinal = e.items.findIndex((x) => x.id === selectedTagId);
         await invoke("update_tag_ordinal", {
             data: { categoryTagId: selectedTagId, newOrd: newOrdinal },
         });
 
         const reorderedTags = e.items.map((x, idx) => {
-            return {id: x.id, tag: {...x.tag, ord: idx}};
+            return { id: x.id, tag: { ...x.tag, ord: idx } };
         });
         idTags.inner[categoryIdx] = reorderedTags;
-        reorderedTags.forEach(tag => {
+        reorderedTags.forEach((tag) => {
             categoryTagsRune[tag.id] = tag.tag;
         });
-        categoriesRune[categoryId] = {...categoriesRune[categoryId], tags: reorderedTags.map(x => x.id) }
+        categoriesRune[categoryId] = { ...categoriesRune[categoryId], tags: reorderedTags.map((x) => x.id) };
     }
 
-    function otherTagsConsider(
-        e: DndEvent<{ id: number; tag: Tag }>,
-    ) {
+    function otherTagsConsider(e: DndEvent<{ id: number; tag: Tag }>) {
         e.items.forEach(({ id, tag }, index) => {
             tag.ord = index;
         });
         idOtherTags.inner = e.items;
     }
 
-    async function otherTagsFinalize(
-        e: DndEvent<{ id: number; tag: Tag }>,
-    ) {
+    async function otherTagsFinalize(e: DndEvent<{ id: number; tag: Tag }>) {
         const selectedTagId: number = Number(e.info.id);
         const selectedTag = e.items.find((x) => x.id === selectedTagId);
         console.assert(selectedTag !== undefined, "Selected tag on finalize not found");
         if (selectedTag === undefined) return;
 
-        const newOrdinal = e.items.findIndex(
-            (x) => x.id === selectedTagId
-        );
+        const newOrdinal = e.items.findIndex((x) => x.id === selectedTagId);
         await invoke("update_tag_ordinal", {
             data: { categoryTagId: selectedTagId, newOrd: newOrdinal },
         });
 
         e.items.forEach((tag, idx) => {
-            otherTagsRune[tag.id].ord = idx
+            otherTagsRune[tag.id].ord = idx;
         });
         idOtherTags.update();
     }
@@ -153,8 +141,8 @@
                     "border-radius": "0.25rem",
                 },
             }}
-            onconsider={e => handleConsider(e.detail, +categoryId, categoryIdx)}
-            onfinalize={async e => handleFinalize(e.detail, +categoryId, categoryIdx)}
+            onconsider={(e) => handleConsider(e.detail, +categoryId, categoryIdx)}
+            onfinalize={async (e) => handleFinalize(e.detail, +categoryId, categoryIdx)}
         >
             {#each idTags.inner[categoryIdx] as { id, tag } (id)}
                 <TagSettings {tag} tagId={id} categoryId={+categoryId} />
@@ -188,8 +176,8 @@
                 "border-radius": "0.25rem",
             },
         }}
-        onconsider={e => otherTagsConsider(e.detail)}
-        onfinalize={async e => otherTagsFinalize(e.detail)}
+        onconsider={(e) => otherTagsConsider(e.detail)}
+        onfinalize={async (e) => otherTagsFinalize(e.detail)}
     >
         {#each idOtherTags.inner as { id, tag } (id)}
             <TagSettings {tag} tagId={id} categoryId={undefined} />
@@ -215,17 +203,12 @@
         />
         <ListBox>
             {#each Object.entries(categoriesRune) as [id, category]}
-                <ListBoxItem
-                    bind:group={createCategoryId}
-                    value={+id}
-                    name="categoryId"
+                <ListBoxItem bind:group={createCategoryId} value={+id} name="categoryId"
                     >{category.name} - {category.tags.length}</ListBoxItem
                 >
             {/each}
-            <ListBoxItem
-                bind:group={createCategoryId}
-                value={null}
-                name="categoryId">Other - {Object.entries(otherTagsRune).length}</ListBoxItem
+            <ListBoxItem bind:group={createCategoryId} value={null} name="categoryId"
+                >Other - {Object.entries(otherTagsRune).length}</ListBoxItem
             >
         </ListBox>
     </div>
@@ -237,7 +220,6 @@
             createCategoryId = undefined;
         }}
         class="btn variant-filled-primary"
-        disabled={createTagName.length === 0 || createCategoryId === undefined}
-        >Create</button
+        disabled={createTagName.length === 0 || createCategoryId === undefined}>Create</button
     >
 </div>

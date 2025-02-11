@@ -1,6 +1,6 @@
 <script lang="ts">
     import { scale } from "svelte/transition";
-  import { appState } from "../../shared.svelte";
+    import { appState } from "../../shared.svelte";
 
     interface Props {
         text: string;

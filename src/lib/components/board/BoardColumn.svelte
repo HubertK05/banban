@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
+    import { run } from "svelte/legacy";
 
     import { invoke } from "@tauri-apps/api/core";
     import ActivityCard from "./ActivityCard.svelte";
@@ -8,7 +8,7 @@
     import { flip } from "svelte/animate";
     import { ActiveField, type Activity, type Column } from "../../interfaces";
     import { modalStore, type ModalSettings } from "@skeletonlabs/skeleton";
-  import { activitiesRune, appState, columnsRune, draggableColumns, otherActivitiesRune } from '../../shared.svelte';
+    import { activitiesRune, appState, columnsRune, draggableColumns, otherActivitiesRune } from "../../shared.svelte";
 
     interface Props {
         columnId: number;
@@ -18,18 +18,18 @@
     let { columnId, column = $bindable() }: Props = $props();
     const flipDurationMs = 125;
 
-    let draggableActivities: { id: number, colId: number, activity: Activity }[] = $state(
-        column.activities.map(activityId => {
+    let draggableActivities: { id: number; colId: number; activity: Activity }[] = $state(
+        column.activities.map((activityId) => {
             return { id: activityId, colId: columnId, activity: activitiesRune[activityId] };
-        })
-    )
+        }),
+    );
 
     function updateDraggable() {
-        draggableActivities = column.activities.map(activityId => {
+        draggableActivities = column.activities.map((activityId) => {
             return { id: activityId, colId: columnId, activity: activitiesRune[activityId] };
-        })
+        });
     }
-    
+
     if (+columnId) {
         run(() => {
             // WARNING! Updates every key stroke
@@ -53,13 +53,10 @@
             data: { name, body, columnId },
         });
         const column = columnsRune[columnId];
-        const columnActivities: Map<number, Activity> = column.activities.reduce(
-            (acc, id) => {
-                acc.set(id, activitiesRune[id]);
-                return acc;
-            },
-            new Map()
-        );
+        const columnActivities: Map<number, Activity> = column.activities.reduce((acc, id) => {
+            acc.set(id, activitiesRune[id]);
+            return acc;
+        }, new Map());
         Array.from(columnActivities.entries()).forEach(([id, activity]) => {
             activity.ordinal += 1;
             activitiesRune[id] = activity;
@@ -86,9 +83,7 @@
     async function removeColumn() {
         await invoke("delete_column", { id: columnId });
         const newColumns = Object.entries(columnsRune);
-        const index = newColumns.findIndex(
-            ([colId, column]) => +colId === columnId
-        );
+        const index = newColumns.findIndex(([colId, column]) => +colId === columnId);
         newColumns.forEach(([colId, column], idx) => {
             if (idx >= index) {
                 column.ord -= 1;
@@ -96,18 +91,17 @@
             }
         });
         console.log($state.snapshot(column.activities));
-        let columnActivities: Array<[number, Activity]> = Array.from(
-            column.activities
-        ).map((activityId) => [activityId, activitiesRune[activityId]]);
+        let columnActivities: Array<[number, Activity]> = Array.from(column.activities).map((activityId) => [
+            activityId,
+            activitiesRune[activityId],
+        ]);
         column.activities.forEach((activityId) => {
-            delete activitiesRune[activityId]
+            delete activitiesRune[activityId];
         });
         column.activities = [];
-        let sortedColumnActivities = columnActivities.sort(
-            ([activityId1, activity1], [activityId2, activity2]) => {
-                return activity1.ordinal - activity2.ordinal;
-            }
-        );
+        let sortedColumnActivities = columnActivities.sort(([activityId1, activity1], [activityId2, activity2]) => {
+            return activity1.ordinal - activity2.ordinal;
+        });
         sortedColumnActivities.forEach(([activityId, activity]) => {
             activity.ordinal = Object.entries(otherActivitiesRune.inner).length;
             otherActivitiesRune.inner[activityId] = activity;
@@ -122,7 +116,7 @@
             id: number;
             activity: Activity;
             colId: number;
-        }>
+        }>,
     ) {
         if (e.info.trigger === TRIGGERS.DRAGGED_ENTERED) {
             appState.hoverColumnId = columnId;
@@ -138,7 +132,7 @@
             id: number;
             activity: Activity;
             colId: number;
-        }>
+        }>,
     ) {
         appState.hoverColumnId = null;
         const activitiesIds: number[] = [];
@@ -151,7 +145,7 @@
         columnsRune[columnId] = {
             ...columnsRune[columnId],
             activities: activitiesIds,
-        }
+        };
 
         const activityId = +e.info.id;
         const index = e.items.findIndex(({ id }) => id === activityId);
@@ -165,10 +159,11 @@
     }
 
     function showRemoveModal() {
-        const body = column.activities.length > 0
-            ? `${column.activities.length} ${column.activities.length === 1 ? "activity" : "activities"} will be moved to stash.`
-            : "Are you sure?";
-            
+        const body =
+            column.activities.length > 0
+                ? `${column.activities.length} ${column.activities.length === 1 ? "activity" : "activities"} will be moved to stash.`
+                : "Are you sure?";
+
         const modal: ModalSettings = {
             type: "confirm",
             title: `Remove '${column.name}'`,
@@ -189,32 +184,18 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div
-    class="flex flex-col flex-shrink-0 w-72 {appState.columnDragDisabled
-        ? 'cursor-grab'
-        : ''}"
->
+<div class="flex flex-col flex-shrink-0 w-72 {appState.columnDragDisabled ? 'cursor-grab' : ''}">
     <DebugLabel text={`ID ${columnId}`} />
     <DebugLabel text={`ORD ${column.ord}`} />
     <!-- svelte-ignore a11y_consider_explicit_label -->
-    <div
-        class="flex items-center flex-shrink-0 h-10 px-2"
-        onmousedown={startDrag}
-        ontouchstart={startDrag}
-    >
+    <div class="flex items-center flex-shrink-0 h-10 px-2" onmousedown={startDrag} ontouchstart={startDrag}>
         {#if appState.currentEditable !== null && appState.currentEditable.id === columnId && appState.currentEditable.field === ActiveField.ColumnName}
-            <span
-                contenteditable="true"
-                class="block text-sm font-semibold cursor-default"
-                bind:innerText={column.name}
-></span>
+            <span contenteditable="true" class="block text-sm font-semibold cursor-default" bind:innerText={column.name}
+            ></span>
         {:else}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <span
-                contenteditable="false"
-                onclick={handleNameClick}
-                class="block text-sm font-semibold cursor-default"
+            <span contenteditable="false" onclick={handleNameClick} class="block text-sm font-semibold cursor-default"
                 >{column.name}</span
             >
         {/if}
@@ -228,11 +209,7 @@
             onclick={showRemoveModal}
             class="flex items-center justify-center w-6 h-6 ml-auto rounded hover:bg-error-hover-token"
         >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="1em"
-                viewBox="0 0 448 512"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
                 <path
                     d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0H284.2c12.1 0 23.2 6.8 28.6 17.7L320 32h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 96 0 81.7 0 64S14.3 32 32 32h96l7.2-14.3zM32 128H416V448c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V128zm96 64c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16z"
                 /></svg
@@ -242,18 +219,8 @@
             onclick={createActivity}
             class="flex items-center justify-center w-6 h-6 ml-auto text-indigo-500 rounded hover:bg-indigo-500 hover:text-indigo-100"
         >
-            <svg
-                class="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
         </button>
     </div>
@@ -269,12 +236,12 @@
                 type: "activities",
                 dropTargetStyle: {},
             }}
-            onconsider={e => handleConsider(e.detail)}
-            onfinalize={e => handleFinalize(e.detail)}
+            onconsider={(e) => handleConsider(e.detail)}
+            onfinalize={(e) => handleFinalize(e.detail)}
         >
             {#each draggableActivities as { id, activity, colId } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
-                    <ActivityCard activity={{...activity}} {id} columnId={colId} />
+                    <ActivityCard activity={{ ...activity }} {id} columnId={colId} />
                 </div>
             {/each}
         </section>
