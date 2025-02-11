@@ -4,7 +4,7 @@
     import DebugLabel from "../debug/DebugLabel.svelte";
     import TagBadge from "./TagBadge.svelte";
     import { type ModalSettings, type DrawerSettings, getDrawerStore, getModalStore } from "@skeletonlabs/skeleton";
-    import SvelteMarkdown from "svelte-markdown";
+    import SvelteMarkdown from '@humanspeak/svelte-markdown'
     import {
         activitiesRune,
         appState,

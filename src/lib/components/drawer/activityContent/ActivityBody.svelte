@@ -1,5 +1,5 @@
 <script lang="ts">
-    import SvelteMarkdon from "svelte-markdown";
+    import SvelteMarkdown from '@humanspeak/svelte-markdown'
     import { invoke } from "@tauri-apps/api/core";
     import {
         type ToastSettings,
@@ -95,25 +95,23 @@
     <TabGroup>
         <Tab bind:group={tabSet} name="edit" value={0}>Edit</Tab>
         <Tab bind:group={tabSet} name="preview" value={1}>Preview</Tab>
-        {#snippet panel()}
-            <div class="flex">
-                {#if tabSet === 0}
-                    <textarea rows="10" class="textarea m-2" bind:value={inputBody} placeholder="New activity body"
-                    ></textarea>
-                {:else if tabSet === 1}
-                    {#if inputBody.length > 0}
-                        <div class="flex-1 p-2 variant-outline rounded-md">
-                            <div class="prose">
-                                <SvelteMarkdon source={inputBody} />
-                            </div>
-                        </div>
-                    {:else}
-                        <span>No content to preview</span>
-                    {/if}
-                {/if}
-            </div>
-        {/snippet}
     </TabGroup>
+    <div class="flex">
+        {#if tabSet === 0}
+            <textarea rows="10" class="textarea m-2" bind:value={inputBody} placeholder="New activity body"
+            ></textarea>
+        {:else if tabSet === 1}
+            {#if inputBody.length > 0}
+                <div class="flex-1 p-2 variant-outline rounded-md">
+                    <div class="prose">
+                        <SvelteMarkdown source={inputBody} />
+                    </div>
+                </div>
+            {:else}
+                <span>No content to preview</span>
+            {/if}
+        {/if}
+    </div>
 {/if}
 <div class="flex flex-row">
     {#if isEditMode}
@@ -128,7 +126,7 @@
         <button class="btn btn-sm variant-ghost-warning m-1" onclick={openEdit}>Create body</button>
     {:else}
         <div class="flex-1 p-2 variant-outline rounded-md">
-            <div class="prose"><SvelteMarkdon source={displayBody} /></div>
+            <div class="prose"><SvelteMarkdown source={displayBody} /></div>
         </div>
         <button class="btn btn-sm variant-ghost-warning m-1" onclick={openEdit}>Edit</button>
     {/if}

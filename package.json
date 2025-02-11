@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.6.13",
+    
     "@tauri-apps/api": "^2.2.0",
     "@tauri-apps/plugin-shell": "~2.2.0",
     "svelte-dnd-action": "^0.9.57"
@@ -32,7 +33,7 @@
     "prettier-plugin-svelte": "^3.3.3",
     "svelte": "^5.19.9",
     "svelte-check": "^4.1.4",
-    "svelte-markdown": "^0.3.0",
+    "@humanspeak/svelte-markdown": "^0.7.17",
     "svelte-preprocess": "^6.0.3",
     "tailwindcss": "^3.4.17",
     "tslib": "^2.8.1",
