@@ -1,20 +1,5 @@
-import { writable, type Writable } from "svelte/store";
-import type { DrawerTab, Editable } from "./interfaces/main";
 import { invoke } from "@tauri-apps/api/core";
 import { activitiesRune, categoriesRune, categoryTagsRune, columnsRune, draggableColumns, otherActivitiesRune, otherTagsRune } from "./shared.svelte";
-
-export const isDebug: Writable<boolean> = writable(false);
-export const previousDrawerTab: Writable<DrawerTab | null> = writable(null)
-export const currentEditable: Writable<Editable | null> = writable(null)
-export const selectedActivity: Writable<((Actv | OtherActv) & { id: number }) | null> = writable(null)
-export const columnDragDisabled: Writable<boolean> = writable(true);
-export const hoverColumnId: Writable<null | number> = writable(null);
-
-currentEditable.subscribe((editable) => {
-    if (editable !== null) {
-        console.info(`Current editable - ${editable.field} ID: ${editable.id}`)
-    }
-})
 
 export interface Col {
     name: string,

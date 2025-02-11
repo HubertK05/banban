@@ -1,6 +1,5 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
-  import { selectedActivity } from "../../../stores";
   import {
     modalStore,
     toastStore,

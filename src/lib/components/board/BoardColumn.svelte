@@ -3,12 +3,6 @@
 
     import { invoke } from "@tauri-apps/api/core";
     import ActivityCard from "./ActivityCard.svelte";
-    import {
-        currentEditable,
-        type Actv,
-        hoverColumnId,
-        columnDragDisabled,
-    } from "../../stores";
     import { TRIGGERS, dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
@@ -59,7 +53,7 @@
             data: { name, body, columnId },
         });
         const column = columnsRune[columnId];
-        const columnActivities: Map<number, Actv> = column.activities.reduce(
+        const columnActivities: Map<number, Activity> = column.activities.reduce(
             (acc, id) => {
                 acc.set(id, activitiesRune[id]);
                 return acc;

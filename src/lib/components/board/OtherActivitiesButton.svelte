@@ -1,7 +1,6 @@
 <script lang="ts">
     import { DrawerTab } from "../../interfaces/main";
   import { appState, otherActivitiesRune } from "../../shared.svelte";
-    import { previousDrawerTab } from "../../stores";
     import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
 
     let isAvailable = $derived(Object.entries(otherActivitiesRune.inner).length !== 0);

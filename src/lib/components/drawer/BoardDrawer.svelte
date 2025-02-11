@@ -9,7 +9,6 @@
     import ActivityDrawer from "./ActivityDrawer.svelte";
     import SettingsDrawer from "./settings/SettingsDrawer.svelte";
     import BaseDrawer from "./BaseDrawer.svelte";
-    import { selectedActivity } from "../../stores";
     import OtherColumn from "./OtherColumn.svelte";
   import { appState } from "../../shared.svelte";
 </script>

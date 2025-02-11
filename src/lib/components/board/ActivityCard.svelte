@@ -1,12 +1,6 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
     import { ActiveField, DrawerTab, type Activity } from "../../interfaces/main";
-    import {
-        currentEditable,
-        isDebug,
-        previousDrawerTab,
-        selectedActivity,
-    } from "../../stores";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import TagBadge from "./TagBadge.svelte";
     import {
@@ -65,7 +59,7 @@
 
     function showDrawer() {
         appState.previousDrawerTab = null;
-        appState.selectedActivity = { ...activity, id, columnId: columnId };
+        appState.selectedActivity = { ...activity, id };
         const drawer: DrawerSettings = {
             id: DrawerTab.Activity,
             width: "w-2/3",

@@ -1,7 +1,6 @@
 <script lang="ts">
     import { shortcut } from "../../actions/shortcut";
   import { appState } from "../../shared.svelte";
-    import { isDebug } from "../../stores";
 </script>
 
 <button

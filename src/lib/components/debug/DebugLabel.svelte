@@ -1,6 +1,5 @@
 <script lang="ts">
     import { scale } from "svelte/transition";
-    import { isDebug } from "../../stores";
   import { appState } from "../../shared.svelte";
 
     interface Props {

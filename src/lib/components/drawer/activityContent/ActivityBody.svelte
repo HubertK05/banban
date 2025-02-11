@@ -1,7 +1,6 @@
 <script lang="ts">
   import SvelteMarkdon from "svelte-markdown";
   import { invoke } from "@tauri-apps/api/core";
-  import { selectedActivity } from "../../../stores";
   import {
     modalStore,
     toastStore,
