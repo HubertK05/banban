@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { DrawerTab } from "../../interfaces/main";
+    import { DrawerTab } from "../../interfaces";
   import { appState, otherActivitiesRune } from "../../shared.svelte";
     import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
 

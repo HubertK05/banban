@@ -5,7 +5,7 @@
     import {
         ActiveField,
         type Activity,
-    } from "../../interfaces/main";
+    } from "../../interfaces";
     import ActivityCard from "../board/ActivityCard.svelte";
     import { dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";

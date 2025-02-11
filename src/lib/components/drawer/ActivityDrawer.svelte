@@ -8,7 +8,7 @@
   import SettingsButton from "../board/SettingsButton.svelte";
   import ActivityContent from "./activityContent/ActivityContent.svelte";
   import { activitiesRune, appState, categoriesRune, categoryTagsRune, changeCategoryTagColor, changeOtherTagColor, otherTagsRune } from "../../shared.svelte";
-  import type { Activity } from "../../interfaces/main";
+  import type { Activity } from "../../interfaces";
 
     interface Props {
         activityId: number,

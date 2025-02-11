@@ -14,7 +14,7 @@
 
   import { Toast, toastStore } from "@skeletonlabs/skeleton";
   import type { ToastSettings } from "@skeletonlabs/skeleton";
-  import { fetchAll } from "./lib/stores";
+  import { fetchAll } from "./lib/shared.svelte";
 
   let tabSet: number = 0;
 

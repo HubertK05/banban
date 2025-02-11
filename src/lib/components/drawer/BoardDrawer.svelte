@@ -5,7 +5,7 @@
         type AutocompleteOption,
     } from "@skeletonlabs/skeleton";
     import TagBadge from "../board/TagBadge.svelte";
-    import { DrawerTab, type Tag } from "../../interfaces/main";
+    import { DrawerTab, type Tag } from "../../interfaces";
     import ActivityDrawer from "./ActivityDrawer.svelte";
     import SettingsDrawer from "./settings/SettingsDrawer.svelte";
     import BaseDrawer from "./BaseDrawer.svelte";

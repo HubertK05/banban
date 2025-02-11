@@ -4,7 +4,7 @@
     import BoardColumn from "./BoardColumn.svelte";
     import { invoke } from "@tauri-apps/api/core";
     import { dndzone, setDebugMode } from "svelte-dnd-action";
-    import { DrawerTab, type Column } from "../../interfaces/main";
+    import { DrawerTab, type Column } from "../../interfaces";
     import { flip } from "svelte/animate";
     import DebugButton from "../debug/DebugButton.svelte";
     import OtherActivitiesButton from "./OtherActivitiesButton.svelte";

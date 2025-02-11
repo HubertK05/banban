@@ -2,7 +2,7 @@
     import { invoke } from "@tauri-apps/api/core";
     import TagBadge from "../../board/TagBadge.svelte";
     import DebugLabel from "../../debug/DebugLabel.svelte";
-  import type { Tag } from "../../../interfaces/main";
+  import type { Tag } from "../../../interfaces";
   import { activitiesRune, categoriesRune, categoryTagsRune, changeCategoryTagColor, changeOtherTagColor, columnsRune, idOtherTags, idTags, otherTagsRune } from "../../../shared.svelte";
 
     interface Props {

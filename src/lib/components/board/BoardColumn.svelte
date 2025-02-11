@@ -6,7 +6,7 @@
     import { TRIGGERS, dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
-    import { ActiveField, type Activity, type Column } from "../../interfaces/main";
+    import { ActiveField, type Activity, type Column } from "../../interfaces";
     import { modalStore, type ModalSettings } from "@skeletonlabs/skeleton";
   import { activitiesRune, appState, columnsRune, draggableColumns, otherActivitiesRune } from '../../shared.svelte';
 

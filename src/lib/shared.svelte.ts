@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { Activity, AppState, Category, Column, Tag } from "./interfaces/main";
+import type { Activity, AppState, Category, Column, Tag } from "./interfaces";
 
 export const appState: AppState = $state({
     isDebug: false,
@@ -86,4 +86,80 @@ export async function changeOtherTagColor(
     });
     tag.color = newColor;
     otherTagsRune[tagId] = tag;
+}
+
+interface BackendCol {
+    name: string,
+    ordinal: number
+    activities: Array<number>
+}
+
+interface BackendOtherActv {
+    name: string,
+    body?: string,
+    ordinal: number,
+    tags: Array<number>
+}
+
+interface BackendActv {
+    name: string,
+    body?: string,
+    ordinal: number,
+    tags: Array<number>,
+    columnId: number
+}
+
+interface BackendTag {
+    name: string,
+    color: string,
+    ordinal: number
+}
+
+interface BackendCategory {
+    name: string,
+    ordinal: number,
+    tags: Array<number>
+}
+
+interface RawLoadData {
+    columns: Record<number, BackendCol>
+    activities: Record<number, BackendActv>
+    otherActivities: Record<number, BackendOtherActv>
+    categories: Record<number, BackendCategory>,
+    categoryTags: Record<number, BackendTag>
+    otherTags: Record<number, BackendTag>
+}
+
+export async function fetchAll() {
+    const res = await invoke("fetch_all") as RawLoadData;
+    const categoryIds: Record<number, number> = {};
+
+    Object.entries(res.categories).forEach(([categoryId, category]) => {
+        console.log(categoryId);
+        categoriesRune[+categoryId] = {...category, ord: category.ordinal}
+        category.tags.forEach(tagId => {
+            categoryIds[tagId] = +categoryId
+        })
+    })
+
+    Object.entries(res.categoryTags).forEach(([tagId, tag]) => {
+        categoryTagsRune[+tagId] = {...tag, ord: tag.ordinal, categoryId: categoryIds[+tagId]}
+    })
+
+    Object.entries(res.otherTags).forEach(([tagId, tag]) => {
+        otherTagsRune[+tagId] = {...tag, ord: tag.ordinal}
+    })
+
+    Object.entries(res.columns).forEach(([columnId, column]) => {
+        columnsRune[+columnId] = {...column, ord: column.ordinal}
+    })
+    draggableColumns.update();
+    
+    Object.entries(res.activities).forEach(([activityId, activity]) => {
+        activitiesRune[+activityId] = activity
+    })
+
+    Object.entries(res.otherActivities).forEach(([activityId, activity]) => {
+        otherActivitiesRune.inner[+activityId] = activity
+    });
 }

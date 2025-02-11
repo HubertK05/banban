@@ -10,7 +10,7 @@
     import { dndzone, TRIGGERS } from "svelte-dnd-action";
     import TagBadge from "../../board/TagBadge.svelte";
   import { categoriesRune, categoryTagsRune, idOtherTags, idTags, otherTagsRune } from '../../../shared.svelte';
-  import type { Tag } from '../../../interfaces/main';
+  import type { Tag } from '../../../interfaces';
 
     const flipDurationMs = 125;
 
