@@ -1,15 +1,17 @@
 <script lang="ts">
-    import { AppShell, Drawer, Modal, Tab, TabGroup, drawerStore } from "@skeletonlabs/skeleton";
+    import { AppShell, Drawer, initializeStores, Modal, Tab, TabGroup } from "@skeletonlabs/skeleton";
     import Board from "./lib/components/board/Board.svelte";
     import BoardDrawer from "./lib/components/drawer/BoardDrawer.svelte";
     import { onMount } from "svelte";
     import { invoke } from "@tauri-apps/api/core";
 
-    import { Toast, toastStore } from "@skeletonlabs/skeleton";
+    import { Toast } from "@skeletonlabs/skeleton";
     import type { ToastSettings } from "@skeletonlabs/skeleton";
     import { fetchAll } from "./lib/shared.svelte";
 
     let tabSet: number = 0;
+
+    initializeStores();
 
     onMount(async () => {
         await fetchAll();

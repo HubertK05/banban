@@ -7,7 +7,7 @@
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
     import { ActiveField, type Activity, type Column } from "../../interfaces";
-    import { modalStore, type ModalSettings } from "@skeletonlabs/skeleton";
+    import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
     import { activitiesRune, appState, columnsRune, draggableColumns, otherActivitiesRune } from "../../shared.svelte";
 
     interface Props {
@@ -17,6 +17,8 @@
 
     let { columnId, column = $bindable() }: Props = $props();
     const flipDurationMs = 125;
+
+    const modalStore = getModalStore();
 
     let draggableActivities: { id: number; colId: number; activity: Activity }[] = $state(
         column.activities.map((activityId) => {

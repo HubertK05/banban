@@ -1,6 +1,6 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
-    import { modalStore, toastStore, type ToastSettings } from "@skeletonlabs/skeleton";
+    import { getModalStore, getToastStore, type ToastSettings } from "@skeletonlabs/skeleton";
     import { tick } from "svelte";
     import { activitiesRune, appState } from "../../../shared.svelte";
 
@@ -12,6 +12,9 @@
     console.assert(activitiesRune[activityId] !== undefined, "Selected activity is undefined");
     const selectedActivity = $derived(activitiesRune[activityId]);
     let displayName = $derived(selectedActivity.name);
+
+    const modalStore = getModalStore();
+    const toastStore = getToastStore();
 
     let isEditMode = $state(false);
     let inputName: string = $state("");

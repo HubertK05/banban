@@ -1,9 +1,10 @@
 <script lang="ts">
     import { DrawerTab } from "../../interfaces";
     import { appState, otherActivitiesRune } from "../../shared.svelte";
-    import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
+    import { getDrawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
 
     let isAvailable = $derived(Object.entries(otherActivitiesRune.inner).length !== 0);
+    const drawerStore = getDrawerStore();
 
     function openDrawer() {
         if (!isAvailable) return;

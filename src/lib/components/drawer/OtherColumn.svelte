@@ -7,7 +7,7 @@
     import { dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
-    import { drawerStore } from "@skeletonlabs/skeleton";
+    import { getDrawerStore } from "@skeletonlabs/skeleton";
     import { idOtherTags, otherActivitiesRune } from "../../shared.svelte";
 
     const flipDurationMs = 100;
@@ -21,6 +21,7 @@
         });
     }
 
+    const drawerStore = getDrawerStore();
     run(() => {
         if (Object.entries(otherActivitiesRune.inner).length === 0) {
             drawerStore.close();

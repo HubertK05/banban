@@ -3,7 +3,7 @@
     import { ActiveField, DrawerTab, type Activity } from "../../interfaces";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import TagBadge from "./TagBadge.svelte";
-    import { modalStore, type ModalSettings, drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
+    import { type ModalSettings, type DrawerSettings, getDrawerStore, getModalStore } from "@skeletonlabs/skeleton";
     import SvelteMarkdown from "svelte-markdown";
     import {
         activitiesRune,
@@ -22,6 +22,9 @@
     }
 
     let { id, activity, columnId }: Props = $props();
+
+    const drawerStore = getDrawerStore();
+    const modalStore = getModalStore();
 
     async function removeActivity() {
         await invoke("delete_activity", { id });

@@ -8,7 +8,6 @@
     import { flip } from "svelte/animate";
     import DebugButton from "../debug/DebugButton.svelte";
     import OtherActivitiesButton from "./OtherActivitiesButton.svelte";
-    import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
     import { appState, columnsRune, draggableColumns } from "../../shared.svelte";
 
     setDebugMode(false);

@@ -2,15 +2,18 @@
     import SvelteMarkdon from "svelte-markdown";
     import { invoke } from "@tauri-apps/api/core";
     import {
-        modalStore,
-        toastStore,
         type ToastSettings,
         type ModalSettings,
         TabGroup,
         Tab,
+        getToastStore,
+        getModalStore,
     } from "@skeletonlabs/skeleton";
     import { fly } from "svelte/transition";
     import { activitiesRune, appState } from "../../../shared.svelte";
+
+    const modalStore = getModalStore();
+    const toastStore = getToastStore();
 
     interface Props {
         activityId: number;

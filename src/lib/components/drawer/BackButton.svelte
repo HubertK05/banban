@@ -1,6 +1,8 @@
 <script lang="ts">
-    import { drawerStore } from "@skeletonlabs/skeleton";
+    import { getDrawerStore } from "@skeletonlabs/skeleton";
     import { appState } from "../../shared.svelte";
+
+    const drawerStore = getDrawerStore();
 
     function goBack() {
         if (appState.previousDrawerTab === null) {

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ListBox, ListBoxItem, drawerStore } from "@skeletonlabs/skeleton";
+    import { ListBox, ListBoxItem } from "@skeletonlabs/skeleton";
     import TagBadge from "../board/TagBadge.svelte";
     import BackButton from "./BackButton.svelte";
     import { fly, slide } from "svelte/transition";
