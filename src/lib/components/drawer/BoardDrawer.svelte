@@ -11,11 +11,12 @@
     import BaseDrawer from "./BaseDrawer.svelte";
     import { selectedActivity } from "../../stores";
     import OtherColumn from "./OtherColumn.svelte";
+  import { appState } from "../../shared.svelte";
 </script>
 
 <Drawer position="right">
     {#if $drawerStore.id === DrawerTab.Activity}
-        <BaseDrawer name={$selectedActivity.name}><ActivityDrawer /></BaseDrawer
+        <BaseDrawer name={appState.selectedActivity.name}><ActivityDrawer /></BaseDrawer
         >
     {:else if $drawerStore.id === DrawerTab.Settings}
         <BaseDrawer name="Settings"><SettingsDrawer /></BaseDrawer>

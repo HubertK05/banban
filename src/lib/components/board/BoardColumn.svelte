@@ -14,7 +14,7 @@
     import { flip } from "svelte/animate";
     import { ActiveField, type Activity, type Column } from "../../interfaces/main";
     import { modalStore, type ModalSettings } from "@skeletonlabs/skeleton";
-  import { activitiesRune, columnsRune, draggableColumns, otherActivitiesRune } from '../../shared.svelte';
+  import { activitiesRune, appState, columnsRune, draggableColumns, otherActivitiesRune } from '../../shared.svelte';
 
     interface Props {
         columnId: number;
@@ -86,7 +86,7 @@
     }
 
     function handleNameClick() {
-        $currentEditable = { id: columnId, field: ActiveField.ColumnName };
+        appState.currentEditable = { id: columnId, field: ActiveField.ColumnName };
     }
 
     async function removeColumn() {
@@ -131,7 +131,7 @@
         }>
     ) {
         if (e.info.trigger === TRIGGERS.DRAGGED_ENTERED) {
-            $hoverColumnId = columnId;
+            appState.hoverColumnId = columnId;
         }
         e.items.forEach(({ id, activity }, index) => {
             activity.ordinal = index;
@@ -146,7 +146,7 @@
             colId: number;
         }>
     ) {
-        $hoverColumnId = null;
+        appState.hoverColumnId = null;
         const activitiesIds: number[] = [];
         e.items.forEach(({ id, activity, colId }, index) => {
             activity.ordinal = index;
@@ -190,13 +190,13 @@
     }
 
     function startDrag() {
-        $columnDragDisabled = false;
+        appState.columnDragDisabled = false;
     }
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-    class="flex flex-col flex-shrink-0 w-72 {$columnDragDisabled
+    class="flex flex-col flex-shrink-0 w-72 {appState.columnDragDisabled
         ? 'cursor-grab'
         : ''}"
 >
@@ -208,7 +208,7 @@
         onmousedown={startDrag}
         ontouchstart={startDrag}
     >
-        {#if $currentEditable !== null && $currentEditable.id === columnId && $currentEditable.field === ActiveField.ColumnName}
+        {#if appState.currentEditable !== null && appState.currentEditable.id === columnId && appState.currentEditable.field === ActiveField.ColumnName}
             <span
                 contenteditable="true"
                 class="block text-sm font-semibold cursor-default"
@@ -265,7 +265,7 @@
     </div>
     <div class="h-[70vh]">
         <section
-            class="flex flex-col pb-2 overflow-auto max-h-full min-h-full cursor-default {$hoverColumnId ===
+            class="flex flex-col pb-2 overflow-auto max-h-full min-h-full cursor-default {appState.hoverColumnId ===
             columnId
                 ? 'shadow-2xl rounded-md'
                 : ''}"

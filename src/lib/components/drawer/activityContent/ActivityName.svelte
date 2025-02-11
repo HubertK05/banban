@@ -7,9 +7,9 @@
     type ToastSettings,
   } from "@skeletonlabs/skeleton";
   import { tick } from "svelte";
-  import { activitiesRune } from "../../../shared.svelte";
+  import { activitiesRune, appState } from "../../../shared.svelte";
 
-  let displayName = $state($selectedActivity.name);
+  let displayName = $state(appState.selectedActivity.name);
   let isEditMode = $state(false);
 
   let inputName: string = $state("");
@@ -67,18 +67,18 @@
   async function sync(newName: string) {
     invoke("update_activity_content", {
       data: {
-        id: $selectedActivity.id,
+        id: appState.selectedActivity.id,
         name: newName,
-        body: $selectedActivity.body,
+        body: appState.selectedActivity.body,
       },
     });
     displayName = newName;
-    $selectedActivity.name = newName;
-    $selectedActivity = $selectedActivity;
+    appState.selectedActivity.name = newName;
+    appState.selectedActivity = appState.selectedActivity;
 
-    const runeActivity = activitiesRune[$selectedActivity.id];
-    runeActivity.name = $selectedActivity.name;
-    activitiesRune[$selectedActivity.id] = runeActivity;
+    const runeActivity = activitiesRune[appState.selectedActivity.id];
+    runeActivity.name = appState.selectedActivity.name;
+    activitiesRune[appState.selectedActivity.id] = runeActivity;
   }
 </script>
 

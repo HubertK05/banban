@@ -1,10 +1,11 @@
 <script lang="ts">
     import { DrawerTab } from "../../interfaces/main";
+  import { appState } from "../../shared.svelte";
     import { previousDrawerTab } from "../../stores";
     import { drawerStore } from "@skeletonlabs/skeleton";
 
     function openSettingsDrawer() {
-        $previousDrawerTab = $drawerStore.id as DrawerTab;
+        appState.previousDrawerTab = $drawerStore.id as DrawerTab;
         $drawerStore.id = DrawerTab.Settings;
     }
 </script>

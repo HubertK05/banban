@@ -71,3 +71,12 @@ export enum DrawerTab {
     Settings = "settings",
     OtherActivities = "otherActivities"
 }
+
+export interface AppState {
+    isDebug: boolean,
+    previousDrawerTab: DrawerTab | null,
+    currentEditable: Editable | null,
+    selectedActivity: (Activity & { id: number }) | null,
+    columnDragDisabled: boolean,
+    hoverColumnId: null | number,
+}

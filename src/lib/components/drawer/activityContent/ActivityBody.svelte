@@ -11,9 +11,9 @@
     Tab,
   } from "@skeletonlabs/skeleton";
   import { fly } from "svelte/transition";
-  import { activitiesRune } from "../../../shared.svelte";
+  import { activitiesRune, appState } from "../../../shared.svelte";
 
-  let displayBody = $state($selectedActivity.body ?? "");
+  let displayBody = $state(appState.selectedActivity.body ?? "");
   let isEditMode = $state(false);
 
   let inputBody: string = $state("");
@@ -53,18 +53,18 @@
   async function sync(newBody?: string) {
     await invoke("update_activity_content", {
       data: {
-        id: $selectedActivity.id,
-        name: $selectedActivity.name,
+        id: appState.selectedActivity.id,
+        name: appState.selectedActivity.name,
         body: newBody,
       },
     });
     displayBody = newBody ?? "";
-    $selectedActivity.body = newBody;
-    $selectedActivity = $selectedActivity;
+    appState.selectedActivity.body = newBody;
+    appState.selectedActivity = appState.selectedActivity;
 
-    const runeActivity = activitiesRune[$selectedActivity.id];
-    runeActivity.body = $selectedActivity.body;
-    activitiesRune[$selectedActivity.id] = runeActivity;
+    const runeActivity = activitiesRune[appState.selectedActivity.id];
+    runeActivity.body = appState.selectedActivity.body;
+    activitiesRune[appState.selectedActivity.id] = runeActivity;
   }
 
   function clear() {

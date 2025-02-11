@@ -1,6 +1,6 @@
 <script lang="ts">
     import { DrawerTab } from "../../interfaces/main";
-  import { otherActivitiesRune } from "../../shared.svelte";
+  import { appState, otherActivitiesRune } from "../../shared.svelte";
     import { previousDrawerTab } from "../../stores";
     import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
 
@@ -8,7 +8,7 @@
 
     function openDrawer() {
         if (!isAvailable) return;
-        $previousDrawerTab = null;
+        appState.previousDrawerTab = null;
         $drawerStore.id = DrawerTab.OtherActivities;
         let drawer: DrawerSettings = {
             id: DrawerTab.OtherActivities,

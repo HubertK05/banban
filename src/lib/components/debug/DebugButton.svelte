@@ -1,11 +1,12 @@
 <script lang="ts">
     import { shortcut } from "../../actions/shortcut";
+  import { appState } from "../../shared.svelte";
     import { isDebug } from "../../stores";
 </script>
 
 <button
     onclick={() => {
-        $isDebug = !$isDebug;
+        appState.isDebug = !appState.isDebug;
     }}
     use:shortcut={{ control: true, key: "d" }}
     class="btn variant-ghost-warning max-h-10"

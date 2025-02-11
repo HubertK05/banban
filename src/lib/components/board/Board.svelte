@@ -16,7 +16,7 @@
     import DebugButton from "../debug/DebugButton.svelte";
     import OtherActivitiesButton from "./OtherActivitiesButton.svelte";
     import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
-  import { columnsRune, draggableColumns } from '../../shared.svelte';
+  import { appState, columnsRune, draggableColumns } from '../../shared.svelte';
 
     setDebugMode(false);
     const boardName = "Kanban";
@@ -82,12 +82,12 @@
                 newOrd: index,
             },
         });
-        $columnDragDisabled = true;
+        appState.columnDragDisabled = true;
         draggableColumns.inner = e.items
     }
 
     function startDrag() {
-        $columnDragDisabled = false;
+        appState.columnDragDisabled = false;
     }
 </script>
 
@@ -106,7 +106,7 @@
                 flipDurationMs,
                 type: "columns",
                 dropTargetStyle: {},
-                dragDisabled: $columnDragDisabled,
+                dragDisabled: appState.columnDragDisabled,
             }}
             onconsider={e => handleConsider(e.detail)}
             onfinalize={e => handleFinalize(e.detail)}
@@ -116,7 +116,7 @@
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
                         class={`w-full h-4 text-center bg-gray-500 bg-opacity-20 rounded-full ${
-                            $columnDragDisabled
+                            appState.columnDragDisabled
                                 ? "cursor-grab"
                                 : "cursor-grabbing"
                         }`}

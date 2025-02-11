@@ -1,5 +1,14 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { Activity, Category, Column, Tag } from "./interfaces/main";
+import type { Activity, AppState, Category, Column, Tag } from "./interfaces/main";
+
+export const appState: AppState = $state({
+    isDebug: false,
+    previousDrawerTab: null,
+    currentEditable: null,
+    selectedActivity: null,
+    columnDragDisabled: true,
+    hoverColumnId: null,
+});
 
 export const categoriesRune: Record<number, Category> = $state({});
 export const categoryTagsRune: Record<number, Tag & { categoryId: number }> = $state({});

@@ -1,13 +1,14 @@
 <script lang="ts">
     import { drawerStore } from "@skeletonlabs/skeleton";
     import { previousDrawerTab } from "../../stores";
+  import { appState } from "../../shared.svelte";
 
     function goBack() {
-        if ($previousDrawerTab === null) {
+        if (appState.previousDrawerTab === null) {
             drawerStore.close();
         }
-        $drawerStore.id = $previousDrawerTab;
-        $previousDrawerTab = null;
+        $drawerStore.id = appState.previousDrawerTab;
+        appState.previousDrawerTab = null;
     }
 </script>
 

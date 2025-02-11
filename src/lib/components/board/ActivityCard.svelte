@@ -16,7 +16,7 @@
         type DrawerSettings,
     } from "@skeletonlabs/skeleton";
     import SvelteMarkdown from "svelte-markdown";
-  import { activitiesRune, categoryTagsRune, columnsRune, draggableColumns, otherActivitiesRune, otherTagsRune } from "../../shared.svelte";
+  import { activitiesRune, appState, categoryTagsRune, columnsRune, draggableColumns, otherActivitiesRune, otherTagsRune } from "../../shared.svelte";
 
     interface Props {
         id: number;
@@ -44,7 +44,7 @@
 
     function handleEnterKey(e: KeyboardEvent) {
         if (e.key === "Enter") {
-            $currentEditable = null;
+            appState.currentEditable = null;
         }
     }
 
@@ -64,8 +64,8 @@
     }
 
     function showDrawer() {
-        $previousDrawerTab = null;
-        $selectedActivity = { ...activity, id, columnId: columnId };
+        appState.previousDrawerTab = null;
+        appState.selectedActivity = { ...activity, id, columnId: columnId };
         const drawer: DrawerSettings = {
             id: DrawerTab.Activity,
             width: "w-2/3",
