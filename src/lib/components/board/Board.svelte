@@ -1,26 +1,20 @@
 <script lang="ts">
+    import { run } from "svelte/legacy";
+
     import BoardColumn from "./BoardColumn.svelte";
-    import {
-        columns,
-        currentEditable,
-        isDebug,
-        previousDrawerTab,
-        selectedActivity,
-        type Col,
-        activities,
-        columnDragDisabled,
-    } from "../../stores";
     import { invoke } from "@tauri-apps/api/core";
     import { dndzone, setDebugMode } from "svelte-dnd-action";
-    import { DrawerTab, type Column } from "../../interfaces/main";
+    import { DrawerTab, type Column } from "../../interfaces";
     import { flip } from "svelte/animate";
     import DebugButton from "../debug/DebugButton.svelte";
     import OtherActivitiesButton from "./OtherActivitiesButton.svelte";
-    import { drawerStore, type DrawerSettings } from "@skeletonlabs/skeleton";
+    import { appState, columnsRune, draggableColumns } from "../../shared.svelte";
 
     setDebugMode(false);
     const boardName = "Kanban";
     const flipDurationMs = 300;
+
+    draggableColumns.update();
 
     async function createColumn({
         currentTarget,
@@ -28,12 +22,10 @@
         currentTarget: EventTarget & HTMLButtonElement;
     }) {
         const name = "New column";
-        const res: { id: number; name: string; ordinal: number } = await invoke(
-            "create_column",
-            { name }
-        );
-        $columns.set(res.id, { name, activities: [], ordinal: $columns.size });
-        $columns = $columns;
+        const res: { id: number; name: string; ordinal: number } = await invoke("create_column", { name });
+
+        columnsRune[res.id] = { name, activities: [], ord: Object.entries(columnsRune).length };
+
         setTimeout(() => {
             currentTarget.scrollIntoView({
                 behavior: "smooth",
@@ -41,71 +33,51 @@
                 inline: "center",
             });
         }, 100);
-    }
 
-    $: draggableColumns = Array.from($columns.entries())
-        .map(([id, col]) => {
-            return {
-                id,
-                col,
-            };
-        })
-        .sort((a, b) => {
-            return a.col.ordinal - b.col.ordinal;
-        });
+        draggableColumns.update();
+    }
 
     function handleConsider(
-        e: CustomEvent<
-            DndEvent<{
-                id: number;
-                col: Col;
-            }>
-        > & {
-            target: any;
-        }
+        e: DndEvent<{
+            id: number;
+            column: Column;
+        }>,
     ) {
-        e.detail.items.forEach(({ id, col }, index) => {
-            col.ordinal = index;
+        e.items.forEach(({ id, column }, index) => {
+            column.ord = index;
         });
-        draggableColumns = e.detail.items;
+        draggableColumns.inner = e.items;
     }
-    async function handleFinalize(
-        e: CustomEvent<
-            DndEvent<{
-                id: number;
-                col: Col;
-            }>
-        > & {
-            target: any;
-        }
-    ) {
-        e.detail.items.forEach(({ id, col }, index) => {
-            const c = $columns.get(id);
-            c.ordinal = index;
-            $columns.set(id, c);
-        });
-        $columns = $columns;
 
-        const draggedColumnId = Number(e.detail.info.id);
-        const index = e.detail.items.findIndex(
-            ({ id }) => id === draggedColumnId
-        );
+    async function handleFinalize(
+        e: DndEvent<{
+            id: number;
+            column: Column;
+        }>,
+    ) {
+        e.items.forEach(({ id, column }, index) => {
+            const c = columnsRune[id];
+            c.ord = index;
+            columnsRune[id] = c;
+        });
+
+        const draggedColumnId = +e.info.id;
+        const index = e.items.findIndex(({ id }) => id === draggedColumnId);
         await invoke("update_column_ordinal", {
             data: {
                 columnId: draggedColumnId,
                 newOrd: index,
             },
         });
-        $columnDragDisabled = true;
+        appState.columnDragDisabled = true;
+        draggableColumns.inner = e.items;
     }
 
     function startDrag() {
-        $columnDragDisabled = false;
+        appState.columnDragDisabled = false;
     }
 </script>
 
-<!-- {@debug $activities}
-{@debug $columns} -->
 <div
     class="flex flex-col w-screen h-screen overflow-auto text-gray-700 bg-gradient-to-tr from-blue-200 via-indigo-200 to-pink-200"
 >
@@ -117,28 +89,24 @@
         <section
             class="flex flex-row px-10 mt-4 space-x-6 w-max"
             use:dndzone={{
-                items: draggableColumns,
+                items: draggableColumns.inner,
                 flipDurationMs,
                 type: "columns",
                 dropTargetStyle: {},
-                dragDisabled: $columnDragDisabled,
+                dragDisabled: appState.columnDragDisabled,
             }}
-            on:consider={handleConsider}
-            on:finalize={handleFinalize}
+            onconsider={(e) => handleConsider(e.detail)}
+            onfinalize={(e) => handleFinalize(e.detail)}
         >
-            {#each Array.from(draggableColumns).sort((a, b) => {
-                return a.col.ordinal - b.col.ordinal;
-            }) as { id, col } (id)}
+            {#each draggableColumns.inner as { id, column } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
                         class={`w-full h-4 text-center bg-gray-500 bg-opacity-20 rounded-full ${
-                            $columnDragDisabled
-                                ? "cursor-grab"
-                                : "cursor-grabbing"
+                            appState.columnDragDisabled ? "cursor-grab" : "cursor-grabbing"
                         }`}
-                        on:mousedown={startDrag}
-                        on:touchstart={startDrag}
+                        onmousedown={startDrag}
+                        ontouchstart={startDrag}
                     >
                         <svg
                             class="block m-auto opacity-20"
@@ -150,7 +118,7 @@
                             /></svg
                         >
                     </div>
-                    <BoardColumn column={col} columnId={id} />
+                    <BoardColumn {column} columnId={id} />
                 </div>
             {:else}
                 <div class="flex flex-col">
@@ -184,12 +152,9 @@
             {/each}
         </section>
         <div class="flex flex-row space-x-6">
-            <button
-                on:click={createColumn}
-                class="btn variant-ghost-tertiary h-96">+</button
-            >
+            <button onclick={createColumn} class="btn variant-ghost-tertiary h-96">+</button>
             <DebugButton />
-            <div class="flex-shrink-0 w-6" />
+            <div class="flex-shrink-0 w-6"></div>
         </div>
     </div>
 </div>

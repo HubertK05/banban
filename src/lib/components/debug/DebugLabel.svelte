@@ -1,10 +1,14 @@
 <script lang="ts">
     import { scale } from "svelte/transition";
-    import { isDebug } from "../../stores";
+    import { appState } from "../../shared.svelte";
 
-    export let text: string;
+    interface Props {
+        text: string;
+    }
+
+    let { text }: Props = $props();
 </script>
 
-{#if $isDebug}
+{#if appState.isDebug}
     <b transition:scale class="variant-soft-warning rounded-md">{text}</b>
 {/if}

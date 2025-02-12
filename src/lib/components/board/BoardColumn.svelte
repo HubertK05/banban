@@ -1,37 +1,50 @@
 <script lang="ts">
+    import { run } from "svelte/legacy";
+
     import { invoke } from "@tauri-apps/api/core";
     import ActivityCard from "./ActivityCard.svelte";
-    import {
-        columns,
-        currentEditable,
-        type Col,
-        activities,
-        otherActivities,
-        type Actv,
-        hoverColumnId,
-        columnDragDisabled,
-    } from "../../stores";
     import { TRIGGERS, dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
-    import { ActiveField } from "../../interfaces/main";
-    import { modalStore, type ModalSettings } from "@skeletonlabs/skeleton";
+    import { ActiveField, type Activity, type Column } from "../../interfaces";
+    import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
+    import { activitiesRune, appState, columnsRune, draggableColumns, otherActivitiesRune } from "../../shared.svelte";
 
-    export let columnId: number;
-    export let column: Col;
+    interface Props {
+        columnId: number;
+        column: Column;
+    }
+
+    let { columnId, column = $bindable() }: Props = $props();
     const flipDurationMs = 125;
 
-    $: {
-        // WARNING! Updates every key stroke
-        invoke("rename_column", {
-            data: { id: columnId, newName: column.name },
+    const modalStore = getModalStore();
+
+    let draggableActivities: { id: number; colId: number; activity: Activity }[] = $state(
+        column.activities.map((activityId) => {
+            return { id: activityId, colId: columnId, activity: activitiesRune[activityId] };
+        }),
+    );
+
+    function updateDraggable() {
+        draggableActivities = column.activities.map((activityId) => {
+            return { id: activityId, colId: columnId, activity: activitiesRune[activityId] };
+        });
+    }
+
+    if (+columnId) {
+        run(() => {
+            // WARNING! Updates every key stroke
+            invoke("rename_column", {
+                data: { id: columnId, newName: column.name },
+            });
         });
     }
 
     async function createActivity() {
         const name = "New activity";
         const body = "";
-        const tags = [];
+        const tags: number[] = [];
         const res: {
             id: number;
             name: string;
@@ -41,144 +54,118 @@
         } = await invoke("create_activity", {
             data: { name, body, columnId },
         });
-        const column = $columns.get(columnId);
-        const columnActivities: Map<number, Actv> = column.activities.reduce(
-            (acc, id) => {
-                acc.set(id, $activities.get(id));
-                return acc;
-            },
-            new Map()
-        );
+        const column = columnsRune[columnId];
+        const columnActivities: Map<number, Activity> = column.activities.reduce((acc, id) => {
+            acc.set(id, activitiesRune[id]);
+            return acc;
+        }, new Map());
         Array.from(columnActivities.entries()).forEach(([id, activity]) => {
             activity.ordinal += 1;
-            $activities.set(id, activity);
+            activitiesRune[id] = activity;
         });
+        console.log("before:", $state.snapshot(column.activities));
         column.activities.push(res.id);
-        $activities.set(res.id, {
+        console.log("after:", $state.snapshot(column.activities));
+        activitiesRune[res.id] = {
             name,
             body,
             tags,
             ordinal: res.ordinal,
-            columnId: columnId,
-        });
-        $columns.set(columnId, column);
-        $activities = $activities;
-        $columns = $columns;
+        };
+        columnsRune[columnId] = column;
+
+        // draggableActivities.update();
+        updateDraggable();
     }
 
     function handleNameClick() {
-        $currentEditable = { id: columnId, field: ActiveField.ColumnName };
+        appState.currentEditable = { id: columnId, field: ActiveField.ColumnName };
     }
 
     async function removeColumn() {
         await invoke("delete_column", { id: columnId });
-        const newColumns = Array.from($columns.entries());
-        const index = newColumns.findIndex(
-            ([colId, column]) => colId === columnId
-        );
+        const newColumns = Object.entries(columnsRune);
+        const index = newColumns.findIndex(([colId, column]) => +colId === columnId);
         newColumns.forEach(([colId, column], idx) => {
             if (idx >= index) {
-                column.ordinal -= 1;
-                $columns.set(colId, column);
+                column.ord -= 1;
+                columnsRune[+colId] = column;
             }
         });
-        let columnActivities: Array<[number, Actv]> = Array.from(
-            column.activities
-        ).map((activityId) => [activityId, $activities.get(activityId)]);
+        console.log($state.snapshot(column.activities));
+        let columnActivities: Array<[number, Activity]> = Array.from(column.activities).map((activityId) => [
+            activityId,
+            activitiesRune[activityId],
+        ]);
         column.activities.forEach((activityId) => {
-            $activities.delete(activityId);
+            delete activitiesRune[activityId];
         });
         column.activities = [];
-        let sortedColumnActivities = columnActivities.sort(
-            ([activityId1, activity1], [activityId2, activity2]) => {
-                return activity1.ordinal - activity2.ordinal;
-            }
-        );
+        let sortedColumnActivities = columnActivities.sort(([activityId1, activity1], [activityId2, activity2]) => {
+            return activity1.ordinal - activity2.ordinal;
+        });
         sortedColumnActivities.forEach(([activityId, activity]) => {
-            // let activity = $activities.get(activityId);
-            activity.ordinal = $otherActivities.size;
-            $otherActivities.set(activityId, activity);
+            activity.ordinal = Object.entries(otherActivitiesRune.inner).length;
+            otherActivitiesRune.inner[activityId] = activity;
         });
 
-        $columns.delete(columnId);
-        $activities = $activities;
-
-        $columns = $columns;
-        $otherActivities = $otherActivities;
+        delete columnsRune[columnId];
+        draggableColumns.update();
     }
 
-    $: draggableActivities = Array.from(column.activities)
-        .map((id) => {
-            const activity = $activities.get(id);
-            return { activity, id, colId: columnId };
-        })
-        .sort((a, b) => {
-            return a.activity.ordinal - b.activity.ordinal;
-        });
-
     function handleConsider(
-        e: CustomEvent<
-            DndEvent<{
-                id: number;
-                activity: Actv;
-                colId: number;
-            }>
-        > & {
-            target: any;
-        }
+        e: DndEvent<{
+            id: number;
+            activity: Activity;
+            colId: number;
+        }>,
     ) {
-        const trigger = e.detail.info.trigger;
-        console.log(columnId, "trigger", trigger);
-        if (trigger === TRIGGERS.DRAGGED_ENTERED) {
-            $hoverColumnId = columnId;
-        } else if (trigger === TRIGGERS.DRAGGED_LEFT) {
-            //$hoverColumnId = null;
+        if (e.info.trigger === TRIGGERS.DRAGGED_ENTERED) {
+            appState.hoverColumnId = columnId;
         }
-        const activityId = Number(e.detail.info.id);
-        e.detail.items.forEach(({ id, activity }, index) => {
+        e.items.forEach(({ id, activity }, index) => {
             activity.ordinal = index;
         });
-        draggableActivities = e.detail.items;
+        draggableActivities = e.items;
     }
 
     async function handleFinalize(
-        e: CustomEvent<
-            DndEvent<{
-                id: number;
-                activity: Actv;
-                colId: number;
-            }>
-        > & {
-            target: any;
-        }
+        e: DndEvent<{
+            id: number;
+            activity: Activity;
+            colId: number;
+        }>,
     ) {
-        $hoverColumnId = null;
-        const activitiesIds = [];
-        e.detail.items.forEach(({ id, activity, colId }, index) => {
+        appState.hoverColumnId = null;
+        const activitiesIds: number[] = [];
+        e.items.forEach(({ id, activity, colId }, index) => {
             activity.ordinal = index;
-            $activities.set(id, activity);
+            activitiesRune[id] = activity;
             activitiesIds.push(id);
         });
-        $columns.set(columnId, {
-            ...$columns.get(columnId),
+
+        columnsRune[columnId] = {
+            ...columnsRune[columnId],
             activities: activitiesIds,
-        });
-        $activities = $activities;
-        $columns = $columns;
-        const activityId = Number(e.detail.info.id);
-        const index = e.detail.items.findIndex(({ id }) => id === activityId);
+        };
+
+        const activityId = +e.info.id;
+        const index = e.items.findIndex(({ id }) => id === activityId);
         if (index !== -1) {
             await invoke("update_activity_column", {
                 data: { id: activityId, columnId, newOrd: index },
             });
         }
+        draggableActivities = e.items;
+        draggableColumns.update();
     }
 
     function showRemoveModal() {
-        const body = column.activities.length > 0
-            ? `${column.activities.length} ${column.activities.length === 1 ? "activity" : "activities"} will be moved to stash.`
-            : "Are you sure?";
-            
+        const body =
+            column.activities.length > 0
+                ? `${column.activities.length} ${column.activities.length === 1 ? "activity" : "activities"} will be moved to stash.`
+                : "Are you sure?";
+
         const modal: ModalSettings = {
             type: "confirm",
             title: `Remove '${column.name}'`,
@@ -194,81 +181,54 @@
     }
 
     function startDrag() {
-        $columnDragDisabled = false;
+        appState.columnDragDisabled = false;
     }
 </script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div
-    class="flex flex-col flex-shrink-0 w-72 {$columnDragDisabled
-        ? 'cursor-grab'
-        : ''}"
->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="flex flex-col flex-shrink-0 w-72 {appState.columnDragDisabled ? 'cursor-grab' : ''}">
     <DebugLabel text={`ID ${columnId}`} />
-    <DebugLabel text={`ORD ${column.ordinal}`} />
-    <div
-        class="flex items-center flex-shrink-0 h-10 px-2"
-        on:mousedown={startDrag}
-        on:touchstart={startDrag}
-    >
-        {#if $currentEditable !== null && $currentEditable.id === columnId && $currentEditable.field === ActiveField.ColumnName}
-            <span
-                contenteditable="true"
-                class="block text-sm font-semibold cursor-default"
-                bind:innerText={column.name}
-            />
+    <DebugLabel text={`ORD ${column.ord}`} />
+    <!-- svelte-ignore a11y_consider_explicit_label -->
+    <div class="flex items-center flex-shrink-0 h-10 px-2" onmousedown={startDrag} ontouchstart={startDrag}>
+        {#if appState.currentEditable !== null && appState.currentEditable.id === columnId && appState.currentEditable.field === ActiveField.ColumnName}
+            <span contenteditable="true" class="block text-sm font-semibold cursor-default" bind:innerText={column.name}
+            ></span>
         {:else}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <span
-                contenteditable="false"
-                on:click={handleNameClick}
-                class="block text-sm font-semibold cursor-default"
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <span contenteditable="false" onclick={handleNameClick} class="block text-sm font-semibold cursor-default"
                 >{column.name}</span
             >
         {/if}
 
         <span
             class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30 cursor-default"
-            >{draggableActivities.length}</span
+            >{column.activities.length}</span
         >
+        <!-- svelte-ignore a11y_consider_explicit_label -->
         <button
-            on:click={showRemoveModal}
+            onclick={showRemoveModal}
             class="flex items-center justify-center w-6 h-6 ml-auto rounded hover:bg-error-hover-token"
         >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="1em"
-                viewBox="0 0 448 512"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
                 <path
                     d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0H284.2c12.1 0 23.2 6.8 28.6 17.7L320 32h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 96 0 81.7 0 64S14.3 32 32 32h96l7.2-14.3zM32 128H416V448c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V128zm96 64c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16z"
                 /></svg
             >
         </button>
         <button
-            on:click={createActivity}
+            onclick={createActivity}
             class="flex items-center justify-center w-6 h-6 ml-auto text-indigo-500 rounded hover:bg-indigo-500 hover:text-indigo-100"
         >
-            <svg
-                class="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
         </button>
     </div>
     <div class="h-[70vh]">
-        <!-- svelte-ignore missing-declaration -->
         <section
-            class="flex flex-col pb-2 overflow-auto max-h-full min-h-full cursor-default {$hoverColumnId ===
+            class="flex flex-col pb-2 overflow-auto max-h-full min-h-full cursor-default {appState.hoverColumnId ===
             columnId
                 ? 'shadow-2xl rounded-md'
                 : ''}"
@@ -278,12 +238,12 @@
                 type: "activities",
                 dropTargetStyle: {},
             }}
-            on:consider={handleConsider}
-            on:finalize={handleFinalize}
+            onconsider={(e) => handleConsider(e.detail)}
+            onfinalize={(e) => handleFinalize(e.detail)}
         >
-            {#each draggableActivities as { id, activity } (id)}
+            {#each draggableActivities as { id, activity, colId } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
-                    <ActivityCard {activity} {id} />
+                    <ActivityCard activity={{ ...activity }} {id} columnId={colId} />
                 </div>
             {/each}
         </section>

@@ -1,50 +1,43 @@
 <script lang="ts">
+    import { run } from "svelte/legacy";
+
     import { invoke } from "@tauri-apps/api/core";
-    import {
-        ActiveField,
-        type Activity,
-        type Column,
-    } from "../../interfaces/main";
+    import { ActiveField, type Activity } from "../../interfaces";
     import ActivityCard from "../board/ActivityCard.svelte";
-    import {
-        activities,
-        columns,
-        currentEditable,
-        otherActivities,
-    } from "../../stores";
     import { dndzone } from "svelte-dnd-action";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
-    import { drawerStore } from "@skeletonlabs/skeleton";
+    import { getDrawerStore } from "@skeletonlabs/skeleton";
+    import { idOtherTags, otherActivitiesRune } from "../../shared.svelte";
 
     const flipDurationMs = 100;
 
-    $: draggableActivities = Array.from($otherActivities)
-        .map(([id, activity]) => {
-            return { activity, id, colId: null };
-        })
-        .sort((a, b) => {
-            return a.activity.ordinal - b.activity.ordinal;
-        });
+    let draggableActivities: { id: number; activity: Activity }[] = $state([]);
+    updateDraggable();
 
-    $: {
-        if ($otherActivities.size === 0) {
+    function updateDraggable() {
+        draggableActivities = Object.entries(otherActivitiesRune.inner).map(([activityId, activity]) => {
+            return { id: +activityId, activity };
+        });
+    }
+
+    const drawerStore = getDrawerStore();
+    run(() => {
+        if (Object.entries(otherActivitiesRune.inner).length === 0) {
             drawerStore.close();
         }
-    }
+    });
 
     function handleConsider(
         e: CustomEvent<
             DndEvent<{
                 id: number;
                 activity: Activity;
-                colId: number;
             }>
         > & {
             target: any;
-        }
+        },
     ) {
-        const activityId = Number(e.detail.info.id);
         e.detail.items.forEach(({ id, activity }, index) => {
             activity.ordinal = index;
         });
@@ -56,19 +49,14 @@
             DndEvent<{
                 id: number;
                 activity: Activity;
-                colId: number;
             }>
         > & {
             target: any;
-        }
+        },
     ) {
-        e.detail.info.id;
-        const activities = new Map();
-        e.detail.items.forEach(({ id, activity, colId }, index) => {
+        e.detail.items.forEach(({ id, activity }, index) => {
             activity.ordinal = index;
-            activities.set(id, activity);
         });
-        $otherActivities = activities;
 
         const activityId = Number(e.detail.info.id);
         const index = e.detail.items.findIndex(({ id }) => id === activityId);
@@ -77,6 +65,11 @@
                 data: { id: activityId, columnId: null, newOrd: index },
             });
         }
+        const activityRecord: Record<number, Activity> = {};
+        e.detail.items.map(({ id, activity }) => {
+            activityRecord[id] = activity;
+        });
+        otherActivitiesRune.inner = activityRecord;
     }
 </script>
 
@@ -99,10 +92,10 @@
                     "border-radius": "0.25rem",
                 },
             }}
-            on:consider={handleConsider}
-            on:finalize={handleFinalize}
+            onconsider={handleConsider}
+            onfinalize={handleFinalize}
         >
-            {#each Array.from(draggableActivities) as { id, activity } (id)}
+            {#each draggableActivities as { id, activity } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
                     <ActivityCard
                         activity={{
@@ -110,7 +103,6 @@
                             ordinal: activity.ordinal,
                             tags: activity.tags,
                             body: activity.body,
-                            columnId: null,
                         }}
                         {id}
                     />
