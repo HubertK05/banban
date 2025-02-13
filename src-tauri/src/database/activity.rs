@@ -44,6 +44,9 @@ struct ActivityQueryResult {
 pub struct Query;
 
 impl Query {
+    /// Fetches an activity from the db given its id.
+    ///
+    /// Returns `Ok(None)` if the activity is not found.
     pub async fn find_activity_by_id(
         db: &DbConn,
         id: i32,
@@ -52,6 +55,9 @@ impl Query {
         Ok(tasks)
     }
 
+    /// Fetches all activities from all columns that have column ids (all activities excluding those from the stash).
+    ///
+    /// Returns all found activities associated with their ids and with the id of the column that contains it.
     pub async fn all_column_activities(
         db: &DbConn,
     ) -> Result<HashMap<i32, ColumnActivityOutput>, DbErr> {
@@ -80,6 +86,9 @@ impl Query {
         Ok(out)
     }
 
+    /// Fetches all activities outside the columns that have their ids (from the stash).
+    ///
+    /// Returns all stash activities associated with their ids.
     pub async fn all_other_activities(db: &DbConn) -> Result<HashMap<i32, ActivityOutput>, DbErr> {
         let res = Activity::find()
             .find_with_related(category_tags::Entity)
@@ -105,6 +114,9 @@ impl Query {
         Ok(out)
     }
 
+    /// Fetches activities both from the stash and outside the stash.
+    ///
+    /// This automatically aggregates activities into associated columns (or the stash).
     pub async fn query_all_activities(
         db: &DbConn,
     ) -> Result<QueryActivitiesWithColumnsOutput, DbErr> {
@@ -207,6 +219,9 @@ impl Query {
         Ok(res)
     }
 
+    /// Fetches the ordinal of the activity that has a given id.
+    ///
+    /// Returns a `RowNotFound` error if the activity with a given id is not found.
     async fn get_ordinal_from_id(db: &DbConn, activity_id: i32) -> Result<i32, AppError> {
         let res = activities::Entity::find_by_id(activity_id)
             .one(db)
@@ -236,6 +251,10 @@ impl Query {
         Ok(res as i32)
     }
 
+    /// Fetches the column id of the activity that has a given id.
+    ///
+    /// Returns a `RowNotFound` error if the activity with a given id is not found and
+    /// `Ok(None)` if the activity is in the stash.
     async fn get_column_id_from_activity_id(db: &DbConn, id: i32) -> Result<Option<i32>, AppError> {
         let res = activities::Entity::find_by_id(id)
             .one(db)
@@ -250,6 +269,9 @@ impl Query {
 pub struct Mutation;
 
 impl Mutation {
+    /// Creates an activity, and returns that activity with its newly created id.
+    ///
+    /// This also updates ordinals of the activities in a given column to maintain valid ordering.
     pub async fn create_activity(
         db: &DbConn,
         data: CreateActivityInput,
@@ -273,6 +295,9 @@ impl Mutation {
         Ok(res)
     }
 
+    /// Deletes an activity, given its id.
+    ///
+    /// This also updates ordinals of the activities in a given column to maintain valid ordering.
     pub async fn delete_activity_by_id(db: &DbConn, id: i32) -> Result<(), AppError> {
         let deleted_ord = Query::get_ordinal_from_id(db, id).await?;
         let column_id = Query::get_column_id_from_activity_id(db, id).await?;
@@ -307,6 +332,9 @@ impl Mutation {
         Ok(())
     }
 
+    /// Updates the position (ordinal) of an activity based on its id.
+    ///
+    /// This changes the ordinal of a given activity and changes ordinals of activities occuring later to match the new position of the activity.
     pub async fn update_activity_column_by_id(
         db: &DbConn,
         data: UpdateActivityColumnInput,
@@ -401,6 +429,7 @@ impl Mutation {
         Ok(())
     }
 
+    /// Helper function that subtracts 1 from ordinals of activities starting from the `start_ord` on a given column.
     async fn left_shift_ordinals(
         db: &impl ConnectionTrait,
         start_ord: i32,
@@ -428,6 +457,7 @@ impl Mutation {
         Ok(())
     }
 
+    /// Helper function that adds 1 to ordinals of activities starting from the `start_ord` on a given column.
     async fn right_shift_ordinals(
         db: &impl ConnectionTrait,
         start_ord: i32,
