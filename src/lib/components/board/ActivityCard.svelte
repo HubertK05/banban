@@ -11,6 +11,7 @@
         categoryTagsRune,
         columnsRune,
         draggableColumns,
+        draggableOtherActivities,
         otherActivitiesRune,
         otherTagsRune,
     } from "../../shared.svelte";
@@ -39,6 +40,7 @@
         } else {
             delete otherActivitiesRune.inner[id];
             delete activitiesRune[id];
+            draggableOtherActivities.update();
         }
     }
 

@@ -66,9 +66,20 @@ export class DraggableColumns {
     };
 }
 
+export class DraggableOtherActivities {
+    inner: { id: number, activity: Activity }[] = $state([]);
+
+    update = () => {
+        this.inner = Object.entries(otherActivitiesRune.inner).map(([activityId, activity]) => {
+            return { id: +activityId, activity };
+        });
+    }
+}
+
 export const idTags = new IdTags();
 export const idOtherTags = new IdOtherTags();
 export const draggableColumns = new DraggableColumns();
+export const draggableOtherActivities = new DraggableOtherActivities();
 
 export async function changeCategoryTagColor(newColor: string, tagId: number) {
     const tag = categoryTagsRune[tagId];

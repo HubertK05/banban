@@ -8,21 +8,14 @@
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
     import { getDrawerStore } from "@skeletonlabs/skeleton";
-    import { idOtherTags, otherActivitiesRune } from "../../shared.svelte";
+    import { draggableOtherActivities, idOtherTags, otherActivitiesRune } from "../../shared.svelte";
+
+    draggableOtherActivities.update();
 
     const flipDurationMs = 100;
 
-    let draggableActivities: { id: number; activity: Activity }[] = $state([]);
-    updateDraggable();
-
-    function updateDraggable() {
-        draggableActivities = Object.entries(otherActivitiesRune.inner).map(([activityId, activity]) => {
-            return { id: +activityId, activity };
-        });
-    }
-
     const drawerStore = getDrawerStore();
-    run(() => {
+    $effect.pre(() => {
         if (Object.entries(otherActivitiesRune.inner).length === 0) {
             drawerStore.close();
         }
@@ -41,7 +34,7 @@
         e.detail.items.forEach(({ id, activity }, index) => {
             activity.ordinal = index;
         });
-        draggableActivities = e.detail.items;
+        draggableOtherActivities.inner = e.detail.items;
     }
 
     async function handleFinalize(
@@ -70,6 +63,7 @@
             activityRecord[id] = activity;
         });
         otherActivitiesRune.inner = activityRecord;
+        draggableOtherActivities.inner = e.detail.items;
     }
 </script>
 
@@ -77,14 +71,14 @@
     <div class="flex items-center flex-shrink-0 h-10 px-2">
         <span
             class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30"
-            >{draggableActivities.length}</span
+            >{draggableOtherActivities.inner.length}</span
         >
     </div>
     <div class="h-96">
         <section
             class="flex flex-col pb-2 overflow-auto min-h-full"
             use:dndzone={{
-                items: draggableActivities,
+                items: draggableOtherActivities.inner,
                 flipDurationMs,
                 type: "activities",
                 dropTargetStyle: {
@@ -95,7 +89,7 @@
             onconsider={handleConsider}
             onfinalize={handleFinalize}
         >
-            {#each draggableActivities as { id, activity } (id)}
+            {#each draggableOtherActivities.inner as { id, activity } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
                     <ActivityCard
                         activity={{

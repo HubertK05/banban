@@ -8,7 +8,7 @@
     import { flip } from "svelte/animate";
     import { ActiveField, type Activity, type Column } from "../../interfaces";
     import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
-    import { activitiesRune, appState, columnsRune, draggableColumns, otherActivitiesRune } from "../../shared.svelte";
+    import { activitiesRune, appState, columnsRune, draggableColumns, draggableOtherActivities, otherActivitiesRune } from "../../shared.svelte";
 
     interface Props {
         columnId: number;
@@ -111,6 +111,7 @@
 
         delete columnsRune[columnId];
         draggableColumns.update();
+        draggableOtherActivities.update();
     }
 
     function handleConsider(
