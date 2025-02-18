@@ -21,6 +21,7 @@ use sea_orm::{
 pub struct Query;
 
 impl Query {
+    /// Helper function to fetch column ordinal based on id.
     async fn get_ordinal_from_id(db: &DbConn, id: i32) -> Result<i32, AppError> {
         let res = columns::Entity::find_by_id(id)
             .one(db)
@@ -30,6 +31,7 @@ impl Query {
         Ok(res.ordinal)
     }
 
+    /// Helper function to get a current number of columns.
     async fn get_column_count(db: &DbConn) -> Result<i32, AppError> {
         let res = columns::Entity::find()
             .count(db)
@@ -38,6 +40,9 @@ impl Query {
         Ok(res as i32)
     }
 
+    /// Fetches all persisted columns with their contents associated with their ids.
+    ///
+    /// Used at the startup of the application.
     pub async fn all_columns(db: &DbConn) -> Result<HashMap<i32, ColumnOutput>, DbErr> {
         let res = Column::find()
             .find_with_related(activities::Entity)
@@ -64,6 +69,11 @@ impl Query {
         Ok(out)
     }
 
+    /// Helper function to get the number of activities in a column given by id.
+    ///
+    /// A `None` value in `column_id` means counting activities in the stash.
+    ///
+    /// Returns 0 if column with id equal to `column_id` does not exist.
     async fn get_activity_count_in_column(
         db: &DbConn,
         column_id: Option<i32>,
@@ -88,6 +98,9 @@ impl Query {
 pub struct Mutation;
 
 impl Mutation {
+    /// Appends column to the end of the column list.
+    ///
+    /// Returns the created column with appropriate id and ordinal.
     pub async fn insert_column(db: &DbConn, name: String) -> Result<columns::Model, AppError> {
         let column_count = Query::get_column_count(db).await?;
         let model = columns::ActiveModel {
@@ -99,6 +112,9 @@ impl Mutation {
         Ok(model)
     }
 
+    /// Renames the column with id and new name provided in `data`.
+    ///
+    /// Returns `Err(RowNotFound)` if column with the given id does not exist.
     pub async fn update_column_name(db: &DbConn, data: RenameColumnInput) -> Result<(), AppError> {
         let mut model = columns::Entity::find_by_id(data.id)
             .one(db)
@@ -112,6 +128,9 @@ impl Mutation {
         Ok(())
     }
 
+    /// Updates the position of the given column in the column list.
+    ///
+    /// Returns `Err(RowNotFound)` if column with id given in `data` does not exist.
     pub async fn update_column_ordinal(
         db: &DbConn,
         data: UpdateColumnOrdinalInput,
@@ -135,6 +154,9 @@ impl Mutation {
         Ok(())
     }
 
+    /// Deletes column with the id equal to `id`.
+    ///
+    /// Updates ordinals to maintain correct order of columns.
     pub async fn delete_column_by_id(db: &DbConn, id: i32) -> Result<(), AppError> {
         let deleted_ordinal = Query::get_ordinal_from_id(db, id).await?;
         let other_activity_count = Query::get_activity_count_in_column(db, None)
@@ -164,6 +186,7 @@ impl Mutation {
         Ok(())
     }
 
+    /// Helper function that decrements ordinals greater than `start_ord`.
     async fn left_shift_ordinals(
         db: &impl ConnectionTrait,
         start_ord: i32,
@@ -180,6 +203,7 @@ impl Mutation {
         Ok(())
     }
 
+    /// Helper function that increments ordinals equal to at least `start_ord`.
     async fn right_shift_ordinals(
         db: &impl ConnectionTrait,
         start_ord: i32,

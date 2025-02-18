@@ -166,6 +166,9 @@ impl Mutation {
         Ok(())
     }
 
+    /// Updates activity content (like name or body).
+    ///
+    /// Returns `Err(RowNotFound)` if no activity with id given in `data` is found.
     pub async fn update_activity_content_by_id(
         db: &DbConn,
         data: UpdateActivityContentInput,

@@ -18,6 +18,9 @@ use sea_orm::{Condition, DbErr, QueryOrder};
 pub struct Query;
 
 impl Query {
+    /// Fetches all non-category tags - tags that can be chosen independentely of each other to the activity - with their ids.
+    ///
+    /// Used to get non-category tags on application startup.
     pub async fn all_other_tags(db: &DbConn) -> Result<HashMap<i32, OtherTagOutput>, DbErr> {
         let res = CategoryTag::find()
             .filter(Condition::any().add(category_tags::Column::CategoryId.is_null()))
@@ -39,6 +42,9 @@ impl Query {
         Ok(out)
     }
 
+    /// Helper function to get ordinal of the tag with a given id.
+    ///
+    /// Returns `Err(RowNotFound)` if the tag does not exist.
     async fn get_ordinal_from_id(db: &DbConn, category_tag_id: i32) -> Result<i32, AppError> {
         let res = category_tags::Entity::find_by_id(category_tag_id)
             .one(db)
@@ -48,6 +54,11 @@ impl Query {
         Ok(res.ordinal)
     }
 
+    /// Helper function to get the tag amount in a given category.
+    ///
+    /// If `category_id` is `None`, then returns the non-category tag amount.
+    ///
+    /// Returns 0 if category with a given id does not exist.
     async fn get_tag_count_from_category(
         db: &DbConn,
         category_id: Option<i32>,
@@ -68,6 +79,9 @@ impl Query {
         Ok(res as i32)
     }
 
+    /// Helper function used to fetch category id from tag id.
+    ///
+    /// Returns `Ok(None)` if tag with the given `id` is a non-category tag.
     async fn get_category_id_from_record_id(db: &DbConn, id: i32) -> Result<Option<i32>, AppError> {
         let res = category_tags::Entity::find_by_id(id)
             .one(db)
@@ -82,6 +96,9 @@ impl Query {
 pub struct Mutation;
 
 impl Mutation {
+    /// Creates a new tag and appends it to the end of the list.
+    ///
+    /// Returns a tag with the given name, generated color, id and ordinal.
     pub async fn create_tag(
         db: &DbConn,
         data: CreateTagInput,
@@ -99,6 +116,9 @@ impl Mutation {
         Ok(res)
     }
 
+    /// Renames the tag with id given in `data`.
+    ///
+    /// Returns `Err(RowNotFound)` if the tag with a given id does not exist.
     pub async fn update_tag_name(db: &DbConn, data: UpdateTagNameInput) -> Result<(), AppError> {
         let mut tag_model = category_tags::Entity::find_by_id(data.category_tag_id)
             .one(db)
@@ -115,6 +135,11 @@ impl Mutation {
         Ok(())
     }
 
+    /// Updates the position of tag with id given in `data`.
+    ///
+    /// This also shifts ordinals of other tags to achieve correct ordering.
+    ///
+    /// Returns `Err(RowNotFound)` if the tag with a given id does not exist.
     pub async fn update_tag_ordinal(
         db: &DbConn,
         data: UpdateTagOrdinalInput,
@@ -138,6 +163,9 @@ impl Mutation {
         Ok(())
     }
 
+    /// Updates tag color.
+    ///
+    /// Returns `Err(RowNotFound)` if tag with id given in `data` does not exist.
     pub async fn update_tag_color(db: &DbConn, data: UpdateTagColorInput) -> Result<(), AppError> {
         let mut tag_model = category_tags::Entity::find_by_id(data.category_tag_id)
             .one(db)
@@ -154,6 +182,9 @@ impl Mutation {
         Ok(())
     }
 
+    /// Deletes tag with a given id.
+    ///
+    /// This also shifts ordinals to maintain correct tag order.
     pub async fn delete_tag_by_id(db: &DbConn, id: i32) -> Result<(), AppError> {
         let category_id = Query::get_category_id_from_record_id(db, id).await?;
         let deleted_ord = Query::get_ordinal_from_id(db, id).await?;
@@ -167,6 +198,7 @@ impl Mutation {
         Ok(())
     }
 
+    /// Helper function that decrements ordinals greater than `start_ord`.
     async fn left_shift_ordinals(
         db: &impl ConnectionTrait,
         start_ord: i32,
@@ -194,6 +226,7 @@ impl Mutation {
         Ok(())
     }
 
+    /// Helper function that increments ordinals equal to at least `start_ord`.
     async fn right_shift_ordinals(
         db: &impl ConnectionTrait,
         start_ord: i32,

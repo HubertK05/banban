@@ -22,6 +22,13 @@ use sea_orm::{
 pub struct Query;
 
 impl Query {
+    /// Fetches categories with category tags.
+    ///
+    /// Returns two maps:
+    /// - the first map associates category ids with their contents
+    /// - the second map associates tag ids with their contents.
+    ///
+    /// Used to fetch persisted data at application startup.
     pub async fn all_with_category_tags(
         db: &DbConn,
     ) -> Result<
@@ -63,16 +70,7 @@ impl Query {
         Ok((categories, category_tags))
     }
 
-    pub async fn get_all_categories(db: &DbConn) -> Result<Vec<Model>, DbErr> {
-        let res = Category::find()
-            .order_by_asc(categories::Column::Ordinal)
-            .into_model()
-            .all(db)
-            .await?;
-        trace!("{res:#?}");
-        Ok(res)
-    }
-
+    /// Helper function used to fetch ordinal of a category based on id.
     async fn get_ordinal_from_id(db: &DbConn, id: i32) -> Result<i32, AppError> {
         let res = categories::Entity::find_by_id(id)
             .one(db)
@@ -82,6 +80,7 @@ impl Query {
         Ok(res.ordinal)
     }
 
+    /// Helper function that counts persisted categories.
     async fn get_category_count(db: &DbConn) -> Result<i32, AppError> {
         let res = categories::Entity::find()
             .count(db)
@@ -94,6 +93,9 @@ impl Query {
 pub struct Mutation;
 
 impl Mutation {
+    /// Inserts the category and returns the inserted category with id and ordinal.
+    ///
+    /// The category is inserted to the end of the category list.
     pub async fn insert_category(db: &DbConn, name: String) -> Result<categories::Model, AppError> {
         let category_count = Query::get_category_count(db).await?;
         let data = categories::ActiveModel {
@@ -102,10 +104,14 @@ impl Mutation {
             ..Default::default()
         };
 
+        // No ordinal gets updated; the function is designed to append category to the end of the list.
         let res = data.insert(db).await.context("failed to insert category")?;
         Ok(res)
     }
 
+    /// Renames the category with a id given in `data`.
+    ///
+    /// Returns `Err(RowNotFound)` if there is no category with this id.
     pub async fn update_category_name(
         db: &DbConn,
         data: UpdateCategoryNameInput,
@@ -126,6 +132,9 @@ impl Mutation {
         Ok(())
     }
 
+    /// Deletes category based on id.
+    ///
+    /// Shifts ordinals to match the correct order of categories after deletion.
     pub async fn delete_category_by_id(db: &DbConn, id: i32) -> Result<(), AppError> {
         let deleted_ord = Query::get_ordinal_from_id(db, id).await?;
         let tr = db.begin().await.context("failed to begin transaction")?;
@@ -138,6 +147,7 @@ impl Mutation {
         Ok(())
     }
 
+    /// Helper function that decrements ordinals greater than `start_ord`.
     async fn left_shift_ordinals(
         db: &impl ConnectionTrait,
         start_ord: i32,
@@ -155,6 +165,8 @@ impl Mutation {
         Ok(())
     }
 
+    /// Helper function that increments ordinals equal to at least `start_ord`.
+    #[allow(unused)]
     async fn right_shift_ordinals(
         db: &impl ConnectionTrait,
         start_ord: i32,
