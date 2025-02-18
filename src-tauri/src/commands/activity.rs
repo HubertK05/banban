@@ -96,16 +96,6 @@ pub struct QueryActivitiesWithColumnsOutput {
     pub other_activities: QueryColumnOutput,
 }
 
-#[tauri::command]
-pub async fn query_all_activities(
-    db: State<'_, DbConn>,
-) -> Result<QueryActivitiesWithColumnsOutput, AppError> {
-    let res = Query::query_all_activities(db.inner())
-        .await
-        .context("failed to select all activities")?;
-    Ok(res)
-}
-
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateActivityContentInput {

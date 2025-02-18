@@ -52,13 +52,6 @@ pub struct SelectCategoryTagsOutput {
     pub other_tags: SelectCategoryOutput,
 }
 
-#[tauri::command]
-pub async fn select_all_categories(
-    db: State<'_, DbConn>,
-) -> Result<SelectCategoryTagsOutput, AppError> {
-    Query::select_all_categories(db.inner()).await
-}
-
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateCategoryNameInput {
@@ -79,14 +72,6 @@ pub async fn update_category_name(
 pub struct UpdateCategoryOrdinalInput {
     pub category_id: i32,
     pub new_ord: i32,
-}
-
-#[tauri::command]
-pub async fn update_category_ordinal(
-    db: State<'_, DbConn>,
-    data: UpdateCategoryOrdinalInput,
-) -> Result<(), AppError> {
-    Mutation::update_category_ordinal(db.inner(), data).await
 }
 
 #[tauri::command]

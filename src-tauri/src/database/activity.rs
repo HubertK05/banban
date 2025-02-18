@@ -13,33 +13,13 @@ use sea_orm::*;
 use crate::{
     commands::{
         activity::{
-            AddTagToActivityInput, CategoryTag, CreateActivityInput,
-            QueryActivitiesWithColumnsOutput, QueryActivityOutput, QueryColumnOutput,
-            RemoveTagFromActivityInput, UpdateActivityColumnInput, UpdateActivityContentInput,
+            AddTagToActivityInput, CreateActivityInput, RemoveTagFromActivityInput,
+            UpdateActivityColumnInput, UpdateActivityContentInput,
         },
         fetch::{ActivityOutput, ColumnActivityOutput},
     },
     errors::AppError,
-    utils::coloring::rgb_int_to_string,
 };
-
-#[derive(FromQueryResult, Debug)]
-struct ActivityQueryResult {
-    id: i32,
-    name: String,
-    body: Option<String>,
-    ordinal: i32,
-    column_id: Option<i32>,
-    column_name: Option<String>,
-    column_ordinal: Option<i32>,
-    category_id: Option<i32>,
-    category_name: Option<String>,
-    category_ordinal: Option<i32>,
-    tag_id: Option<i32>,
-    tag_name: Option<String>,
-    tag_ordinal: Option<i32>,
-    tag_color: Option<i32>,
-}
 
 pub struct Query;
 
@@ -114,111 +94,6 @@ impl Query {
         Ok(out)
     }
 
-    /// Fetches activities both from the stash and outside the stash.
-    ///
-    /// This automatically aggregates activities into associated columns (or the stash).
-    pub async fn query_all_activities(
-        db: &DbConn,
-    ) -> Result<QueryActivitiesWithColumnsOutput, DbErr> {
-        let res: Vec<ActivityQueryResult> = Activity::find()
-            .select_only()
-            .columns([
-                activities::Column::Id,
-                activities::Column::Name,
-                activities::Column::Body,
-                activities::Column::Ordinal,
-            ])
-            .column_as(columns::Column::Id, "column_id")
-            .column_as(columns::Column::Name, "column_name")
-            .column_as(columns::Column::Ordinal, "column_ordinal")
-            .column_as(category_tags::Column::Id, "tag_id")
-            .column_as(category_tags::Column::TagName, "tag_name")
-            .column_as(category_tags::Column::Ordinal, "tag_ordinal")
-            .column_as(category_tags::Column::Color, "tag_color")
-            .column_as(categories::Column::Id, "category_id")
-            .column_as(categories::Column::Ordinal, "category_ordinal")
-            .column_as(categories::Column::Name, "category_name")
-            .join(JoinType::FullOuterJoin, activities::Relation::Columns.def())
-            .join_rev(
-                JoinType::LeftJoin,
-                activity_tags::Relation::Activities.def(),
-            )
-            .join(
-                JoinType::LeftJoin,
-                activity_tags::Relation::CategoryTags.def(),
-            )
-            .join(
-                JoinType::LeftJoin,
-                category_tags::Relation::Categories.def(),
-            )
-            .order_by_asc(columns::Column::Ordinal)
-            .order_by_asc(activities::Column::Ordinal)
-            .order_by_asc(categories::Column::Ordinal)
-            .order_by_asc(category_tags::Column::Ordinal)
-            .into_model()
-            .all(db)
-            .await?;
-
-        let res: QueryActivitiesWithColumnsOutput = res.into_iter().fold(
-            QueryActivitiesWithColumnsOutput::default(),
-            |mut acc, record| {
-                let activities = if let Some(column_id) = record.column_id {
-                    &mut acc
-                        .columns
-                        .entry(column_id)
-                        .or_insert(QueryColumnOutput::new_empty(
-                            record.column_name,
-                            record.column_ordinal,
-                        ))
-                        .activities
-                } else {
-                    &mut acc.other_activities.activities
-                };
-
-                let activity_entry =
-                    activities
-                        .entry(record.id)
-                        .or_insert(QueryActivityOutput::new_empty(
-                            record.name,
-                            record.body,
-                            record.ordinal,
-                        ));
-
-                if let Some(tag_id) = record.tag_id {
-                    if let Some(category_id) = record.category_id {
-                        activity_entry.category_tags.insert(
-                            category_id,
-                            CategoryTag {
-                                tag_id,
-                                category_name: record
-                                    .category_name
-                                    .expect("No category name found for category"),
-                                tag_name: record.tag_name.expect("No tag name found for tag"),
-                                category_ordinal: record
-                                    .category_ordinal
-                                    .expect("No category ordinal found for category"),
-                                tag_ordinal: record
-                                    .tag_ordinal
-                                    .expect("No tag ordinal found for category"),
-                                tag_color: rgb_int_to_string(
-                                    record.tag_color.expect("No tag color found for the tag"),
-                                ),
-                            },
-                        );
-                    } else {
-                        activity_entry
-                            .other_tags
-                            .insert(tag_id, record.tag_name.expect("No tag name found for tag"));
-                    };
-                }
-
-                acc
-            },
-        );
-
-        Ok(res)
-    }
-
     /// Fetches the ordinal of the activity that has a given id.
     ///
     /// Returns a `RowNotFound` error if the activity with a given id is not found.
@@ -229,26 +104,6 @@ impl Query {
             .context("failed to get ordinal from id")?
             .ok_or(AppError::RowNotFound)?;
         Ok(res.ordinal)
-    }
-
-    async fn get_activity_count_by_column(
-        db: &DbConn,
-        column_id: Option<i32>,
-    ) -> Result<i32, AppError> {
-        let res = activities::Entity::find()
-            .filter(
-                Condition::any()
-                    .add(activities::Column::ColumnId.eq(column_id))
-                    .add(
-                        activities::Column::ColumnId
-                            .is_null()
-                            .and(SimpleExpr::from(column_id.is_none())),
-                    ),
-            )
-            .count(db)
-            .await
-            .context("failed to determine count of columns")?;
-        Ok(res as i32)
     }
 
     /// Fetches the column id of the activity that has a given id.

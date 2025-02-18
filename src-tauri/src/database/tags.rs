@@ -99,25 +99,6 @@ impl Mutation {
         Ok(res)
     }
 
-    pub async fn update_category_tag(
-        db: &DbConn,
-        data: AttachTagToCategoryInput,
-    ) -> Result<(), AppError> {
-        let mut tag_model = category_tags::Entity::find_by_id(data.category_tag_id)
-            .one(db)
-            .await
-            .context("failed to get category_tags model")?
-            .ok_or(AppError::RowNotFound)?
-            .into_active_model();
-
-        tag_model.category_id = Set(data.category_id);
-        category_tags::Entity::update(tag_model)
-            .exec(db)
-            .await
-            .context("failed to update category_tags row")?;
-        Ok(())
-    }
-
     pub async fn update_tag_name(db: &DbConn, data: UpdateTagNameInput) -> Result<(), AppError> {
         let mut tag_model = category_tags::Entity::find_by_id(data.category_tag_id)
             .one(db)

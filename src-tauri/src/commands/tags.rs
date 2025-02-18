@@ -43,14 +43,6 @@ pub struct AttachTagToCategoryInput {
     pub category_id: Option<i32>,
 }
 
-#[tauri::command]
-pub async fn attach_tag_to_category(
-    db: State<'_, DbConn>,
-    data: AttachTagToCategoryInput,
-) -> Result<(), AppError> {
-    Mutation::update_category_tag(db.inner(), data).await
-}
-
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateTagNameInput {
