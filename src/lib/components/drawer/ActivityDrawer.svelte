@@ -31,6 +31,20 @@
     let inputActivityName: string = "";
     let inputActivityBody: string = "";
 
+    function sortedTags(categoryId: number) {
+        return categoriesRune[categoryId].tags.map(tagId => {
+            return { id: tagId, tag: categoryTagsRune[tagId] };
+        }).sort(({id: _1, tag: tag1}, {id: _2, tag: tag2}) => {
+            return tag1.ord - tag2.ord;
+        })
+    }
+
+    function sortedNonCategoryTags() {
+        return Object.entries(otherTagsRune).sort(([_1, tag1], [_2, tag2]) => {
+            return tag1.ord - tag2.ord;
+        })
+    }
+
     async function changeTagColor(newColor: string, tagId: number) {
         if (selectedCategoryId === null) {
             changeOtherTagColor(newColor, tagId);
@@ -152,8 +166,7 @@
 </ListBox>
 {#if selectedCategoryId}
     <div class="flex flex-col">
-        {#each categoriesRune[selectedCategoryId].tags as tagId (tagId)}
-            {@const tag = categoryTagsRune[tagId]}
+        {#each sortedTags(selectedCategoryId) as { id: tagId, tag } (tagId)}
             <div class="flex flex-row space-x-6 place-content-between m-2 bg-gray-300 p-1 rounded">
                 <div class="w-20 flex align-center justify-center self-center">
                     <input
@@ -189,8 +202,7 @@
 {/if}
 {#if selectedCategoryId === null}
     <div class="flex flex-col">
-        {#each Object.entries(otherTagsRune) as [tagId, storeTag] (tagId)}
-            {@const tag = otherTagsRune[+tagId]}
+        {#each sortedNonCategoryTags() as [tagId, tag] (tagId)}
             <div class="flex flex-row space-x-6 items-center place-content-between m-2 bg-gray-300 p-1 rounded">
                 <div class="w-20 flex align-center justify-center self-center">
                     <input
