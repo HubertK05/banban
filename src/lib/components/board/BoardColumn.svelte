@@ -28,7 +28,7 @@
     const modalStore = getModalStore();
 
     let draggableActivities: { id: number; colId: number; activity: Activity }[] = $state([]);
-    $effect.pre(() => {
+    $effect(() => {
         draggableActivities = column.activities.map((activityId) => {
             return {
                 id: activityId,
