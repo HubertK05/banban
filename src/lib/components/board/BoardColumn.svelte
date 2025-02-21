@@ -8,7 +8,14 @@
     import { flip } from "svelte/animate";
     import { ActiveField, type Activity, type Column } from "../../interfaces";
     import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
-    import { activitiesRune, appState, columnsRune, draggableColumns, draggableOtherActivities, otherActivitiesRune } from "../../shared.svelte";
+    import {
+        activitiesRune,
+        appState,
+        columnsRune,
+        draggableColumns,
+        draggableOtherActivities,
+        otherActivitiesRune,
+    } from "../../shared.svelte";
 
     interface Props {
         columnId: number;
@@ -20,17 +27,16 @@
 
     const modalStore = getModalStore();
 
-    let draggableActivities: { id: number; colId: number; activity: Activity }[] = $state(
-        column.activities.map((activityId) => {
-            return { id: activityId, colId: columnId, activity: activitiesRune[activityId] };
-        }),
-    );
-
-    function updateDraggable() {
+    let draggableActivities: { id: number; colId: number; activity: Activity }[] = $state([]);
+    $effect.pre(() => {
         draggableActivities = column.activities.map((activityId) => {
-            return { id: activityId, colId: columnId, activity: activitiesRune[activityId] };
+            return {
+                id: activityId,
+                colId: columnId,
+                activity: activitiesRune[activityId],
+            };
         });
-    }
+    });
 
     if (+columnId) {
         run(() => {
@@ -73,9 +79,6 @@
             ordinal: res.ordinal,
         };
         columnsRune[columnId] = column;
-
-        // draggableActivities.update();
-        updateDraggable();
     }
 
     function handleNameClick() {
