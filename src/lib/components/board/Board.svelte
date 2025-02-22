@@ -40,6 +40,7 @@
     function handleConsider(
         e: DndEvent<{
             id: number;
+            columnId: number;
             column: Column;
         }>,
     ) {
@@ -52,6 +53,7 @@
     async function handleFinalize(
         e: DndEvent<{
             id: number;
+            columnId: number;
             column: Column;
         }>,
     ) {
@@ -98,7 +100,7 @@
             onconsider={(e) => handleConsider(e.detail)}
             onfinalize={(e) => handleFinalize(e.detail)}
         >
-            {#each draggableColumns.inner as { id, column } (id)}
+            {#each draggableColumns.inner as { id, columnId, column } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
@@ -118,7 +120,7 @@
                             /></svg
                         >
                     </div>
-                    <BoardColumn {column} columnId={id} />
+                    <BoardColumn {column} {columnId} />
                 </div>
             {:else}
                 <div class="flex flex-col">

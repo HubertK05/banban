@@ -12,6 +12,7 @@
         activitiesRune,
         appState,
         columnsRune,
+        draggableActivities,
         draggableColumns,
         draggableOtherActivities,
         otherActivitiesRune,
@@ -27,16 +28,7 @@
 
     const modalStore = getModalStore();
 
-    let draggableActivities: { id: number; colId: number; activity: Activity }[] = $state([]);
-    $effect(() => {
-        draggableActivities = column.activities.map((activityId) => {
-            return {
-                id: activityId,
-                colId: columnId,
-                activity: activitiesRune[activityId],
-            };
-        });
-    });
+    draggableActivities.update(columnId);
 
     if (+columnId) {
         run(() => {
@@ -79,6 +71,7 @@
             ordinal: res.ordinal,
         };
         columnsRune[columnId] = column;
+        draggableActivities.update(columnId);
     }
 
     function handleNameClick() {
@@ -130,7 +123,7 @@
         e.items.forEach(({ id, activity }, index) => {
             activity.ordinal = index;
         });
-        draggableActivities = e.items;
+        draggableActivities.inner[columnId] = e.items;
     }
 
     async function handleFinalize(
@@ -141,11 +134,11 @@
         }>,
     ) {
         appState.hoverColumnId = null;
-        const activitiesIds: number[] = [];
-        e.items.forEach(({ id, activity, colId }, index) => {
+        const activitiesIds: number[] = e.items.map((x) => x.id);
+        e.items = e.items.map(({ id, activity, colId }, index) => {
             activity.ordinal = index;
             activitiesRune[id] = activity;
-            activitiesIds.push(id);
+            return { id, activity, colId: columnId };
         });
 
         columnsRune[columnId] = {
@@ -160,7 +153,7 @@
                 data: { id: activityId, columnId, newOrd: index },
             });
         }
-        draggableActivities = e.items;
+        draggableActivities.inner[columnId] = e.items;
         draggableColumns.update();
     }
 
@@ -237,7 +230,7 @@
                 ? 'shadow-2xl rounded-md'
                 : ''}"
             use:dndzone={{
-                items: draggableActivities,
+                items: draggableActivities.inner[columnId],
                 flipDurationMs,
                 type: "activities",
                 dropTargetStyle: {},
@@ -245,7 +238,7 @@
             onconsider={(e) => handleConsider(e.detail)}
             onfinalize={(e) => handleFinalize(e.detail)}
         >
-            {#each draggableActivities as { id, activity, colId } (id)}
+            {#each draggableActivities.inner[columnId] as { id, activity, colId } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
                     <ActivityCard activity={{ ...activity }} {id} columnId={colId} />
                 </div>

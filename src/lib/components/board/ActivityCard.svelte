@@ -4,12 +4,13 @@
     import DebugLabel from "../debug/DebugLabel.svelte";
     import TagBadge from "./TagBadge.svelte";
     import { type ModalSettings, type DrawerSettings, getDrawerStore, getModalStore } from "@skeletonlabs/skeleton";
-    import SvelteMarkdown from '@humanspeak/svelte-markdown'
+    import SvelteMarkdown from "@humanspeak/svelte-markdown";
     import {
         activitiesRune,
         appState,
         categoryTagsRune,
         columnsRune,
+        draggableActivities,
         draggableColumns,
         draggableOtherActivities,
         otherActivitiesRune,
@@ -31,12 +32,12 @@
         await invoke("delete_activity", { id });
 
         if (columnId) {
-            // TODO: fix reactivity
             const runeColumn = columnsRune[columnId];
             runeColumn.activities = runeColumn.activities.filter((aId) => aId !== id);
             columnsRune[columnId] = runeColumn;
             delete activitiesRune[id];
             draggableColumns.update();
+            draggableActivities.update(columnId);
         } else {
             delete otherActivitiesRune.inner[id];
             delete activitiesRune[id];
