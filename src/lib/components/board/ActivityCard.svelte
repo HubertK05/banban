@@ -67,6 +67,7 @@
     }
 
     function showDrawer() {
+        if (columnId === undefined) return;
         appState.previousDrawerTab = null;
         appState.selectedActivity = id;
         const drawer: DrawerSettings = {
