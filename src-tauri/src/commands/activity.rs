@@ -6,10 +6,7 @@ use sea_orm::DbConn;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
-use crate::{
-    database::activity::{Mutation, Query},
-    errors::AppError,
-};
+use crate::{database::activity::Mutation, errors::AppError};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
