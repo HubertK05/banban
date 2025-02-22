@@ -6,7 +6,6 @@ export const appState: AppState = $state({
     previousDrawerTab: null,
     currentEditable: null,
     selectedActivity: null,
-    columnDragDisabled: true,
     hoverColumnId: null,
 });
 

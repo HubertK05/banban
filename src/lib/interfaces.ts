@@ -45,6 +45,5 @@ export interface AppState {
     previousDrawerTab: DrawerTab | null;
     currentEditable: Editable | null;
     selectedActivity: number | null;
-    columnDragDisabled: boolean;
     hoverColumnId: null | number;
 }

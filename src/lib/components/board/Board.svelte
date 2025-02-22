@@ -3,8 +3,8 @@
 
     import BoardColumn from "./BoardColumn.svelte";
     import { invoke } from "@tauri-apps/api/core";
-    import { dndzone, setDebugMode } from "svelte-dnd-action";
-    import { DrawerTab, type Column } from "../../interfaces";
+    import { dragHandle, dragHandleZone, setDebugMode } from "svelte-dnd-action";
+    import { type Column } from "../../interfaces";
     import { flip } from "svelte/animate";
     import DebugButton from "../debug/DebugButton.svelte";
     import OtherActivitiesButton from "./OtherActivitiesButton.svelte";
@@ -71,12 +71,7 @@
                 newOrd: index,
             },
         });
-        appState.columnDragDisabled = true;
         draggableColumns.inner = e.items;
-    }
-
-    function startDrag() {
-        appState.columnDragDisabled = false;
     }
 </script>
 
@@ -90,12 +85,11 @@
     <div class="flex">
         <section
             class="flex flex-row px-10 mt-4 space-x-6 w-max"
-            use:dndzone={{
+            use:dragHandleZone={{
                 items: draggableColumns.inner,
                 flipDurationMs,
                 type: "columns",
                 dropTargetStyle: {},
-                dragDisabled: appState.columnDragDisabled,
             }}
             onconsider={(e) => handleConsider(e.detail)}
             onfinalize={(e) => handleFinalize(e.detail)}
@@ -103,13 +97,7 @@
             {#each draggableColumns.inner as { id, columnId, column } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
-                    <div
-                        class={`w-full h-4 text-center bg-gray-500 bg-opacity-20 rounded-full ${
-                            appState.columnDragDisabled ? "cursor-grab" : "cursor-grabbing"
-                        }`}
-                        onmousedown={startDrag}
-                        ontouchstart={startDrag}
-                    >
+                    <div use:dragHandle class="bg-gray-200 bg-opacity-30 rounded h-6 flex align-center">
                         <svg
                             class="block m-auto opacity-20"
                             xmlns="http://www.w3.org/2000/svg"

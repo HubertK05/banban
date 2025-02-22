@@ -176,31 +176,26 @@
         };
         modalStore.trigger(modal);
     }
-
-    function startDrag() {
-        appState.columnDragDisabled = false;
-    }
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="flex flex-col flex-shrink-0 w-72 {appState.columnDragDisabled ? 'cursor-grab' : ''}">
+<div class="flex flex-col flex-shrink-0 w-72">
     <DebugLabel text={`ID ${columnId}`} />
     <DebugLabel text={`ORD ${column.ord}`} />
     <!-- svelte-ignore a11y_consider_explicit_label -->
-    <div class="flex items-center flex-shrink-0 h-10 px-2" onmousedown={startDrag} ontouchstart={startDrag}>
+    <div class="flex items-center flex-shrink-0 h-10 px-2">
         {#if appState.currentEditable !== null && appState.currentEditable.id === columnId && appState.currentEditable.field === ActiveField.ColumnName}
-            <span contenteditable="true" class="block text-sm font-semibold cursor-default" bind:innerText={column.name}
-            ></span>
+            <span contenteditable="true" class="block text-sm font-semibold" bind:innerText={column.name}></span>
         {:else}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <span contenteditable="false" onclick={handleNameClick} class="block text-sm font-semibold cursor-default"
+            <span contenteditable="false" onclick={handleNameClick} class="block text-sm font-semibold"
                 >{column.name}</span
             >
         {/if}
 
         <span
-            class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30 cursor-default"
+            class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30"
             >{column.activities.length}</span
         >
         <!-- svelte-ignore a11y_consider_explicit_label -->
@@ -225,8 +220,7 @@
     </div>
     <div class="h-[70vh]">
         <section
-            class="flex flex-col pb-2 overflow-auto max-h-full min-h-full cursor-default {appState.hoverColumnId ===
-            columnId
+            class="flex flex-col pb-2 overflow-auto max-h-full min-h-full {appState.hoverColumnId === columnId
                 ? 'shadow-2xl rounded-md'
                 : ''}"
             use:dndzone={{
