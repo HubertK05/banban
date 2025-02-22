@@ -1,6 +1,6 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
-    import { ActiveField, DrawerTab, type Activity } from "../../interfaces";
+    import { DrawerTab, type Activity } from "../../interfaces";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import TagBadge from "./TagBadge.svelte";
     import { type ModalSettings, type DrawerSettings, getDrawerStore, getModalStore } from "@skeletonlabs/skeleton";

@@ -1,7 +1,6 @@
 <script lang="ts">
     import BackButton from "../BackButton.svelte";
     import { invoke } from "@tauri-apps/api/core";
-    import TagSettings from "../tag/TagSettings.svelte";
     import CategorySettings from "../tag/CategorySettings.svelte";
     import { categoriesRune } from "../../../shared.svelte";
 

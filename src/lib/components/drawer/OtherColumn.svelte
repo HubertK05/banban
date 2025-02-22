@@ -1,11 +1,8 @@
 <script lang="ts">
-    import { run } from "svelte/legacy";
-
     import { invoke } from "@tauri-apps/api/core";
-    import { ActiveField, type Activity } from "../../interfaces";
+    import { type Activity } from "../../interfaces";
     import ActivityCard from "../board/ActivityCard.svelte";
     import { dndzone } from "svelte-dnd-action";
-    import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
     import { getDrawerStore } from "@skeletonlabs/skeleton";
     import { draggableOtherActivities, idOtherTags, otherActivitiesRune } from "../../shared.svelte";

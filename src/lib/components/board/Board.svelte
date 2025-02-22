@@ -1,20 +1,15 @@
 <script lang="ts">
-    import { run } from "svelte/legacy";
-
     import BoardColumn from "./BoardColumn.svelte";
     import { invoke } from "@tauri-apps/api/core";
-    import { dragHandle, dragHandleZone, setDebugMode } from "svelte-dnd-action";
+    import { dragHandle, dragHandleZone } from "svelte-dnd-action";
     import { type Column } from "../../interfaces";
     import { flip } from "svelte/animate";
     import DebugButton from "../debug/DebugButton.svelte";
     import OtherActivitiesButton from "./OtherActivitiesButton.svelte";
-    import { appState, columnsRune, draggableColumns } from "../../shared.svelte";
+    import { columnsRune, draggableColumns } from "../../shared.svelte";
 
-    setDebugMode(false);
     const boardName = "Kanban";
     const flipDurationMs = 300;
-
-    draggableColumns.update();
 
     async function createColumn({
         currentTarget,

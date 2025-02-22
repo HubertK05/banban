@@ -52,7 +52,7 @@ class IdOtherTags {
 }
 
 export class DraggableColumns {
-    inner: { id: number, columnId: number, column: Column }[] = $state([]);
+    inner: { id: number; columnId: number; column: Column }[] = $state([]);
 
     update = () => {
         this.inner = Object.entries(columnsRune)
@@ -66,25 +66,27 @@ export class DraggableColumns {
 }
 
 export class DraggableActivities {
-    inner: Record<number, { id: number, colId: number, activity: Activity }[]> = $state({});
+    inner: Record<number, { id: number; colId: number; activity: Activity }[]> = $state({});
 
     update = (columnId: number) => {
-        this.inner[columnId] = columnsRune[columnId].activities.map(activityId => {
-            return { id: +activityId, colId: columnId, activity: activitiesRune[+activityId] };
-        }).sort((activity1, activity2) => {
-            return activity1.activity.ordinal - activity2.activity.ordinal
-        });
-    }
+        this.inner[columnId] = columnsRune[columnId].activities
+            .map((activityId) => {
+                return { id: +activityId, colId: columnId, activity: activitiesRune[+activityId] };
+            })
+            .sort((activity1, activity2) => {
+                return activity1.activity.ordinal - activity2.activity.ordinal;
+            });
+    };
 }
 
 export class DraggableOtherActivities {
-    inner: { id: number, activity: Activity }[] = $state([]);
+    inner: { id: number; activity: Activity }[] = $state([]);
 
     update = () => {
         this.inner = Object.entries(otherActivitiesRune.inner).map(([activityId, activity]) => {
             return { id: +activityId, activity };
         });
-    }
+    };
 }
 
 export const idTags = new IdTags();

@@ -2,14 +2,12 @@
     import { ListBox, ListBoxItem } from "@skeletonlabs/skeleton";
     import TagBadge from "../board/TagBadge.svelte";
     import BackButton from "./BackButton.svelte";
-    import { fly, slide } from "svelte/transition";
     import { invoke } from "@tauri-apps/api/core";
     import DebugLabel from "../debug/DebugLabel.svelte";
     import SettingsButton from "../board/SettingsButton.svelte";
     import ActivityContent from "./activityContent/ActivityContent.svelte";
     import {
         activitiesRune,
-        appState,
         categoriesRune,
         categoryTagsRune,
         changeCategoryTagColor,
@@ -28,21 +26,20 @@
 
     let selectedCategoryId: number | null = $state(null);
 
-    let inputActivityName: string = "";
-    let inputActivityBody: string = "";
-
     function sortedTags(categoryId: number) {
-        return categoriesRune[categoryId].tags.map(tagId => {
-            return { id: tagId, tag: categoryTagsRune[tagId] };
-        }).sort(({id: _1, tag: tag1}, {id: _2, tag: tag2}) => {
-            return tag1.ord - tag2.ord;
-        })
+        return categoriesRune[categoryId].tags
+            .map((tagId) => {
+                return { id: tagId, tag: categoryTagsRune[tagId] };
+            })
+            .sort(({ id: _1, tag: tag1 }, { id: _2, tag: tag2 }) => {
+                return tag1.ord - tag2.ord;
+            });
     }
 
     function sortedNonCategoryTags() {
         return Object.entries(otherTagsRune).sort(([_1, tag1], [_2, tag2]) => {
             return tag1.ord - tag2.ord;
-        })
+        });
     }
 
     async function changeTagColor(newColor: string, tagId: number) {

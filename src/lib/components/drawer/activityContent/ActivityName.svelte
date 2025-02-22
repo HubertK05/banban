@@ -2,7 +2,7 @@
     import { invoke } from "@tauri-apps/api/core";
     import { getModalStore, getToastStore, type ToastSettings } from "@skeletonlabs/skeleton";
     import { tick } from "svelte";
-    import { activitiesRune, appState } from "../../../shared.svelte";
+    import { activitiesRune } from "../../../shared.svelte";
 
     interface Props {
         activityId: number;

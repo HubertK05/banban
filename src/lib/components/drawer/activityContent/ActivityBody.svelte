@@ -1,5 +1,5 @@
 <script lang="ts">
-    import SvelteMarkdown from '@humanspeak/svelte-markdown'
+    import SvelteMarkdown from "@humanspeak/svelte-markdown";
     import { invoke } from "@tauri-apps/api/core";
     import {
         type ToastSettings,
@@ -10,7 +10,7 @@
         getModalStore,
     } from "@skeletonlabs/skeleton";
     import { fly } from "svelte/transition";
-    import { activitiesRune, appState } from "../../../shared.svelte";
+    import { activitiesRune } from "../../../shared.svelte";
 
     const modalStore = getModalStore();
     const toastStore = getToastStore();
@@ -98,8 +98,7 @@
     </TabGroup>
     <div class="flex">
         {#if tabSet === 0}
-            <textarea rows="10" class="textarea m-2" bind:value={inputBody} placeholder="New activity body"
-            ></textarea>
+            <textarea rows="10" class="textarea m-2" bind:value={inputBody} placeholder="New activity body"></textarea>
         {:else if tabSet === 1}
             {#if inputBody.length > 0}
                 <div class="flex-1 p-2 variant-outline rounded-md">
