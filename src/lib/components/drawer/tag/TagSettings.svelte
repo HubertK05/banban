@@ -89,7 +89,16 @@
 
         <div class="flex max-h-fit align-center justify-center self-center">
             <button class="btn btn-sm variant-filled self-center m-1" onclick={renameTag}>Rename</button>
-            <input class="input w-24 indent-2 self-center p-1 m-1" bind:value={inputTagName} placeholder="tag name" />
+            <input
+                class="input w-24 indent-2 self-center p-1 m-1"
+                bind:value={inputTagName}
+                placeholder="tag name"
+                onkeypress={async (e) => {
+                    if (e.key === "Enter") {
+                        await renameTag();
+                    }
+                }}
+            />
         </div>
 
         <div class="w-20 self-center">

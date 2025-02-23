@@ -45,7 +45,15 @@
         editableCategory = { id: null };
     }
 
-    async function createTag(tagName: string, categoryId?: number) {
+    async function handleCreateTagClick(tagName: string, categoryId: number | null | undefined) {
+        if (categoryId === undefined) return;
+        createTagForm = false;
+        await createTag(tagName, categoryId);
+        createTagName = "";
+        createCategoryId = undefined;
+    }
+
+    async function createTag(tagName: string, categoryId: number | null) {
         const res: {
             id: number;
             tagName: string;
@@ -147,7 +155,7 @@
     }
 
     let createTagForm = $state(false);
-    let createCategoryId: number | undefined = $state();
+    let createCategoryId: number | null | undefined = $state();
     let createTagName: string = $state("");
     let createTagNode: HTMLInputElement | undefined = $state();
 </script>
@@ -159,7 +167,15 @@
 }) as [categoryId, category], categoryIdx}
     <div class="flex flex-row mt-2 place-content-between align-center p-1 rounded-md">
         {#if editableCategory.id === +categoryId}
-            <input class="input self-center" bind:value={editableCategory.name} />
+            <input
+                class="input self-center"
+                bind:value={editableCategory.name}
+                onkeypress={async (e) => {
+                    if (e.key === "Enter") {
+                        await renameCategory(+categoryId);
+                    }
+                }}
+            />
             <div class="flex flex-row">
                 <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
@@ -252,7 +268,6 @@
     {/if}
 {:else}
     <p>There are no categories</p>
-    <button class="btn varinat-fil">Create new</button>
 {/each}
 
 <hr class="m-2" />
@@ -295,6 +310,12 @@
             bind:this={createTagNode}
             bind:value={createTagName}
             placeholder="New tag name"
+            onkeypress={async (e) => {
+                // TODO: inform user to select category if undefined
+                if (e.key === "Enter") {
+                    await handleCreateTagClick(createTagName, createCategoryId);
+                }
+            }}
         />
         <ListBox>
             {#each Object.entries(categoriesRune) as [id, category]}
@@ -308,12 +329,7 @@
         </ListBox>
     </div>
     <button
-        onclick={async () => {
-            createTagForm = false;
-            await createTag(createTagName, createCategoryId);
-            createTagName = "";
-            createCategoryId = undefined;
-        }}
+        onclick={async () => await handleCreateTagClick(createTagName, createCategoryId)}
         class="btn variant-filled-primary"
         disabled={createTagName.length === 0 || createCategoryId === undefined}>Create</button
     >

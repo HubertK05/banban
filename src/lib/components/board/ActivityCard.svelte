@@ -45,12 +45,6 @@
         }
     }
 
-    function handleEnterKey(e: KeyboardEvent) {
-        if (e.key === "Enter") {
-            appState.currentEditable = null;
-        }
-    }
-
     function showRemoveModal() {
         const modal: ModalSettings = {
             type: "confirm",
@@ -153,4 +147,3 @@
     </div>
     <div class="flex items-center w-full mt-3 text-xs font-medium text-gray-400"></div>
 </div>
-<svelte:document onkeydown={handleEnterKey} />

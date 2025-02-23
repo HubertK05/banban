@@ -5,6 +5,13 @@
     import { categoriesRune } from "../../../shared.svelte";
 
     let categoryName: string = $state("");
+
+    async function handleCreateCategoryClick() {
+        if (categoryName === "") return;
+        createCategory();
+        categoryName = "";
+    }
+
     async function createCategory() {
         const res: {
             id: number;
@@ -23,6 +30,19 @@
 <BackButton />
 <div class="flex flex-col">
     <CategorySettings />
-    <input class="input p-2" bind:value={categoryName} />
-    <button onclick={createCategory} class="btn variant-ghost-primary">Add new category</button>
+    <input
+        class="input p-2"
+        bind:value={categoryName}
+        onkeypress={async (e) => {
+            if (e.key === "Enter") {
+                await handleCreateCategoryClick();
+            }
+        }}
+    />
+    <button
+        onclick={async () => {
+            await handleCreateCategoryClick();
+        }}
+        class="btn variant-ghost-primary">Add new category</button
+    >
 </div>
