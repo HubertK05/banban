@@ -1,6 +1,6 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
-    import { ListBox, ListBoxItem, type ModalComponent } from "@skeletonlabs/skeleton";
+    import { getModalStore, ListBox, ListBoxItem, type ModalComponent, type ModalSettings } from "@skeletonlabs/skeleton";
     import TagSettings from "./TagSettings.svelte";
     import { dndzone } from "svelte-dnd-action";
     import {
@@ -16,6 +16,7 @@
 
     const flipDurationMs = 125;
     let editableCategory: { id: null } | { id: number; name: string } = $state({ id: null });
+    const modalStore = getModalStore();
 
     idTags.update();
     idOtherTags.update();
@@ -52,6 +53,22 @@
         createTagName = "";
         createCategoryId = undefined;
     }
+
+    function showRemoveModal(categoryId: number) {
+        const modal: ModalSettings = {
+            type: "confirm",
+            title: `Remove '${categoriesRune[categoryId].name}'`,
+            body: "Are you sure?",
+
+            response: async (r: boolean) => {
+                if (r) {
+                    await deleteCategory(categoryId);
+                }
+            },
+        };
+        modalStore.trigger(modal);
+    }
+
 
     async function createTag(tagName: string, categoryId: number | null) {
         const res: {
@@ -223,8 +240,8 @@
                 <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
                     class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
-                    onclick={async () => {
-                        await deleteCategory(+categoryId);
+                    onclick={() => {
+                        showRemoveModal(+categoryId);
                     }}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
