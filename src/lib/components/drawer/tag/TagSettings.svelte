@@ -13,7 +13,9 @@
         idOtherTags,
         idTags,
         otherTagsRune,
+        showToast,
     } from "../../../shared.svelte";
+    import { getToastStore } from "@skeletonlabs/skeleton";
 
     interface Props {
         tagId: number;
@@ -23,8 +25,18 @@
 
     let { tagId, tag, categoryId }: Props = $props();
 
+    const toastStore = getToastStore();
+
     let inputTagName: string = $state("");
     let inputTagColor: string = $state(tag.color);
+
+    async function handleRenameTag() {
+        if (inputTagName.trim() === "") {
+            showToast(toastStore, "⚠️ Tag name cannot be blank");
+            return;
+        }
+        await renameTag();
+    }
 
     async function removeTag() {
         await invoke("delete_tag", { categoryTagId: tagId });
@@ -88,14 +100,14 @@
         </div>
 
         <div class="flex max-h-fit align-center justify-center self-center">
-            <button class="btn btn-sm variant-filled self-center m-1" onclick={renameTag}>Rename</button>
+            <button class="btn btn-sm variant-filled self-center m-1" onclick={async () => { handleRenameTag() }}>Rename</button>
             <input
                 class="input w-24 indent-2 self-center p-1 m-1"
                 bind:value={inputTagName}
                 placeholder="tag name"
                 onkeypress={async (e) => {
                     if (e.key === "Enter") {
-                        await renameTag();
+                        await handleRenameTag();
                     }
                 }}
             />

@@ -5,7 +5,7 @@
     import DebugLabel from "../debug/DebugLabel.svelte";
     import { flip } from "svelte/animate";
     import { ActiveField, type Activity, type Column } from "../../interfaces";
-    import { getModalStore, type ModalSettings } from "@skeletonlabs/skeleton";
+    import { getModalStore, getToastStore, type ModalSettings } from "@skeletonlabs/skeleton";
     import {
         activitiesRune,
         appState,
@@ -14,7 +14,9 @@
         draggableColumns,
         draggableOtherActivities,
         otherActivitiesRune,
+        showToast,
     } from "../../shared.svelte";
+    import { event } from "@tauri-apps/api";
 
     interface Props {
         columnId: number;
@@ -25,6 +27,7 @@
     const flipDurationMs = 125;
 
     const modalStore = getModalStore();
+    const toastStore = getToastStore();
 
     draggableActivities.update(columnId);
 
@@ -101,6 +104,10 @@
     }
 
     async function handleRenameColumn() {
+        if (column.name.trim() === "") {
+            showToast(toastStore, "⚠️ Column name cannot be blank");
+            return;
+        }
         await renameColumn();
         appState.currentEditable = null;
     }
@@ -193,6 +200,7 @@
                 onkeypress={async (e) => {
                     if (e.key === "Enter") {
                         await handleRenameColumn();
+                        e.preventDefault();
                     }
                 }}
             ></span>

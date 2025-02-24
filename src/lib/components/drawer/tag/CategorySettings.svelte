@@ -2,6 +2,7 @@
     import { invoke } from "@tauri-apps/api/core";
     import {
         getModalStore,
+        getToastStore,
         ListBox,
         ListBoxItem,
         type ModalComponent,
@@ -16,6 +17,7 @@
         idOtherTags,
         idTags,
         otherTagsRune,
+        showToast,
     } from "../../../shared.svelte";
     import type { Tag } from "../../../interfaces";
     import { flip } from "svelte/animate";
@@ -23,6 +25,7 @@
     const flipDurationMs = 125;
     let editableCategory: { id: null } | { id: number; name: string } = $state({ id: null });
     const modalStore = getModalStore();
+    const toastStore = getToastStore();
 
     idTags.update();
     idOtherTags.update();
@@ -42,12 +45,22 @@
         });
     }
 
-    async function renameCategory(id: number) {
+    async function handleRenameCategory(id: number) {
         console.assert(editableCategory.id !== null, "There is no editable category when trying to rename it");
         if (editableCategory.id === null) return;
-        await invoke("update_category_name", { data: { id, name: editableCategory.name } });
+
+        if (editableCategory.name.trim() === "") {
+            showToast(toastStore, "⚠️ Category name cannot be blank");
+            return;
+        }
+
+        await renameCategory(id, editableCategory.name);
+    }
+
+    async function renameCategory(id: number, name: string) {
+        await invoke("update_category_name", { data: { id, name } });
         const runeCategory = categoriesRune[id];
-        runeCategory.name = editableCategory.name;
+        runeCategory.name = name;
         categoriesRune[id] = runeCategory;
         editableCategory = { id: null };
     }
@@ -194,7 +207,7 @@
                 bind:value={editableCategory.name}
                 onkeypress={async (e) => {
                     if (e.key === "Enter") {
-                        await renameCategory(+categoryId);
+                        await handleRenameCategory(+categoryId);
                     }
                 }}
             />
@@ -203,7 +216,7 @@
                 <button
                     class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
                     onclick={async () => {
-                        await renameCategory(+categoryId);
+                        await handleRenameCategory(+categoryId);
                     }}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
