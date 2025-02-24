@@ -1,8 +1,8 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
-    import { getModalStore, getToastStore, type ToastSettings } from "@skeletonlabs/skeleton";
+    import { getToastStore } from "@skeletonlabs/skeleton";
     import { tick } from "svelte";
-    import { activitiesRune } from "../../../shared.svelte";
+    import { activitiesRune, showToast } from "../../../shared.svelte";
 
     interface Props {
         activityId: number;
@@ -13,7 +13,6 @@
     const selectedActivity = $derived(activitiesRune[activityId]);
     let displayName = $derived(selectedActivity.name);
 
-    const modalStore = getModalStore();
     const toastStore = getToastStore();
 
     let isEditMode = $state(false);
@@ -30,28 +29,12 @@
     async function save() {
         const trimmedName = inputName.trim();
         if (displayName === trimmedName) {
-            const toast: ToastSettings = {
-                message: "📝 Set the same activity name",
-                hoverable: true,
-                autohide: true,
-                hideDismiss: true,
-                timeout: 2000,
-                classes: "variant-ghost-warning",
-            };
-            toastStore.trigger(toast);
+            showToast(toastStore, "📝 Set the same activity name");
             isEditMode = false;
             return;
         }
         if (trimmedName.length === 0) {
-            const toast: ToastSettings = {
-                message: "⚠️ Activity name cannot be blank",
-                hoverable: true,
-                autohide: true,
-                hideDismiss: true,
-                timeout: 2000,
-                classes: "variant-ghost-warning",
-            };
-            toastStore.trigger(toast);
+            showToast(toastStore, "⚠️ Activity name cannot be blank");
             return;
         }
 

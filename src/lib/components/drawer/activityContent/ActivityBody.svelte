@@ -10,7 +10,7 @@
         getModalStore,
     } from "@skeletonlabs/skeleton";
     import { fly } from "svelte/transition";
-    import { activitiesRune } from "../../../shared.svelte";
+    import { activitiesRune, showToast } from "../../../shared.svelte";
 
     const modalStore = getModalStore();
     const toastStore = getToastStore();
@@ -42,15 +42,7 @@
         }
 
         if (displayBody === trimmedBody) {
-            const toast: ToastSettings = {
-                message: "📝 Set the same activity body",
-                hoverable: true,
-                autohide: true,
-                hideDismiss: true,
-                timeout: 2000,
-                classes: "variant-ghost-warning",
-            };
-            toastStore.trigger(toast);
+            showToast(toastStore, "📝 Set the same activity body");
             isEditMode = false;
             return;
         }

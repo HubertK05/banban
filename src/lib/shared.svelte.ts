@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { Activity, AppState, Category, Column, Tag } from "./interfaces";
+import { getToastStore, type ToastSettings, type ToastStore } from "@skeletonlabs/skeleton";
 
 export const appState: AppState = $state({
     isDebug: false,
@@ -111,6 +112,18 @@ export async function changeOtherTagColor(newColor: string, tagId: number) {
     });
     tag.color = newColor;
     otherTagsRune[tagId] = tag;
+}
+
+export function showToast(toastStore: ToastStore, content: string) {
+    const toast: ToastSettings = {
+        message: content,
+        hoverable: true,
+        autohide: true,
+        hideDismiss: true,
+        timeout: 2000,
+        classes: "variant-ghost-warning",
+    };
+    toastStore.trigger(toast);
 }
 
 interface BackendCol {
