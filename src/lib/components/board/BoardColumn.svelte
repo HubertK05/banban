@@ -17,6 +17,7 @@
         showToast,
     } from "../../shared.svelte";
     import { event } from "@tauri-apps/api";
+    import { tick } from "svelte";
 
     interface Props {
         columnId: number;
@@ -28,6 +29,8 @@
 
     const modalStore = getModalStore();
     const toastStore = getToastStore();
+
+    let columnNameNode: HTMLSpanElement | undefined = $state();
 
     draggableActivities.update(columnId);
 
@@ -66,9 +69,23 @@
         draggableActivities.update(columnId);
     }
 
-    function handleNameClick() {
+    async function handleNameClick() {
         if (appState.currentEditable) return;
         appState.currentEditable = { id: columnId, field: ActiveField.ColumnName, oldName: column.name };
+        await tick();
+
+        if (columnNameNode) {
+            // Focuses on the column name and moves cursor to the end
+            columnNameNode?.focus();
+            const range = document.createRange();
+            const selection = window.getSelection();
+    
+            range.selectNodeContents(columnNameNode);
+            range.collapse(false);
+    
+            selection?.removeAllRanges();
+            selection?.addRange(range);
+        }
     }
 
     async function removeColumn() {
@@ -197,6 +214,7 @@
                 contenteditable="true"
                 class="block text-sm font-semibold"
                 bind:innerText={column.name}
+                bind:this={columnNameNode}
                 onkeypress={async (e) => {
                     if (e.key === "Enter") {
                         await handleRenameColumn();
@@ -233,7 +251,7 @@
         {:else}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <span contenteditable="false" onclick={handleNameClick} class="block text-sm font-semibold"
+            <span contenteditable="false" onclick={handleNameClick} class="block text-sm font-semibold" bind:this={columnNameNode}
                 >{column.name}</span
             >
 
