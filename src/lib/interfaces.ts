@@ -26,6 +26,7 @@ export interface Category {
 export interface Editable {
     id: number;
     field: ActiveField;
+    oldName: string;
 }
 
 export enum ActiveField {

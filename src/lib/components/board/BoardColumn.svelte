@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run } from "svelte/legacy";
-
     import { invoke } from "@tauri-apps/api/core";
     import ActivityCard from "./ActivityCard.svelte";
     import { TRIGGERS, dndzone } from "svelte-dnd-action";
@@ -29,15 +27,6 @@
     const modalStore = getModalStore();
 
     draggableActivities.update(columnId);
-
-    if (+columnId) {
-        run(() => {
-            // WARNING! Updates every key stroke
-            invoke("rename_column", {
-                data: { id: columnId, newName: column.name },
-            });
-        });
-    }
 
     async function createActivity() {
         const name = "New activity";
@@ -75,7 +64,8 @@
     }
 
     function handleNameClick() {
-        appState.currentEditable = { id: columnId, field: ActiveField.ColumnName };
+        if (appState.currentEditable) return;
+        appState.currentEditable = { id: columnId, field: ActiveField.ColumnName, oldName: column.name };
     }
 
     async function removeColumn() {
@@ -108,6 +98,17 @@
         delete columnsRune[columnId];
         draggableColumns.update();
         draggableOtherActivities.update();
+    }
+
+    async function handleRenameColumn() {
+        await renameColumn();
+        appState.currentEditable = null;
+    }
+
+    async function renameColumn() {
+        invoke("rename_column", {
+            data: { id: columnId, newName: column.name },
+        });
     }
 
     function handleConsider(
@@ -185,38 +186,78 @@
     <!-- svelte-ignore a11y_consider_explicit_label -->
     <div class="flex items-center flex-shrink-0 h-10 px-2">
         {#if appState.currentEditable !== null && appState.currentEditable.id === columnId && appState.currentEditable.field === ActiveField.ColumnName}
-            <span contenteditable="true" class="block text-sm font-semibold" bind:innerText={column.name}></span>
+            <span
+                contenteditable="true"
+                class="block text-sm font-semibold"
+                bind:innerText={column.name}
+                onkeypress={async (e) => {
+                    if (e.key === "Enter") {
+                        await handleRenameColumn();
+                    }
+                }}
+            ></span>
+            <button
+                class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
+                onclick={async () => {
+                    await handleRenameColumn();
+                }}
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
+                    <path
+                        d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"
+                    />
+                </svg>
+            </button>
+            <!-- svelte-ignore a11y_consider_explicit_label -->
+            <button
+                class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
+                onclick={() => {
+                    if (appState.currentEditable) column.name = appState.currentEditable.oldName;
+                    appState.currentEditable = null;
+                }}
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 384 512">
+                    <path
+                        d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"
+                    />
+                </svg>
+            </button>
         {:else}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <span contenteditable="false" onclick={handleNameClick} class="block text-sm font-semibold"
                 >{column.name}</span
             >
-        {/if}
 
-        <span
-            class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30"
-            >{column.activities.length}</span
-        >
-        <!-- svelte-ignore a11y_consider_explicit_label -->
-        <button
-            onclick={showRemoveModal}
-            class="flex items-center justify-center w-6 h-6 ml-auto rounded hover:bg-error-hover-token"
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
-                <path
-                    d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0H284.2c12.1 0 23.2 6.8 28.6 17.7L320 32h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 96 0 81.7 0 64S14.3 32 32 32h96l7.2-14.3zM32 128H416V448c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V128zm96 64c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16z"
-                /></svg
+            <span
+                class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30"
+                >{column.activities.length}</span
             >
-        </button>
-        <button
-            onclick={createActivity}
-            class="flex items-center justify-center w-6 h-6 ml-auto text-indigo-500 rounded hover:bg-indigo-500 hover:text-indigo-100"
-        >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-        </button>
+            <!-- svelte-ignore a11y_consider_explicit_label -->
+            <button
+                onclick={showRemoveModal}
+                class="flex items-center justify-center w-6 h-6 ml-auto rounded hover:bg-error-hover-token"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
+                    <path
+                        d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0H284.2c12.1 0 23.2 6.8 28.6 17.7L320 32h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 96 0 81.7 0 64S14.3 32 32 32h96l7.2-14.3zM32 128H416V448c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V128zm96 64c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16z"
+                    /></svg
+                >
+            </button>
+            <button
+                onclick={createActivity}
+                class="flex items-center justify-center w-6 h-6 ml-auto text-indigo-500 rounded hover:bg-indigo-500 hover:text-indigo-100"
+            >
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                </svg>
+            </button>
+        {/if}
     </div>
     <div class="h-[70vh]">
         <section

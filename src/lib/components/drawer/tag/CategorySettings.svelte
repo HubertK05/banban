@@ -1,6 +1,12 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
-    import { getModalStore, ListBox, ListBoxItem, type ModalComponent, type ModalSettings } from "@skeletonlabs/skeleton";
+    import {
+        getModalStore,
+        ListBox,
+        ListBoxItem,
+        type ModalComponent,
+        type ModalSettings,
+    } from "@skeletonlabs/skeleton";
     import TagSettings from "./TagSettings.svelte";
     import { dndzone } from "svelte-dnd-action";
     import {
@@ -68,7 +74,6 @@
         };
         modalStore.trigger(modal);
     }
-
 
     async function createTag(tagName: string, categoryId: number | null) {
         const res: {
