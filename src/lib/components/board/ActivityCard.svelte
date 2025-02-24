@@ -88,8 +88,8 @@
 >
     <DebugLabel text={"ord: " + activity.ordinal} />
     {#if columnId}
-        <!-- svelte-ignore a11y_consider_explicit_label -->
         <button
+            aria-label="Open activity settings"
             onclick={showDrawer}
             class="absolute top-0 right-5 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"
         >
@@ -105,8 +105,8 @@
             </svg>
         </button>
     {/if}
-    <!-- svelte-ignore a11y_consider_explicit_label -->
     <button
+        aria-label="Delete activity"
         onclick={showRemoveModal}
         class="absolute top-0 right-0 items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex"
     >

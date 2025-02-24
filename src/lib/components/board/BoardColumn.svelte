@@ -79,10 +79,10 @@
             columnNameNode?.focus();
             const range = document.createRange();
             const selection = window.getSelection();
-    
+
             range.selectNodeContents(columnNameNode);
             range.collapse(false);
-    
+
             selection?.removeAllRanges();
             selection?.addRange(range);
         }
@@ -203,14 +203,14 @@
     }
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="flex flex-col flex-shrink-0 w-72">
     <DebugLabel text={`ID ${columnId}`} />
     <DebugLabel text={`ORD ${column.ord}`} />
-    <!-- svelte-ignore a11y_consider_explicit_label -->
     <div class="flex items-center flex-shrink-0 h-10 px-2">
         {#if appState.currentEditable !== null && appState.currentEditable.id === columnId && appState.currentEditable.field === ActiveField.ColumnName}
             <span
+                role="textbox"
+                tabindex="0"
                 contenteditable="true"
                 class="block text-sm font-semibold"
                 bind:innerText={column.name}
@@ -223,6 +223,7 @@
                 }}
             ></span>
             <button
+                aria-label="Confirm renaming column"
                 class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
                 onclick={async () => {
                     await handleRenameColumn();
@@ -234,8 +235,8 @@
                     />
                 </svg>
             </button>
-            <!-- svelte-ignore a11y_consider_explicit_label -->
             <button
+                aria-label="Cancel renaming column"
                 class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
                 onclick={() => {
                     if (appState.currentEditable) column.name = appState.currentEditable.oldName;
@@ -249,18 +250,15 @@
                 </svg>
             </button>
         {:else}
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <span contenteditable="false" onclick={handleNameClick} class="block text-sm font-semibold" bind:this={columnNameNode}
-                >{column.name}</span
+            <button contenteditable="false" onclick={handleNameClick} class="block text-sm font-semibold"
+                >{column.name}</button
             >
-
             <span
                 class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30"
                 >{column.activities.length}</span
             >
-            <!-- svelte-ignore a11y_consider_explicit_label -->
             <button
+                aria-label="Delete column"
                 onclick={showRemoveModal}
                 class="flex items-center justify-center w-6 h-6 ml-auto rounded hover:bg-error-hover-token"
             >
@@ -271,6 +269,7 @@
                 >
             </button>
             <button
+                aria-label="Create activity"
                 onclick={createActivity}
                 class="flex items-center justify-center w-6 h-6 ml-auto text-indigo-500 rounded hover:bg-indigo-500 hover:text-indigo-100"
             >

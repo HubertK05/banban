@@ -91,7 +91,6 @@
         >
             {#each draggableColumns.inner as { id, columnId, column } (id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
-                    <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div use:dragHandle class="bg-gray-200 bg-opacity-30 rounded h-6 flex align-center">
                         <svg
                             class="block m-auto opacity-20"

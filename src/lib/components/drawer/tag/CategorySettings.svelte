@@ -212,8 +212,8 @@
                 }}
             />
             <div class="flex flex-row">
-                <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
+                    aria-label="Confirm renaming category"
                     class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
                     onclick={async () => {
                         await handleRenameCategory(+categoryId);
@@ -225,8 +225,8 @@
                         />
                     </svg>
                 </button>
-                <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
+                    aria-label="Cancel renaming category"
                     class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
                     onclick={() => {
                         editableCategory = { id: null };
@@ -242,8 +242,8 @@
         {:else}
             <span class="self-center">{category.name}</span>
             <div class="flex flex-row">
-                <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
+                    aria-label="Rename category {category.name}"
                     class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
                     onclick={() => {
                         editableCategory = { id: +categoryId, name: category.name };
@@ -255,8 +255,8 @@
                         />
                     </svg>
                 </button>
-                <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
+                    aria-label="Remove category {category.name}"
                     class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
                     onclick={() => {
                         showRemoveModal(+categoryId);

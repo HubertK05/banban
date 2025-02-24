@@ -100,7 +100,12 @@
         </div>
 
         <div class="flex max-h-fit align-center justify-center self-center">
-            <button class="btn btn-sm variant-filled self-center m-1" onclick={async () => { handleRenameTag() }}>Rename</button>
+            <button
+                class="btn btn-sm variant-filled self-center m-1"
+                onclick={async () => {
+                    handleRenameTag();
+                }}>Rename</button
+            >
             <input
                 class="input w-24 indent-2 self-center p-1 m-1"
                 bind:value={inputTagName}
