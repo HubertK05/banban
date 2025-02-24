@@ -119,7 +119,7 @@
 
     <button
         onclick={showDrawer}
-        class="flex items-center h-6 px-3 text-lg font-semibold rounded-full outline-none variant-soft-tertiary hover:underline"
+        class="flex items-center min-h-6 px-3 text-lg font-semibold rounded-lg outline-none variant-soft-tertiary hover:underline"
     >
         {activity.name}
     </button>
