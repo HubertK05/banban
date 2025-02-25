@@ -50,8 +50,14 @@ pub fn get_database_pool(app: &App) -> DatabaseConnection {
     tauri::async_runtime::block_on(async {
         let app_data_dir = app
             .path()
-            .resolve(".", tauri::path::BaseDirectory::Resource)
+            .resolve(".", tauri::path::BaseDirectory::AppData)
             .unwrap();
+
+        // Tauri path resolver returns the UNC path on Windows, starting with "\\?\".
+        // This path format is generally not supported.
+        // See issue https://github.com/tauri-apps/tauri/issues/5850.
+        let app_data_dir = dunce::simplified(&app_data_dir);
+
         trace!("App data dir: {app_data_dir:?}");
         std::fs::create_dir_all(&app_data_dir).unwrap();
         let url = format!(

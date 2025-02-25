@@ -30,6 +30,7 @@ tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 sqlx = "0.8.2"
 tauri-plugin-shell = "2"
+dunce = "1.0.5"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
