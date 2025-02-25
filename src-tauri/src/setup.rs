@@ -2,8 +2,10 @@ use sea_orm::{DatabaseConnection, SqlxSqliteConnector};
 use sqlx::migrate::Migrator;
 use sqlx::SqlitePool;
 #[cfg(not(dev))]
-use tauri::api::path::app_data_dir;
-use tauri::Config;
+use tauri::path::PathResolver;
+use tauri::App;
+#[cfg(not(dev))]
+use tauri::Manager;
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::{fmt, EnvFilter};
 
@@ -27,7 +29,7 @@ pub fn tracing() {
 static MIGRATOR: Migrator = sqlx::migrate!("../migrations");
 
 #[cfg(dev)]
-pub fn get_database_pool(config: &Config) -> DatabaseConnection {
+pub fn get_database_pool(_app: &App) -> DatabaseConnection {
     trace!("Connecting to developer database");
     tauri::async_runtime::block_on(async {
         let pool = SqlitePool::connect("sqlite:../database.sqlite3?mode=rwc")
@@ -44,9 +46,12 @@ pub fn get_database_pool(config: &Config) -> DatabaseConnection {
 }
 
 #[cfg(not(dev))]
-pub fn get_database_pool(config: &Config) -> DatabaseConnection {
+pub fn get_database_pool(app: &App) -> DatabaseConnection {
     tauri::async_runtime::block_on(async {
-        let app_data_dir = app_data_dir(config).unwrap();
+        let app_data_dir = app
+            .path()
+            .resolve(".", tauri::path::BaseDirectory::Resource)
+            .unwrap();
         trace!("App data dir: {app_data_dir:?}");
         std::fs::create_dir_all(&app_data_dir).unwrap();
         let url = format!(

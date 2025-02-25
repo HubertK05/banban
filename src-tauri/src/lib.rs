@@ -20,7 +20,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
-            app.manage(setup::get_database_pool(&app.config()));
+            app.manage(setup::get_database_pool(&app));
             info!("Spinning up banban");
             Ok(())
         })
