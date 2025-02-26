@@ -10,13 +10,12 @@ use crate::{
 };
 use anyhow::Context;
 use entity::{
-    categories::{self, Entity as Category, Model},
+    categories::{self, Entity as Category},
     category_tags::Entity as CategoryTag,
 };
 use sea_orm::{
     sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, DbErr,
-    EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, QueryOrder, Set, TransactionTrait,
-    Value,
+    EntityTrait, IntoActiveModel, PaginatorTrait, QueryFilter, Set, TransactionTrait, Value,
 };
 
 pub struct Query;

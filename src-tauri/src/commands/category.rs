@@ -5,10 +5,7 @@ use sea_orm::DbConn;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
-use crate::{
-    database::category::{Mutation, Query},
-    errors::AppError,
-};
+use crate::{database::category::Mutation, errors::AppError};
 
 #[tauri::command]
 pub async fn create_category(

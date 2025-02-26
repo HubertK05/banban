@@ -3,11 +3,7 @@ use std::collections::HashMap;
 use anyhow::Context;
 use sea_orm::{sea_query::SimpleExpr, DbConn};
 
-use ::entity::{
-    activities,
-    activities::{Entity as Activity, Model},
-    activity_tags, categories, category_tags, columns,
-};
+use ::entity::{activities, activities::Entity as Activity, activity_tags, category_tags};
 use sea_orm::*;
 
 use crate::{

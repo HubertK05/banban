@@ -4,16 +4,16 @@ use crate::commands::fetch::OtherTagOutput;
 use crate::commands::tags::{UpdateTagColorInput, UpdateTagOrdinalInput};
 use crate::utils::coloring::{rgb_int_to_string, rgb_string_to_int, string_to_color};
 use crate::{
-    commands::tags::{AttachTagToCategoryInput, CreateTagInput, UpdateTagNameInput},
+    commands::tags::{CreateTagInput, UpdateTagNameInput},
     errors::AppError,
 };
 use anyhow::Context;
-use entity::category_tags::{self, Entity as CategoryTag, Model};
+use entity::category_tags::{self, Entity as CategoryTag};
 use sea_orm::{
     sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, ConnectionTrait, DbConn, EntityTrait,
     IntoActiveModel, PaginatorTrait, QueryFilter, Set, TransactionTrait, Value,
 };
-use sea_orm::{Condition, DbErr, QueryOrder};
+use sea_orm::{Condition, DbErr};
 
 pub struct Query;
 

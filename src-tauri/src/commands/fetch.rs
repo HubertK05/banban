@@ -1,15 +1,11 @@
 use std::collections::HashMap;
 
 use sea_orm::DbConn;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use tauri::State;
 
 use crate::{
-    database::{
-        activity, category,
-        columns::{self, Mutation},
-        tags,
-    },
+    database::{activity, category, columns, tags},
     errors::AppError,
 };
 

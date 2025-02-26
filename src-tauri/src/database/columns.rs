@@ -10,7 +10,7 @@ use crate::{
 use anyhow::Context;
 use entity::{
     activities,
-    columns::{self, Entity as Column, Model},
+    columns::{self, Entity as Column},
 };
 use sea_orm::{
     sea_query::SimpleExpr, ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DbConn,
