@@ -5,6 +5,6 @@ members = [
 ]
 
 [workspace.package]
-authors = ["you"]
+authors = ["HubertK05 <hubert.klimowicz.hk@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/HubertK05/banban"

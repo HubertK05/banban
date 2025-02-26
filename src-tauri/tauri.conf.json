@@ -18,7 +18,7 @@
   },
   "productName": "banban",
   "mainBinaryName": "banban",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "identifier": "com.banban.dev",
   "plugins": {},
   "app": {
