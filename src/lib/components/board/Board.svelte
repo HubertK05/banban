@@ -137,7 +137,9 @@
         </section>
         <div class="flex flex-row space-x-6">
             <button onclick={createColumn} class="btn variant-ghost-tertiary h-96">+</button>
-            <DebugButton />
+            {#if import.meta.env.DEV}
+                <DebugButton />
+            {/if}
             <div class="flex-shrink-0 w-6"></div>
         </div>
     </div>
