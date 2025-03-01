@@ -23,7 +23,7 @@
     "@humanspeak/svelte-markdown": "^0.7.17",
     "@skeletonlabs/skeleton": "^2.11.0",
     "@skeletonlabs/tw-plugin": "^0.4.1",
-    "@sveltejs/vite-plugin-svelte": "^4.0.4",
+    "@sveltejs/vite-plugin-svelte": "5.0.3",
     "@tailwindcss/typography": "^0.5.16",
     "@tauri-apps/cli": "^2.2.7",
     "@tsconfig/svelte": "^5.0.4",
@@ -39,6 +39,6 @@
     "tailwindcss": "^3.4.17",
     "tslib": "^2.8.1",
     "typescript": "^5.7.3",
-    "vite": "^5.4.14"
+    "vite": "6.2.0"
   }
 }
