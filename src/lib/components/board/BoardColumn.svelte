@@ -224,7 +224,7 @@
             ></span>
             <button
                 aria-label="Confirm renaming column"
-                class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
+                class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-success-hover-token"
                 onclick={async () => {
                     await handleRenameColumn();
                 }}

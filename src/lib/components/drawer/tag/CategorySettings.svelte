@@ -203,7 +203,7 @@
     <div class="flex flex-row mt-2 place-content-between align-center p-1 rounded-md">
         {#if editableCategory.id === +categoryId}
             <input
-                class="input self-center"
+                class="input p-2 self-center"
                 bind:value={editableCategory.name}
                 onkeypress={async (e) => {
                     if (e.key === "Enter") {
@@ -214,7 +214,7 @@
             <div class="flex flex-row">
                 <button
                     aria-label="Confirm renaming category"
-                    class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
+                    class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-success-hover-token"
                     onclick={async () => {
                         await handleRenameCategory(+categoryId);
                     }}
@@ -244,7 +244,7 @@
             <div class="flex flex-row">
                 <button
                     aria-label="Rename category {category.name}"
-                    class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-error-hover-token"
+                    class="flex items-center justify-center w-10 h-10 ml-auto rounded hover:bg-warning-hover-token"
                     onclick={() => {
                         editableCategory = { id: +categoryId, name: category.name };
                     }}
