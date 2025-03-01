@@ -11,6 +11,9 @@ importers:
       '@floating-ui/dom':
         specifier: ^1.6.13
         version: 1.6.13
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^6.7.2
+        version: 6.7.2
       '@tauri-apps/api':
         specifier: ^2.2.0
         version: 2.2.0
@@ -20,6 +23,9 @@ importers:
       svelte-dnd-action:
         specifier: ^0.9.57
         version: 0.9.57(svelte@5.19.9)
+      svelte-fa:
+        specifier: ^4.0.3
+        version: 4.0.3(svelte@5.19.9)
     devDependencies:
       '@humanspeak/svelte-markdown':
         specifier: ^0.7.17
@@ -238,6 +244,14 @@ packages:
 
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
+
+  '@fortawesome/fontawesome-common-types@6.7.2':
+    resolution: {integrity: sha512-Zs+YeHUC5fkt7Mg1l6XTniei3k4bwG/yo3iFUtZWd/pMx9g3fdvkSK9E0FOC+++phXOka78uJcYb8JaFkW52Xg==}
+    engines: {node: '>=6'}
+
+  '@fortawesome/free-solid-svg-icons@6.7.2':
+    resolution: {integrity: sha512-GsBrnOzU8uj0LECDfD5zomZJIjrPhIlWU82AHwa2s40FKH+kcxQaBvBo3Z4TxyZHIyX8XTDxsyA33/Vx9eFuQA==}
+    engines: {node: '>=6'}
 
   '@humanspeak/svelte-markdown@0.7.17':
     resolution: {integrity: sha512-yhj1wIGDbLmrdWqupk0sBMQNM1iZ9EC+wNzQe0QjdfwJuUtxuHYYj+BHW89ZyHCXUlzKv/TfqS7Y7fW6WaNQ9g==}
@@ -1017,6 +1031,11 @@ packages:
     peerDependencies:
       svelte: '>=3.23.0 || ^5.0.0-next.0'
 
+  svelte-fa@4.0.3:
+    resolution: {integrity: sha512-saZ8yACM0k9Aexey+2NXU1W0MBosU5lBsRgqFCJKM+Taw7d0HyimPaPAjmvY/Xkyi3UwEYL/Sdu1IZJv/p0Flw==}
+    peerDependencies:
+      svelte: ^4.0.0 || ^5.0.0
+
   svelte-preprocess@6.0.3:
     resolution: {integrity: sha512-PLG2k05qHdhmRG7zR/dyo5qKvakhm8IJ+hD2eFRQmMLHp7X3eJnjeupUtvuRpbNiF31RjVw45W+abDwHEmP5OA==}
     engines: {node: '>= 18.0.0'}
@@ -1245,6 +1264,12 @@ snapshots:
       '@floating-ui/utils': 0.2.9
 
   '@floating-ui/utils@0.2.9': {}
+
+  '@fortawesome/fontawesome-common-types@6.7.2': {}
+
+  '@fortawesome/free-solid-svg-icons@6.7.2':
+    dependencies:
+      '@fortawesome/fontawesome-common-types': 6.7.2
 
   '@humanspeak/svelte-markdown@0.7.17(svelte@5.19.9)':
     dependencies:
@@ -1944,6 +1969,10 @@ snapshots:
       - picomatch
 
   svelte-dnd-action@0.9.57(svelte@5.19.9):
+    dependencies:
+      svelte: 5.19.9
+
+  svelte-fa@4.0.3(svelte@5.19.9):
     dependencies:
       svelte: 5.19.9
 
