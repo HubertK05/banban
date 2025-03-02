@@ -15,4 +15,4 @@
     }
 </script>
 
-<button aria-label="Go back" class="btn" onclick={goBack}><Fa icon={faArrowLeft} /></button>
+<button aria-label="Go back" class="btn hover:bg-success-hover-token" onclick={goBack}><Fa icon={faArrowLeft} /></button>

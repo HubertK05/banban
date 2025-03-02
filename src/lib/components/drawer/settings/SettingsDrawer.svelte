@@ -27,7 +27,9 @@
     }
 </script>
 
-<BackButton />
+<div class="mt-2 mb-6">
+    <BackButton />
+</div>
 <div class="flex flex-col">
     <CategorySettings />
     <input

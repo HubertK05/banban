@@ -146,8 +146,10 @@
     }
 </script>
 
-<BackButton />
-<SettingsButton />
+<div class="mt-2 mb-6">
+    <BackButton />
+    <SettingsButton />
+</div>
 <ActivityContent {activityId} />
 <h2 class="h2">Categories</h2>
 <ListBox>

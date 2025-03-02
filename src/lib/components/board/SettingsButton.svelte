@@ -13,6 +13,6 @@
     }
 </script>
 
-<button class="btn" onclick={openSettingsDrawer}>
+<button class="btn hover:bg-secondary-hover-token" onclick={openSettingsDrawer}>
     <Fa icon={faCog} />
 </button>
