@@ -146,7 +146,7 @@
     }
 </script>
 
-<div class="mt-2 mb-6">
+<div class="flex flex-row mt-2 mb-6">
     <BackButton />
     <SettingsButton />
 </div>
