@@ -3,6 +3,8 @@
     import { getToastStore } from "@skeletonlabs/skeleton";
     import { tick } from "svelte";
     import { activitiesRune, showToast } from "../../../shared.svelte";
+    import { faCheck, faPen, faXmark } from "@fortawesome/free-solid-svg-icons";
+    import Fa from "svelte-fa";
 
     interface Props {
         activityId: number;
@@ -74,13 +76,13 @@
             bind:this={inputNode}
             placeholder="New activity name"
         />
-        <button class="btn btn-sm variant-ghost-surface m-1" onclick={cancel}>Cancel</button>
-        <button class="btn btn-sm variant-ghost-success m-1" onclick={save}>Save</button>
+        <button class="flex items-center justify-center w-10 h-10 ml-auto hover:bg-success-hover-token m-1" onclick={save}><Fa icon={faCheck}/></button>
+        <button class="flex items-center justify-center w-10 h-10 ml-auto hover:bg-error-hover-token m-1" onclick={cancel}><Fa icon={faXmark}/></button>
     {:else}
         <div class="flex-1 p-2">
             <b>{displayName}</b>
         </div>
 
-        <button class="btn btn-sm variant-ghost-warning m-1" onclick={openEdit}>Edit</button>
+        <button class="btn btn-sm variant-filled m-1" onclick={openEdit}>Edit title<Fa icon={faPen} class="ml-2"/></button>
     {/if}
 </div>

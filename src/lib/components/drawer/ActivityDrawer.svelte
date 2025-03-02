@@ -15,6 +15,9 @@
         otherTagsRune,
     } from "../../shared.svelte";
     import type { Activity } from "../../interfaces";
+    import Fa from "svelte-fa";
+    import { faCircleDot, faSquareCheck } from "@fortawesome/free-solid-svg-icons";
+    import { faCircle, faSquare } from "@fortawesome/free-regular-svg-icons";
 
     interface Props {
         activityId: number;
@@ -183,13 +186,13 @@
                 <div class="w-20 flex align-center justify-center self-center">
                     {#if selectedActivity.tags.find((id) => id === tagId)}
                         <button
-                            class="btn btn-sm variant-ghost-secondary self-center"
-                            onclick={() => removeActivityTag(tagId)}>Remove</button
+                            class="btn btn-lg self-center"
+                            onclick={() => removeActivityTag(tagId)}><Fa icon={faCircleDot} scale="1.4x"/></button
                         >
                     {:else}
                         <button
-                            class="btn btn-sm variant-ghost-primary self-center"
-                            onclick={() => setActivityTag(tagId, tag.name)}>Choose</button
+                            class="btn btn-lg self-center"
+                            onclick={() => setActivityTag(tagId, tag.name)}><Fa icon={faCircle} scale="1.4x"/></button
                         >
                     {/if}
                 </div>
@@ -219,13 +222,13 @@
                 <div class="w-20 flex align-center justify-center self-center">
                     {#if selectedActivity.tags.find((id) => id === +tagId)}
                         <button
-                            class="btn btn-sm variant-ghost-secondary self-center"
-                            onclick={() => removeNonCategoryTag(+tagId)}>Remove</button
+                            class="btn btn-lg self-center"
+                            onclick={() => removeNonCategoryTag(+tagId)}><Fa icon={faSquareCheck} scale="1.4x"/></button
                         >
                     {:else}
                         <button
-                            class="btn btn-sm variant-ghost-primary self-center"
-                            onclick={() => addNonCategoryTag(+tagId, tag.name)}>Choose</button
+                            class="btn btn-lg self-center"
+                            onclick={() => addNonCategoryTag(+tagId, tag.name)}><Fa icon={faSquare} scale="1.4x"/></button
                         >
                     {/if}
                 </div>

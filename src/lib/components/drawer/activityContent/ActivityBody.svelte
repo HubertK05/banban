@@ -11,6 +11,8 @@
     } from "@skeletonlabs/skeleton";
     import { fly } from "svelte/transition";
     import { activitiesRune, showToast } from "../../../shared.svelte";
+    import { faCheck, faEraser, faEye, faPen, faPenToSquare, faXmark } from "@fortawesome/free-solid-svg-icons";
+    import Fa from "svelte-fa";
 
     const modalStore = getModalStore();
     const toastStore = getToastStore();
@@ -85,8 +87,8 @@
 
 {#if isEditMode}
     <TabGroup>
-        <Tab bind:group={tabSet} name="edit" value={0}>Edit</Tab>
-        <Tab bind:group={tabSet} name="preview" value={1}>Preview</Tab>
+        <Tab bind:group={tabSet} name="edit" value={0}><Fa icon={faPen}/></Tab>
+        <Tab bind:group={tabSet} name="preview" value={1}><Fa icon={faEye}/></Tab>
     </TabGroup>
     <div class="flex">
         {#if tabSet === 0}
@@ -106,19 +108,20 @@
 {/if}
 <div class="flex flex-row">
     {#if isEditMode}
-        <div class="flex flex-row">
-            <button class="btn btn-sm variant-ghost-success m-1" onclick={save}>Save</button>
-            <button class="btn btn-sm variant-ghost-surface m-1" onclick={cancel}>Cancel</button>
+        <div class="flex flex-row mb-6">
+            <button class="btn btn-lg hover:bg-success-hover-token m-1" onclick={save}><Fa icon={faCheck}/></button>
+            <button class="btn btn-lg hover:bg-error-hover-token m-1" onclick={cancel}><Fa icon={faXmark}/></button>
             {#if inputBody.length > 0}
-                <button class="btn btn-sm variant-ghost-error m-1" transition:fly onclick={clear}>Clear</button>
+                <button class="btn btn-lg hover:bg-warning-hover-token m-1" transition:fly onclick={clear}><Fa icon={faEraser}/></button>
             {/if}
+            <hr />
         </div>
     {:else if displayBody.length === 0}
-        <button class="btn btn-sm variant-ghost-warning m-1" onclick={openEdit}>Create body</button>
+        <button class="btn btn-sm variant-filled m-1" onclick={openEdit}>Create body <Fa icon={faPenToSquare} class="ml-2"/></button>
     {:else}
         <div class="flex-1 p-2 variant-outline rounded-md">
             <div class="prose"><SvelteMarkdown source={displayBody} /></div>
         </div>
-        <button class="btn btn-sm variant-ghost-warning m-1" onclick={openEdit}>Edit</button>
+        <button class="btn btn-sm hover:bg-warning-hover-token m-1" onclick={openEdit}>Edit body<Fa icon={faPen} class="ml-2"/></button>
     {/if}
 </div>

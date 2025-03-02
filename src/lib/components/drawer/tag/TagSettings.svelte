@@ -16,6 +16,8 @@
         showToast,
     } from "../../../shared.svelte";
     import { getToastStore } from "@skeletonlabs/skeleton";
+    import Fa from "svelte-fa";
+    import { faPen, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
     interface Props {
         tagId: number;
@@ -104,7 +106,7 @@
                 class="btn btn-sm variant-filled self-center m-1"
                 onclick={async () => {
                     handleRenameTag();
-                }}>Rename</button
+                }}>Rename<Fa icon={faPen} class="ml-2" /></button
             >
             <input
                 class="input w-24 indent-2 self-center p-1 m-1"
@@ -119,7 +121,7 @@
         </div>
 
         <div class="w-20 self-center">
-            <button class="btn btn-sm variant-filled self-center" onclick={removeTag}>Delete</button>
+            <button class="btn btn-sm variant-filled self-center" onclick={removeTag}>Delete<Fa icon={faTrashAlt} class="ml-2"/></button>
         </div>
     </div>
 </div>
