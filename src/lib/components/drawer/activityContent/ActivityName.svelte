@@ -76,8 +76,8 @@
             bind:this={inputNode}
             placeholder="New activity name"
         />
-        <button class="flex items-center justify-center w-10 h-12 ml-auto hover:bg-success-hover-token m-1" onclick={save}><Fa icon={faCheck}/></button>
-        <button class="flex items-center justify-center w-10 h-12 ml-auto hover:bg-error-hover-token m-1" onclick={cancel}><Fa icon={faXmark}/></button>
+        <button class="flex items-center justify-center w-10 h-10 ml-auto hover:bg-success-hover-token m-1" onclick={save}><Fa icon={faCheck}/></button>
+        <button class="flex items-center justify-center w-10 h-10 ml-auto hover:bg-error-hover-token m-1" onclick={cancel}><Fa icon={faXmark}/></button>
     {:else}
         <div class="flex-1 self-center p-2">
             <b>{displayName}</b>

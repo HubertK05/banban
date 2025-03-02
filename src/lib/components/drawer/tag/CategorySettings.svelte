@@ -213,7 +213,7 @@
     <div class="flex flex-row mt-2 place-content-between align-center p-1 rounded-md">
         {#if editableCategory.id === +categoryId}
             <input
-                class="input p-2 self-center"
+                class="input h-10 p-2 self-center"
                 bind:value={editableCategory.name}
                 onkeypress={async (e) => {
                     if (e.key === "Enter") {
