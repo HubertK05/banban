@@ -122,6 +122,6 @@
         <div class="flex-1 p-2 variant-outline rounded-md">
             <div class="prose"><SvelteMarkdown source={displayBody} /></div>
         </div>
-        <button class="btn btn-sm hover:bg-warning-hover-token m-1" onclick={openEdit}>Edit body<Fa icon={faPen} class="ml-2"/></button>
+        <button class="btn btn-sm variant-filled m-1" onclick={openEdit}>Edit body<Fa icon={faPen} class="ml-2"/></button>
     {/if}
 </div>
