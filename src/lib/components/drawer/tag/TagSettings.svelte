@@ -121,7 +121,9 @@
         </div>
 
         <div class="w-20 self-center">
-            <button class="btn btn-sm variant-filled self-center" onclick={removeTag}>Delete<Fa icon={faTrashAlt} class="ml-2"/></button>
+            <button class="btn btn-sm variant-filled self-center" onclick={removeTag}
+                >Delete<Fa icon={faTrashAlt} class="ml-2" /></button
+            >
         </div>
     </div>
 </div>

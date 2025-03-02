@@ -87,8 +87,8 @@
 
 {#if isEditMode}
     <TabGroup>
-        <Tab bind:group={tabSet} name="edit" value={0}><Fa icon={faPen}/></Tab>
-        <Tab bind:group={tabSet} name="preview" value={1}><Fa icon={faEye}/></Tab>
+        <Tab bind:group={tabSet} name="edit" value={0}><Fa icon={faPen} /></Tab>
+        <Tab bind:group={tabSet} name="preview" value={1}><Fa icon={faEye} /></Tab>
     </TabGroup>
     <div class="flex">
         {#if tabSet === 0}
@@ -109,19 +109,25 @@
 <div class="flex flex-row">
     {#if isEditMode}
         <div class="flex flex-row mb-6">
-            <button class="btn btn-lg hover:bg-success-hover-token m-1" onclick={save}><Fa icon={faCheck}/></button>
-            <button class="btn btn-lg hover:bg-error-hover-token m-1" onclick={cancel}><Fa icon={faXmark}/></button>
+            <button class="btn btn-lg hover:bg-success-hover-token m-1" onclick={save}><Fa icon={faCheck} /></button>
+            <button class="btn btn-lg hover:bg-error-hover-token m-1" onclick={cancel}><Fa icon={faXmark} /></button>
             {#if inputBody.length > 0}
-                <button class="btn btn-lg hover:bg-warning-hover-token m-1" transition:fly onclick={clear}><Fa icon={faEraser}/></button>
+                <button class="btn btn-lg hover:bg-warning-hover-token m-1" transition:fly onclick={clear}
+                    ><Fa icon={faEraser} /></button
+                >
             {/if}
             <hr />
         </div>
     {:else if displayBody.length === 0}
-        <button class="btn btn-sm variant-filled m-1" onclick={openEdit}>Create body <Fa icon={faPenToSquare} class="ml-2"/></button>
+        <button class="btn btn-sm variant-filled m-1" onclick={openEdit}
+            >Create body <Fa icon={faPenToSquare} class="ml-2" /></button
+        >
     {:else}
         <div class="flex-1 self-center p-2 variant-outline rounded-md">
             <div class="prose"><SvelteMarkdown source={displayBody} /></div>
         </div>
-        <button class="btn btn-sm variant-filled m-1 min-h-10 min-w-28" onclick={openEdit}>Edit body<Fa icon={faPen} class="ml-2"/></button>
+        <button class="btn btn-sm variant-filled m-1 min-h-10 min-w-28" onclick={openEdit}
+            >Edit body<Fa icon={faPen} class="ml-2" /></button
+        >
     {/if}
 </div>

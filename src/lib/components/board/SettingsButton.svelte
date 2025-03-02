@@ -13,6 +13,9 @@
     }
 </script>
 
-<button class="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-secondary-hover-token" onclick={openSettingsDrawer}>
+<button
+    class="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-secondary-hover-token"
+    onclick={openSettingsDrawer}
+>
     <Fa icon={faCog} />
 </button>

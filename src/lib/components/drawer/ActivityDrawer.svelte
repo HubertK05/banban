@@ -185,14 +185,12 @@
 
                 <div class="w-20 flex align-center justify-center self-center">
                     {#if selectedActivity.tags.find((id) => id === tagId)}
-                        <button
-                            class="btn btn-lg self-center"
-                            onclick={() => removeActivityTag(tagId)}><Fa icon={faCircleDot} scale="1.4x"/></button
+                        <button class="btn btn-lg self-center" onclick={() => removeActivityTag(tagId)}
+                            ><Fa icon={faCircleDot} scale="1.4x" /></button
                         >
                     {:else}
-                        <button
-                            class="btn btn-lg self-center"
-                            onclick={() => setActivityTag(tagId, tag.name)}><Fa icon={faCircle} scale="1.4x"/></button
+                        <button class="btn btn-lg self-center" onclick={() => setActivityTag(tagId, tag.name)}
+                            ><Fa icon={faCircle} scale="1.4x" /></button
                         >
                     {/if}
                 </div>
@@ -221,14 +219,12 @@
 
                 <div class="w-20 flex align-center justify-center self-center">
                     {#if selectedActivity.tags.find((id) => id === +tagId)}
-                        <button
-                            class="btn btn-lg self-center"
-                            onclick={() => removeNonCategoryTag(+tagId)}><Fa icon={faSquareCheck} scale="1.4x"/></button
+                        <button class="btn btn-lg self-center" onclick={() => removeNonCategoryTag(+tagId)}
+                            ><Fa icon={faSquareCheck} scale="1.4x" /></button
                         >
                     {:else}
-                        <button
-                            class="btn btn-lg self-center"
-                            onclick={() => addNonCategoryTag(+tagId, tag.name)}><Fa icon={faSquare} scale="1.4x"/></button
+                        <button class="btn btn-lg self-center" onclick={() => addNonCategoryTag(+tagId, tag.name)}
+                            ><Fa icon={faSquare} scale="1.4x" /></button
                         >
                     {/if}
                 </div>

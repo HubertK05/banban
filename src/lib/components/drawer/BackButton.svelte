@@ -15,4 +15,8 @@
     }
 </script>
 
-<button aria-label="Go back" class="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-success-hover-token" onclick={goBack}><Fa icon={faArrowLeft} /></button>
+<button
+    aria-label="Go back"
+    class="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-success-hover-token"
+    onclick={goBack}><Fa icon={faArrowLeft} /></button
+>
