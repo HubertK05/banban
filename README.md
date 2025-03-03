@@ -22,3 +22,21 @@ https://github.com/tauri-apps/awesome-tauri#productivity
 
 [1]: https://github.com/tauri-apps/awesome-tauri#productivity
 [Mentioned in Awesome Tauri]: https://awesome.re/mentioned-badge.svg
+
+## Development
+
+### Prerequisites
+
+Read and follow [Tauri prerequisities](https://tauri.app/start/prerequisites/). Install required system dependencies, [Rust](https://www.rust-lang.org/tools/install) and [Node.js LTS](https://nodejs.org/en).
+
+#### Install project dependencies
+
+```bash
+pnpm install
+```
+
+### Run
+
+```
+pnpm tauri dev
+```
