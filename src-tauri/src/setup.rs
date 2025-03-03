@@ -63,9 +63,6 @@ pub fn get_database_pool(app: &App) -> DatabaseConnection {
         let file_path = app_data_dir.join(DATABASE_FILE_NAME);
         trace!("App data dir: {app_data_dir:?}, database file path: {file_path:?}");
 
-        if !std::fs::exists(&file_path).unwrap() {
-            std::fs::create_dir_all(&file_path).expect("failed to create database file file");
-        }
         let url = format!(
             "sqlite:{}",
             app_data_dir
