@@ -38,4 +38,4 @@ dunce = "1.0.5"
 custom-protocol = ["tauri/custom-protocol"]
 
 [dev-dependencies]
-tokio = { version = "1.43.0", features = ["rt", "test-util", "macros"] }
+tokio = { version = "1.43.1", features = ["rt", "test-util", "macros"] }
